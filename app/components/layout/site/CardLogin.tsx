@@ -23,6 +23,7 @@ export default function CardLogin() {
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 2,
+        width: '100%',
       }}
     >
       <Paper
@@ -32,23 +33,35 @@ export default function CardLogin() {
           flexDirection: 'column',
           justifyContent: 'start',
           alignItems: 'center',
-          width: '500px',
+          width: '100%',
+          maxWidth: '427px',
           height: 'auto',
           padding: '24px',
           borderRadius: '10px',
         }}
       >
-        <Typography
-          align='center'
-          style={{ color: '#32169b', fontWeight: 'bold', fontSize: '30px' }}
-          fontWeight='bold'
-          sx={{ marginBottom: '24px', fontFamily: 'MadaniArabic-ExtraBold' }}
+        <Box
+          sx={{
+            marginBottom: '48px',
+            marginTop: '24px',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
         >
-          Xura
-        </Typography>
+          <Image
+            src='/logoTSJ.svg'
+            alt='Logo'
+            width={250}
+            height={114}
+          />
+        </Box>
 
         <Box sx={{
-          width: '355px', gap: '32px', display: 'flex', flexDirection: 'column',
+          width: '100%',
+          maxWidth: '355px',
+          gap: '32px',
+          display: 'flex',
+          flexDirection: 'column',
         }}
         >
           <SliderLogin />
@@ -76,7 +89,6 @@ export default function CardLogin() {
                 <InputAdornment position='end'>
                   <IconButton onClick={togglePasswordVisibility} edge='end'>
                     {showPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
-                    {' '}
                   </IconButton>
                 </InputAdornment>
               ),
@@ -143,7 +155,7 @@ export default function CardLogin() {
                 width={24}
                 height={24}
               />
-                          )}
+            )}
             onClick={() => signIn('google')}
           >
             Google
