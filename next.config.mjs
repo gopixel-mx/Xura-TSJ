@@ -11,7 +11,7 @@ const nextConfig = {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://192.168.9.28:3001/api/:path*' // Proxy a tu backend
+                destination: 'http://192.168.8.164:3001/api/:path*' // Proxy del backend
             }
         ];
     }

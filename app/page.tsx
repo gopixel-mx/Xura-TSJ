@@ -1,11 +1,38 @@
-import CardLogin from "@/packages/components/CardLogin";
-//Admin, Docente, Aspirante, Alumno
-export default function LoginPage() {
-    return (
-        <div className="flex flex-col justify-center items-center">
-            <img className="w-[461px] h-[188px] mb-8 mt-3.5" src="/logoTSJ.svg" alt="logoTSJ" />
-            <CardLogin />
-        </div>
-    );
-}
+import { CardLogin } from '@/app/components/layout';
+import Image from 'next/image';
+import { Box } from '@mui/material';
 
+export default function LoginPage() {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '16px',
+        boxSizing: 'border-box',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          maxWidth: '100%',
+          gap: '20px',
+          width: '100%',
+        }}
+      >
+        <Image
+          src='/logoTSJ.svg'
+          alt='logoTSJ'
+          width={461}
+          height={188}
+          style={{ maxWidth: '100%', height: 'auto' }}
+        />
+        <CardLogin />
+      </Box>
+    </Box>
+  );
+}

@@ -1,29 +1,26 @@
-import { Mada } from "next/font/google"
-// import type { Metadata } from "next";
-import Navbar from "@/packages/components/Navbar";
+import React from 'react';
+import type { Metadata } from 'next';
+import { Navbar } from '@/app/components/layout';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Xura',
   description: 'Control Escolar Xura TSJ',
   keywords: ['login, tsj'],
-}
+};
 
-const mada = Mada({
-  weight: ["300", "500", "600"],
-  subsets: ["latin"],
-});
-
-export default function RootLayout({children}: {
-  children: React.ReactNode
+export default function RootLayout({ children }: {
+    children: React.ReactNode
 }) {
   const isAuthenticated = true;
   const userRole = 1;
   return (
-      <html lang="en">
-      <body className={mada.className}>
-      <Navbar isAuthenticated={isAuthenticated} rol={userRole} />
-      {children}
+    <html lang='en'>
+      <body>
+        <Navbar isAuthenticated={isAuthenticated} rol={userRole} />
+        <div style={{ paddingTop: '64px' }}>
+          {children}
+        </div>
       </body>
-      </html>
-  )
+    </html>
+  );
 }
