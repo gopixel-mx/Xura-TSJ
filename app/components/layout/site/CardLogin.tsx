@@ -22,7 +22,7 @@ export default function CardLogin() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 2,
+        margin: 0,
         width: '100%',
       }}
     >

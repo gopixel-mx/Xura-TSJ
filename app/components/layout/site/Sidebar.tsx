@@ -33,7 +33,7 @@ function Sidebar() {
         flexDirection: 'column',
         alignItems: isOpen ? 'flex-start' : 'center', // Alineación de íconos
         paddingTop: 8,
-        transition: 'width 0.3 ease-in-out', // Transición suave en el ancho
+        transition: 'width 0.3s ease-in-out', // Corregido, transición suave
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -46,67 +46,62 @@ function Sidebar() {
             alignItems: 'center',
             width: '100%',
             px: 2,
-            mt: 2, // Añadir espacio superior entre íconos
+            mt: 2,
             color: 'black',
           }}
         >
           <HomeIcon sx={{ cursor: 'pointer', mr: isOpen ? 2 : 0 }} />
-          {isOpen && <ListItemText primary='Home' />}
+          {isOpen && <ListItemText primary='Home' sx={{ textDecoration: 'none' }} />}
         </Box>
       </Link>
 
-      <Link href='/public' passHref>
+      <Link href='/' passHref>
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
             width: '100%',
             px: 2,
-            mt: 2, // Añadir espacio superior entre íconos
+            mt: 2,
             color: 'black',
           }}
         >
           <PersonIcon sx={{ cursor: 'pointer', mr: isOpen ? 2 : 0 }} />
           {isOpen && (
-          <ListItemText
-            sx={{
-              textDecoration: 'none',
-            }}
-            primary='Profile'
-          />
+            <ListItemText primary='Profile' sx={{ textDecoration: 'none' }} />
           )}
         </Box>
       </Link>
 
-      <Link href='/public' passHref>
+      <Link href='/' passHref>
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
             width: '100%',
             px: 2,
-            mt: 2, // Añadir espacio superior entre íconos
+            mt: 2,
             color: 'black',
           }}
         >
           <SettingsIcon sx={{ cursor: 'pointer', mr: isOpen ? 2 : 0 }} />
-          {isOpen && <ListItemText primary='Settings' />}
+          {isOpen && <ListItemText primary='Settings' sx={{ textDecoration: 'none' }} />}
         </Box>
       </Link>
 
-      <Link href='/public' passHref>
+      <Link href='/' passHref>
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
             width: '100%',
             px: 2,
-            mt: 2, // Añadir espacio superior entre íconos
+            mt: 2,
             color: 'black',
           }}
         >
           <LogoutIcon sx={{ cursor: 'pointer', mr: isOpen ? 2 : 0 }} />
-          {isOpen && <ListItemText primary='Logout' />}
+          {isOpen && <ListItemText primary='Logout' sx={{ textDecoration: 'none' }} />}
         </Box>
       </Link>
     </Box>
