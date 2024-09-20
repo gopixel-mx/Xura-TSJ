@@ -33,7 +33,6 @@ export default function DashboardPage() {
           display: 'flex',
           justifyContent: 'flex-end', // Mantiene FilterSelect a la izquierda
           width: '100%',
-          paddingRight: 18, // Ajuste del padding para alinear
         }}
       >
         <FilterSelect />

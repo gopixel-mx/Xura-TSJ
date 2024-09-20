@@ -36,7 +36,9 @@
       }
     ],
     "jsx-quotes": ["error", "prefer-single"],
-    "max-len": ["error", { "code": 100 }]
+    "max-len": ["error", { "code": 100 }],
+    "indent": ["error", 2, { "SwitchCase": 1 }], // Indentación con 2 espacios
+    "no-tabs": "error" // Prohíbe el uso de tabs
   },
   "settings": {
     "import/resolver": {
