@@ -18,7 +18,17 @@ const getMatriculaByNombre = async (nombre: string) => {
   }
 };
 
+const getMatriculaTotalUnidades = async () => {
+  try {
+    const { data } = await axios.get(`/api/matricula/real`);
+    return data;
+  } catch (error) {
+    throw new Error('Error al cargar los datos');
+  }
+};
+
 export {
   getMatricula,
   getMatriculaByNombre,
+  getMatriculaTotalUnidades,
 };

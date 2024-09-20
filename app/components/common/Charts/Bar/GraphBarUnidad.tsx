@@ -30,8 +30,7 @@ export default function GraphBarUnidad({ nameUnidad, width = 1350, height = 400 
     <Box sx={{ width, height, padding: 2 }}>
       <Paper elevation={3} sx={{ padding: 3 }}>
         <Typography variant='h6' component='h2' gutterBottom>
-          Carreras en la Unidad Académica
-          {nameUnidad}
+          { `Carreras en la Unidad Académica ${nameUnidad}` }
         </Typography>
 
         <BarChart

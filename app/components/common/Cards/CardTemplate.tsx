@@ -11,9 +11,6 @@ interface CardProps {
 export default function CardTemplate({
   title, description, image, width = 1500, height = 'auto',
 }: CardProps) {
-  // Calcular el height del GraphBarAll restando 70
-  // const chartHeight = typeof height === 'number' ? height - 70 : 300;
-
   return (
     <Box sx={{ maxWidth: width, height, padding: 2 }}>
       <Paper elevation={3} sx={{ padding: 2, height: '100%' }}>

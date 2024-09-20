@@ -1,17 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Box, Paper, Select, MenuItem, Typography, FormControl, InputLabel,
-} from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 
 export default function CardFilter() {
-  const [selectedOption, setSelectedOption] = useState('');
   const total = 100;
-
-  const handleChange = (event: any) => {
-    setSelectedOption(event.target.value);
-  };
 
   return (
     <Box
@@ -19,7 +11,7 @@ export default function CardFilter() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 3,
+        padding: 1,
         width: '100%',
       }}
     >
@@ -30,30 +22,18 @@ export default function CardFilter() {
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: 2,
-          width: '700px',
+          width: '230px',
+          height: '120px',
         }}
       >
-        <FormControl sx={{ width: '250px' }}>
-          <InputLabel id='demo-simple-select-label'>Filtros</InputLabel>
-          <Select
-            labelId='demo-simple-select-label'
-            id='demo-simple-select'
-            value={selectedOption}
-            label='Filtros'
-            onChange={handleChange}
-          >
-            <MenuItem value={1}>Fecha</MenuItem>
-            <MenuItem value={2}>Periodo</MenuItem>
-          </Select>
-        </FormControl>
         <Typography
           sx={{
             marginRight: 15,
-            fontSize: '1.2rem',
+            fontSize: '1.1rem',
             fontWeight: 'bold',
           }}
         >
-          Total alumnos TEC:
+          Total TEC:
           {total}
         </Typography>
       </Paper>
