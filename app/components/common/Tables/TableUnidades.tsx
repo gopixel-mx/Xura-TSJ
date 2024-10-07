@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { ColDef } from 'ag-grid-community';
 import { getMatriculaTotalUnidades } from '@/app/services/handlers/getMatricula';
+import TableTemplate from './TableTemplate';
 
 // Definir la interfaz para los datos de la tabla
 interface UnidadData {
@@ -13,7 +11,7 @@ interface UnidadData {
   cantidad: number;
 }
 
-export default function TableGrid() {
+export default function TableUnidades() {
   // Estado para los datos de la tabla
   const [rowData, setRowData] = useState<UnidadData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -34,7 +32,7 @@ export default function TableGrid() {
   }, []);
 
   // Definir las columnas para AG Grid
-  const [colDefs] = useState<ColDef[]>([
+  const colDefs: ColDef[] = [
     {
       headerName: '#',
       valueGetter: 'node.rowIndex + 1', // Calcula el índice de la fila + 1
@@ -47,28 +45,15 @@ export default function TableGrid() {
     {
       field: 'cantidad', headerName: 'Cantidad', sortable: true, filter: true,
     },
-  ]);
+  ];
 
-  // Renderizar un indicador de carga mientras se obtienen los datos
-  if (loading) {
-    return (
-      <div style={{
-        display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh',
-      }}
-      >
-        <div>Cargando datos...</div>
-      </div>
-    );
-  }
-
+  // Renderizar el componente TableTemplate
   return (
-    <div className='ag-theme-quartz' style={{ height: 500, width: '100%' }}>
-      <AgGridReact
-        rowData={rowData} // Asignar datos dinámicos
-        columnDefs={colDefs} // Asignar definiciones de columnas
-        pagination // Activar la paginación
-        paginationPageSize={10} // Número de filas por página
-      />
-    </div>
+    <TableTemplate
+      rowData={rowData} // Pasar los datos
+      colDefs={colDefs} // Pasar las definiciones de columnas
+      pageSize={10} // Número de filas por página
+      loading={loading} // Pasar el estado de carga
+    />
   );
 }

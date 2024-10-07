@@ -1,8 +1,17 @@
 import { Box, Typography } from '@mui/material';
-import { GraphBarAll, CardFilter, FilterSelect } from '@/app/components/common';
-import { TableUA, TableGrid } from '@/app/components/common/Tables';
+import { GraphBarAll, FilterSelect, CardTemplate } from '@/app/components/common';
+import { TableGrid } from '@/app/components/common/Tables';
 
-export default function DashboardPage() {
+const matriculaTotal = async () => {
+  const data = await fetch('http://192.168.8.164:3001/api/matricula/total')
+    .then((res) => res.json());
+  return data;
+};
+
+export default async function DashboardPage() {
+  const totalData = await matriculaTotal();
+  const total = totalData[0]; // Accede al primer objeto del arreglo
+
   return (
     <Box
       sx={{
@@ -14,20 +23,21 @@ export default function DashboardPage() {
         padding: 1,
       }}
     >
+      {/* Título de la página */}
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'flex-start',
           width: '100%',
           paddingLeft: 18,
+          marginTop: 2,
           marginBottom: 2,
         }}
       >
-        <Typography variant='h5'>
-          Matrícula Febrero 2024
-        </Typography>
+        <Typography variant='h5'>Matrícula Febrero 2024</Typography>
       </Box>
-      {/* Mantén el FilterSelect a la izquierda */}
+
+      {/* Mantén el FilterSelect a la derecha */}
       <Box
         sx={{
           display: 'flex',
@@ -38,7 +48,7 @@ export default function DashboardPage() {
         <FilterSelect />
       </Box>
 
-      {/* Contenedor para alinear los 4 CardFilter */}
+      {/* Contenedor para mostrar el CardTemplate y alinear los 4 CardFilter */}
       <Box
         sx={{
           display: 'grid',
@@ -46,14 +56,17 @@ export default function DashboardPage() {
           gridTemplateRows: 'auto',
           gap: 2,
           justifyContent: 'center', // Centra los CardFilter en la fila
-          paddingTop: 2,
-          width: '100%',
+          paddingTop: 1,
+          width: '80%',
         }}
       >
-        <CardFilter />
-        <CardFilter />
-        <CardFilter />
-        <CardFilter />
+        <CardTemplate
+          title='Matrícula'
+          description={`Total: ${total?.estudiantes || 0}`}
+        />
+        <CardTemplate title='Género' description='Más detalles' />
+        <CardTemplate title='Modalidad' description='Más detalles' />
+        <CardTemplate title='Estatus' description='Más detalles' />
       </Box>
 
       {/* Contenedor para los gráficos */}
@@ -67,24 +80,9 @@ export default function DashboardPage() {
           paddingLeft: 8,
         }}
       >
-        <GraphBarAll
-          title='Clase A'
-          clase='d'
-          width={450}
-          height={300}
-        />
-        <GraphBarAll
-          title='Clase B'
-          clase='c'
-          width={450}
-          height={300}
-        />
-        <GraphBarAll
-          title='Clase C'
-          clase='b'
-          width={450}
-          height={300}
-        />
+        <GraphBarAll title='Clase A' clase='d' />
+        <GraphBarAll title='Clase B' clase='c' />
+        <GraphBarAll title='Clase C' clase='b' />
 
         <Box
           sx={{
@@ -96,30 +94,19 @@ export default function DashboardPage() {
           }}
         >
           <Box gridColumn='span 1'>
-            <GraphBarAll
-              title='Clase D'
-              clase='a'
-              width={650}
-              height={300}
-            />
+            <GraphBarAll title='Clase D' clase='a' />
           </Box>
           <Box gridColumn='span 1'>
-            <GraphBarAll
-              title='Clase E'
-              clase='e'
-              width={710}
-              height={300}
-            />
+            <GraphBarAll title='Clase E' clase='e' />
           </Box>
         </Box>
         <Box
           sx={{
             marginTop: 4,
-            width: '120%',
+            width: '110%',
             paddingLeft: 2,
           }}
         >
-          <TableUA />
           <TableGrid />
         </Box>
       </Box>

@@ -8,16 +8,14 @@ import { unidadesAcademicas } from '@/app/mocks/unidadesAcademicas';
 import { getMatricula } from '@/app/services/handlers/getMatricula';
 
 interface BarchartTemplateProps {
-    title: string;
-    description?: string;
-    image?: string;
-    width?: string | number;
-    height?: string | number;
-    clase: string;
+  title: string;
+  description?: string;
+  image?: string;
+  clase: string;
 }
 
 export default function GraphBarAll({
-  title, description, image, width = 1500, height = 'auto', clase,
+  title, description, image, clase,
 }: BarchartTemplateProps) {
   const [chartData, setChartData] = useState<
     { clave: string; nombre: string; cantidad: number }[]
@@ -45,17 +43,16 @@ export default function GraphBarAll({
 
   const colors = claves.map((clave) => getColorByClave(clave));
 
-  const chartHeight = typeof height === 'number' ? height - 70 : 300;
-  const dynamicWidth = Math.max(400, claves.length * 100);
-  const dynamicHeight = Math.max(300, claves.length * 50);
+  const chartWidth = Math.max(400, claves.length * 100);
+  const chartHeight = 300;
 
   const handleBarClick = (nombre: string) => {
     router.push(`/dashboard/unidad/${nombre}`);
   };
 
   return (
-    <Box sx={{ maxWidth: width, height, padding: 2 }}>
-      <Paper elevation={3} sx={{ padding: 2, height: '100%' }}>
+    <Box sx={{ maxWidth: '100%', padding: 2 }}>
+      <Paper elevation={3} sx={{ padding: 2, height: '100%', minHeight: chartHeight }}>
         {image && (
           <Box
             component='img'
@@ -94,8 +91,8 @@ export default function GraphBarAll({
             const nombre = names[dataIndex];
             handleBarClick(nombre);
           }}
-          width={dynamicWidth}
-          height={chartHeight || dynamicHeight}
+          width={chartWidth}
+          height={chartHeight}
           sx={{
             [`.${axisClasses.left} .${axisClasses.label}`]: {
               transform: 'translate(-20px, 0)',
@@ -110,6 +107,4 @@ export default function GraphBarAll({
 GraphBarAll.defaultProps = {
   description: '',
   image: '',
-  width: 1500,
-  height: 'auto',
 };

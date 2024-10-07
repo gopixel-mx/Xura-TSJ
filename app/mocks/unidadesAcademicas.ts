@@ -57,13 +57,16 @@ const unidadesAcademicas = [
     id: 28, clave: 'TM', nombre: 'TAMAZULA DE GORDIANO', color: '#32169B',
   },
   {
-    id: 29, clave: 'TP', nombre: 'TEPATITLÁN', color: '#EB2268',
+    id: 29, clave: 'TO', nombre: 'TOMATLÁN', color: '#32169B',
   },
   {
-    id: 30, clave: 'ZA', nombre: 'ZAPOPAN', color: '#32169B',
+    id: 30, clave: 'TP', nombre: 'TEPATITLÁN', color: '#EB2268',
   },
   {
-    id: 31, clave: 'ZP', nombre: 'ZAPOTLANEJO', color: '#F9F871',
+    id: 31, clave: 'ZA', nombre: 'ZAPOPAN', color: '#32169B',
+  },
+  {
+    id: 32, clave: 'ZP', nombre: 'ZAPOTLANEJO', color: '#F9F871',
   },
 ];
 
