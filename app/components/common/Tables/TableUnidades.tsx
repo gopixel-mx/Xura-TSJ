@@ -40,10 +40,18 @@ export default function TableUnidades() {
       pinned: 'left', // Fija la columna a la izquierda
     },
     {
-      field: 'nombre', headerName: 'Unidad Académica', sortable: true, filter: true,
+      field: 'nombre',
+      headerName: 'Unidad Académica',
+      sortable: true,
+      filter: true,
+      flex: 1,
     },
     {
-      field: 'cantidad', headerName: 'Cantidad', sortable: true, filter: true,
+      field: 'cantidad',
+      headerName: 'Cantidad',
+      sortable: true,
+      filter: true,
+      flex: 1,
     },
   ];
 
@@ -52,7 +60,7 @@ export default function TableUnidades() {
     <TableTemplate
       rowData={rowData} // Pasar los datos
       colDefs={colDefs} // Pasar las definiciones de columnas
-      pageSize={10} // Número de filas por página
+      pageSize={20} // Número de filas por página
       loading={loading} // Pasar el estado de carga
     />
   );

@@ -1,6 +1,6 @@
 import { Box, Paper, Typography } from '@mui/material';
 import { TableCredenciales } from '@/app/components/common/Tables';
-import BottomActionButtons from '@/app/components/common/Buttons/BottomActionButtons';
+import { BottomActionButtons } from '@/app/components/common/Buttons';
 
 export default function CredencialesPage() {
   return (

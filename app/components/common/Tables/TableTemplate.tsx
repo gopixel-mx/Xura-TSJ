@@ -18,7 +18,7 @@ interface TableTemplateProps {
 export default function TableTemplate({
   rowData,
   colDefs,
-  pageSize = 10,
+  pageSize = 20,
   loading = false,
   rowSelection = 'multiple',
   isRowSelectable,

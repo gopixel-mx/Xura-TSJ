@@ -8,11 +8,11 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 600,
+  width: 900, // Aumenta el ancho a 900px
   bgcolor: 'background.paper',
   borderRadius: 2,
   boxShadow: 24,
-  p: 4,
+  p: 6, // Aumenta el padding para que el contenido tenga más espacio
 };
 
 interface DefaultModalProps {
@@ -33,10 +33,18 @@ export default function DefaultModal({
       aria-describedby='modal-description'
     >
       <Box sx={style}>
-        <Typography id='modal-title' variant='h6' component='h2'>
+        <Typography
+          id='modal-title'
+          variant='h4'
+          component='h2'
+          sx={{
+            fontFamily: 'MadaniArabic-Light',
+          }}
+        >
           {title}
         </Typography>
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 6 }}>
+          {' '}
           {children}
         </Box>
       </Box>

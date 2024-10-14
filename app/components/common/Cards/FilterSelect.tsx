@@ -13,7 +13,7 @@ export default function FilterSelect() {
   };
 
   return (
-    <FormControl sx={{ width: '120px' }}>
+    <FormControl sx={{ width: '150px' }}>
       <InputLabel id='filter-select-label'>Filtros</InputLabel>
       <Select
         labelId='filter-select-label'

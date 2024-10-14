@@ -1,5 +1,13 @@
 import { Box, Typography } from '@mui/material';
-import { GraphBarAll, FilterSelect, CardTemplate } from '@/app/components/common';
+import {
+  BarChartOutlined,
+  WcOutlined,
+  SchoolOutlined,
+  LaptopMacOutlined,
+} from '@mui/icons-material';
+import {
+  GraphBarAll, FilterSelect, CardTemplate,
+} from '@/app/components/common';
 import { TableGrid } from '@/app/components/common/Tables';
 
 const matriculaTotal = async () => {
@@ -8,9 +16,36 @@ const matriculaTotal = async () => {
   return data;
 };
 
+const generoTotal = async () => {
+  const data = await fetch('http://192.168.8.164:3001/api/estudiantes/genero')
+    .then((res) => res.json());
+  return data;
+};
+
+const modalidadTotal = async () => {
+  const data = await fetch('http://192.168.8.164:3001/api/modalidades')
+    .then((res) => res.json());
+  return data;
+};
+
+const estatusTotal = async () => {
+  const data = await fetch('http://192.168.8.164:3001/api/matricula/estatus')
+    .then((res) => res.json());
+  return data;
+};
+
+// Función para capitalizar la primera letra de cada palabra
+const capitalizeWords = (str: string) => str
+  .toLowerCase()
+  .replace(/\b\w/g, (char) => char.toUpperCase());
+
 export default async function DashboardPage() {
   const totalData = await matriculaTotal();
-  const total = totalData[0]; // Accede al primer objeto del arreglo
+  const total = totalData[0];
+
+  const generoData = await generoTotal();
+  const modalidadData = await modalidadTotal();
+  const estatusData = await estatusTotal();
 
   return (
     <Box
@@ -19,7 +54,7 @@ export default async function DashboardPage() {
         flexDirection: 'column',
         alignItems: 'center',
         gap: 0,
-        width: '100%', // Asegura que el ancho se distribuya correctamente
+        width: '100%',
         padding: 1,
       }}
     >
@@ -27,46 +62,143 @@ export default async function DashboardPage() {
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'flex-start',
+          justifyContent: 'space-between',
           width: '100%',
-          paddingLeft: 18,
+          paddingLeft: 10,
           marginTop: 2,
           marginBottom: 2,
         }}
       >
-        <Typography variant='h5'>Matrícula Febrero 2024</Typography>
-      </Box>
-
-      {/* Mantén el FilterSelect a la derecha */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'flex-end', // Mantiene FilterSelect a la izquierda
-          width: '100%',
-        }}
-      >
-        <FilterSelect />
+        <Typography
+          variant='h4'
+          sx={{
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            maxWidth: '60%',
+            fontFamily: 'MadaniArabic-Regular',
+          }}
+        >
+          Matrícula Febrero 2024
+        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: '100%',
+          }}
+        >
+          <FilterSelect />
+        </Box>
       </Box>
 
       {/* Contenedor para mostrar el CardTemplate y alinear los 4 CardFilter */}
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)', // Alinea 4 CardFilter
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gridTemplateRows: 'auto',
           gap: 2,
-          justifyContent: 'center', // Centra los CardFilter en la fila
+          justifyContent: 'center',
           paddingTop: 1,
           width: '80%',
         }}
       >
         <CardTemplate
           title='Matrícula'
-          description={`Total: ${total?.estudiantes || 0}`}
+          description={(
+            <Typography variant='body1' sx={{ textTransform: 'none' }}>
+              <Box component='span' sx={{ fontWeight: 'bold' }}>
+                Total:
+              </Box>
+              {' '}
+              <Box component='span'>
+                {total?.estudiantes || 0}
+              </Box>
+            </Typography>
+          )}
+          icon={(
+            <BarChartOutlined
+              sx={{ color: 'green', fontSize: '3rem' }}
+            />
+          )}
         />
-        <CardTemplate title='Género' description='Más detalles' />
-        <CardTemplate title='Modalidad' description='Más detalles' />
-        <CardTemplate title='Estatus' description='Más detalles' />
+        <CardTemplate
+          title='Género'
+          description={(
+            <>
+              {generoData.map((genero: any) => (
+                <Typography
+                  key={genero.genero}
+                  variant='body1'
+                  sx={{ textTransform: 'none' }}
+                >
+                  <Box component='span' sx={{ fontWeight: 'bold' }}>
+                    {`${genero.genero === 'F' ? 'Femenino' : 'Masculino'}:`}
+                  </Box>
+                  {' '}
+                  <Box component='span'>
+                    {genero.cantidad}
+                  </Box>
+                </Typography>
+              ))}
+            </>
+          )}
+          icon={(
+            <WcOutlined
+              sx={{ color: 'blueviolet', fontSize: '3rem' }}
+            />
+          )}
+        />
+        <CardTemplate
+          title='Modalidad'
+          description={(
+            <>
+              {modalidadData.map((modalidad: any) => (
+                <Typography
+                  key={modalidad.modalidad}
+                  variant='body1'
+                  sx={{ textTransform: 'none' }}
+                >
+                  <Box component='span' sx={{ fontWeight: 'bold' }}>
+                    {`${capitalizeWords(modalidad.modalidad)}:`}
+                  </Box>
+                  {' '}
+                  {modalidad.cantidad}
+                </Typography>
+              ))}
+            </>
+          )}
+          icon={(
+            <LaptopMacOutlined
+              sx={{ color: 'deepskyblue', fontSize: '3rem' }}
+            />
+          )}
+        />
+        <CardTemplate
+          title='Estatus'
+          description={(
+            <>
+              {estatusData.map((estatus: any) => (
+                <Typography
+                  key={estatus.estatus}
+                  variant='body1'
+                  sx={{ textTransform: 'none' }}
+                >
+                  <Box component='span' sx={{ fontWeight: 'bold' }}>
+                    {`${estatus.estatus}:`}
+                  </Box>
+                  {' '}
+                  {estatus.cantidad}
+                </Typography>
+              ))}
+            </>
+          )}
+          icon={(
+            <SchoolOutlined
+              sx={{ color: 'orange', fontSize: '3rem' }}
+            />
+          )}
+        />
       </Box>
 
       {/* Contenedor para los gráficos */}
@@ -103,7 +235,7 @@ export default async function DashboardPage() {
         <Box
           sx={{
             marginTop: 4,
-            width: '110%',
+            width: '100%',
             paddingLeft: 2,
           }}
         >

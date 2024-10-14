@@ -26,6 +26,7 @@ interface ActionButtonProps {
   descargar?: boolean;
   eliminar?: boolean;
   selectedRowsCount: number;
+  onAgregar?: () => void;
 }
 
 export default function ActionButtons({
@@ -40,6 +41,7 @@ export default function ActionButtons({
   descargar,
   eliminar,
   selectedRowsCount,
+  onAgregar,
 }: ActionButtonProps) {
   const customButtonStyles = {
     borderRadius: '20px',
@@ -70,7 +72,7 @@ export default function ActionButtons({
             variant='outlined'
             startIcon={<Add />}
             sx={customButtonStyles}
-            onClick={() => handleAction('Agregar')}
+            onClick={onAgregar}
           >
             Agregar
           </Button>
@@ -207,4 +209,5 @@ ActionButtons.defaultProps = {
   subir: undefined,
   descargar: undefined,
   eliminar: undefined,
+  onAgregar: undefined,
 };
