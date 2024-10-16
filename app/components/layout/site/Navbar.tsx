@@ -15,7 +15,7 @@ export default function Navbar({ isAuthenticated, rol }: User) {
     <AppBar position='fixed' sx={{ backgroundColor, width: '100%' }}>
       <Toolbar sx={{ minHeight: 64 }}>
         <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-          Xura
+          Sistema de Admisiones
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           {

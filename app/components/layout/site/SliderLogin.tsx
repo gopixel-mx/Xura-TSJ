@@ -1,10 +1,25 @@
 'use client';
 
 import { Box, Button } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function SliderLogin() {
-  const [active, setActive] = useState<'ingresa' | 'registrate'>('ingresa');
+interface SliderLoginProps {
+  active: 'ingresa' | 'registrate';
+  // eslint-disable-next-line no-unused-vars
+  onChange: (value: 'ingresa' | 'registrate') => void;
+}
+
+export default function SliderLogin({ active, onChange }: SliderLoginProps) {
+  const [currentActive, setCurrentActive] = useState<'ingresa' | 'registrate'>(active);
+
+  useEffect(() => {
+    setCurrentActive(active);
+  }, [active]);
+
+  const handleToggle = (value: 'ingresa' | 'registrate') => {
+    setCurrentActive(value);
+    onChange(value);
+  };
 
   return (
     <Box
@@ -25,7 +40,7 @@ export default function SliderLogin() {
         sx={{
           position: 'absolute',
           top: '50%',
-          left: active === 'ingresa' ? '3px' : 'calc(50% + 3px)',
+          left: currentActive === 'ingresa' ? '3px' : 'calc(50% + 3px)',
           transform: 'translateY(-50%)',
           width: 'calc(50% - 6px)',
           height: '80%',
@@ -35,12 +50,12 @@ export default function SliderLogin() {
         }}
       />
       <Button
-        onClick={() => setActive('ingresa')}
+        onClick={() => handleToggle('ingresa')}
         sx={{
           position: 'relative',
           zIndex: 1,
           backgroundColor: 'transparent',
-          color: active === 'ingresa' ? 'black' : 'white',
+          color: currentActive === 'ingresa' ? 'black' : 'white',
           width: '50%',
           height: '100%',
           fontFamily: 'MadaniArabic-SemiBold',
@@ -56,12 +71,12 @@ export default function SliderLogin() {
         Ingresa
       </Button>
       <Button
-        onClick={() => setActive('registrate')}
+        onClick={() => handleToggle('registrate')}
         sx={{
           position: 'relative',
           zIndex: 1,
           backgroundColor: 'transparent',
-          color: active === 'registrate' ? 'black' : 'white',
+          color: currentActive === 'registrate' ? 'black' : 'white',
           width: '50%',
           height: '100%',
           fontFamily: 'MadaniArabic-SemiBold',

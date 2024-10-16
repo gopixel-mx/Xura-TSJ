@@ -6,7 +6,7 @@ import {
   LaptopMacOutlined,
 } from '@mui/icons-material';
 import {
-  GraphBarAll, FilterSelect, CardTemplate,
+  GraphBarAll, FilterSelect, CardTemplate, LineChartPeriods,
 } from '@/app/components/common';
 import { TableGrid } from '@/app/components/common/Tables';
 
@@ -234,12 +234,23 @@ export default async function DashboardPage() {
         </Box>
         <Box
           sx={{
+            display: 'grid',
+            gridTemplateColumns: '2fr 1fr',
+            gap: 2, // Añade un espacio entre ellos
             marginTop: 4,
             width: '100%',
             paddingLeft: 2,
           }}
         >
-          <TableGrid />
+          {/* TableGrid a la izquierda */}
+          <Box sx={{ paddingRight: 2 }}>
+            <TableGrid />
+          </Box>
+
+          {/* LineChartPeriods a la derecha */}
+          <Box sx={{ paddingLeft: 2 }}>
+            <LineChartPeriods />
+          </Box>
         </Box>
       </Box>
     </Box>

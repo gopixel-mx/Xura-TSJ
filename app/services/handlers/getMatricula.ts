@@ -48,7 +48,7 @@ const getMatriculaTotal = async () => {
 // getAplicaciones.ts
 const getAplicaciones = async () => {
   try {
-    const response = await axios.get('http://localhost:3001/api/aplicaciones'); // URL completa
+    const response = await axios.get('http://localhost:3001/aplicaciones'); // URL completa
     return response.data;
   } catch (error) {
     console.error('Error al obtener las aplicaciones:', error);
@@ -63,7 +63,7 @@ const insertAplicacion = async (
 ) => {
   try {
     const response = await axios.post(
-      'http://localhost:3001/api/aplicaciones',
+      'http://localhost:3001/aplicaciones',
       { clave, nombre, redireccion },
     );
     return response.data;
@@ -81,7 +81,7 @@ const insertAplicacion = async (
 
 const getGrupos = async () => {
   try {
-    const response = await axios.get('http://localhost:3001/api/grupos'); // URL completa
+    const response = await axios.get('http://localhost:3001/grupos'); // URL completa
     return response.data;
   } catch (error) {
     console.error('Error al obtener las aplicaciones:', error);
@@ -91,7 +91,7 @@ const getGrupos = async () => {
 
 const getCredenciales = async () => {
   try {
-    const response = await axios.get('http://localhost:3001/api/credenciales'); // URL completa
+    const response = await axios.get('http://localhost:3001/credenciales'); // URL completa
     return response.data;
   } catch (error) {
     console.error('Error al obtener las aplicaciones:', error);
@@ -100,9 +100,13 @@ const getCredenciales = async () => {
 };
 
 const getPeriodos = async () => {
-  const data = await fetch('http://192.168.8.164:3001/api/matricula/periodo')
-    .then((res) => res.json());
-  return data;
+  try {
+    const response = await axios.get('/api/matricula/periodo');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener las aplicaciones:', error);
+    return [];
+  }
 };
 
 export {
