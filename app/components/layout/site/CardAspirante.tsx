@@ -75,12 +75,38 @@ export default function CardAspirante({
   // Si la CURP no existe, mostrar el mensaje de que la persona no fue encontrada
   if (curpNotFound) {
     return (
-      <CardHome title='La persona no existe'>
+      <CardHome title='Revisa tus datos'>
         <Box sx={{ display: 'flex', justifyContent: 'center', padding: 3 }}>
-          <Typography variant='body1' sx={{ textAlign: 'center', color: '#ff4d63' }}>
+          <Typography
+            variant='body1'
+            sx={{
+              textAlign: 'center',
+              color: '#ff4d63',
+              whiteSpace: 'pre-line',
+              width: '100%',
+            }}
+          >
             No pudimos encontrar a la persona con esa CURP.
+            {'\n'}
+            O el servicio no está disponible.
           </Typography>
         </Box>
+        <Button
+          variant='contained'
+          color='primary'
+          fullWidth
+          onClick={handleCancel} // Llamada al callback vacío
+          sx={{
+            py: 2,
+            fontFamily: 'MadaniArabic-SemiBold',
+            textTransform: 'capitalize',
+            borderRadius: '10px',
+            backgroundColor: '#32169b',
+            '&:hover': { backgroundColor: '#14005E' },
+          }}
+        >
+          Regresar
+        </Button>
       </CardHome>
     );
   }

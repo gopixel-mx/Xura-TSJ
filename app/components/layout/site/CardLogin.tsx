@@ -27,6 +27,11 @@ export default function CardLogin() {
   const [password, setPassword] = useState('');
   const [isAspiranteMode, setIsAspiranteMode] = useState(false);
 
+  const [curpError, setCurpError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [celularError, setCelularError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
@@ -36,24 +41,76 @@ export default function CardLogin() {
     setActiveSlide(value);
   };
 
+  // Validaciones
+  const isValidEmail = (correo: string) => /\S+@\S+\.\S+/.test(correo);
+  const isValidCurp = (crp: string) => crp.length === 18;
+  const isValidCelular = (cel: string) => /^\d{10}$/.test(cel);
+  const isValidPassword = (passw: string) => {
+    return (
+      passw.length >= 8 &&
+      /[A-Z]/.test(passw) &&
+      /\d/.test(passw) &&
+      /[!@#$%^&*(),.?":{}|<>]/.test(passw)
+    );
+  };
+
   const handleRegister = () => {
-    if (curp && email && celular && password) {
+    let valid = true;
+
+    // Validar CURP
+    if (!isValidCurp(curp)) {
+      setCurpError('La CURP debe tener exactamente 18 caracteres.');
+      valid = false;
+    } else {
+      setCurpError('');
+    }
+
+    // Validar correo
+    if (!isValidEmail(email)) {
+      setEmailError('Ingrese un correo electrónico válido.');
+      valid = false;
+    } else {
+      setEmailError('');
+    }
+
+    // Validar celular
+    if (!isValidCelular(celular)) {
+      setCelularError('El número de celular debe tener 10 dígitos.');
+      valid = false;
+    } else {
+      setCelularError('');
+    }
+
+    // Validar contraseña
+    if (!isValidPassword(password)) {
+      setPasswordError(
+        `La contraseña debe tener al menos 8 caracteres, incluir una mayúscula,
+        un número y un carácter especial.`,
+      );
+      valid = false;
+    } else {
+      setPasswordError('');
+    }
+
+    if (valid) {
       setIsAspiranteMode(true);
     }
   };
+
   if (isAspiranteMode) {
     return <CardAspirante email={email} celular={celular} password={password} curp={curp} />;
   }
 
   return (
     <CardHome>
-      <Box sx={{
-        width: '100%',
-        maxWidth: '355px',
-        gap: '32px',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: '355px',
+          gap: '32px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
       >
         <SliderLogin active={activeSlide} onChange={handleSliderChange} />
 
@@ -125,14 +182,22 @@ export default function CardLogin() {
               Ingresar
             </Button>
 
-            <Box sx={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',
-            }}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+              }}
             >
               <Divider sx={{ flex: 1 }} />
-              <Typography sx={{
-                mx: 2, opacity: 0.7, whiteSpace: 'nowrap', fontFamily: 'MadaniArabic-Regular',
-              }}
+              <Typography
+                sx={{
+                  mx: 2,
+                  opacity: 0.7,
+                  whiteSpace: 'nowrap',
+                  fontFamily: 'MadaniArabic-Regular',
+                }}
               >
                 O Ingresa con
               </Typography>
@@ -157,6 +222,7 @@ export default function CardLogin() {
                   alt='Google'
                   width={24}
                   height={24}
+                  priority
                 />
               )}
               onClick={() => signIn('google')}
@@ -191,6 +257,8 @@ export default function CardLogin() {
               placeholder='CURP'
               value={curp}
               onChange={(e) => setCurp(e.target.value)}
+              error={Boolean(curpError)}
+              helperText={curpError}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -206,6 +274,8 @@ export default function CardLogin() {
               placeholder='Correo electrónico'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              error={Boolean(emailError)}
+              helperText={emailError}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -221,6 +291,8 @@ export default function CardLogin() {
               placeholder='Celular'
               value={celular}
               onChange={(e) => setCelular(e.target.value)}
+              error={Boolean(celularError)}
+              helperText={celularError}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -236,6 +308,8 @@ export default function CardLogin() {
               fullWidth
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              error={Boolean(passwordError)}
+              helperText={passwordError}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -269,7 +343,7 @@ export default function CardLogin() {
               variant='contained'
               color='primary'
               fullWidth
-              onClick={handleRegister} // Aquí ejecutamos la función de registro
+              onClick={handleRegister}
               sx={{
                 py: 2,
                 fontFamily: 'MadaniArabic-SemiBold',
