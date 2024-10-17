@@ -109,6 +109,52 @@ const getPeriodos = async () => {
   }
 };
 
+const insertCredencial = async (
+  curp: string,
+  correo: string,
+  celular: string,
+  contrasena: string,
+  tipo: string,
+) => {
+  try {
+    const response = await axios.post(
+      'http://localhost:3001/credenciales',
+      {
+        curp,
+        correo,
+        celular,
+        contrasena,
+        tipo,
+      },
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error('Error al insertar la aplicación:', error);
+
+    // Lanza el error en lugar de retornar un array vacío
+    if (error.response && error.response.data) {
+      throw error.response.data; // Lanzar el error para que el frontend lo capture
+    } else {
+      throw new Error('Error inesperado en la inserción de la aplicación');
+    }
+  }
+};
+
+const getCurp = async (curp: string) => {
+  try {
+    const response = await axios.get(`https://curp-mexico1.p.rapidapi.com/porCurp/${curp}`, {
+      headers: {
+        'x-rapidapi-key': '61592514cdmsh26ae047641644b2p15f5d7jsn5985d62cf856',
+        'x-rapidapi-host': 'curp-mexico1.p.rapidapi.com',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los datos de la CURP:', error);
+    return {};
+  }
+};
+
 export {
   getMatricula,
   getMatriculaByNombre,
@@ -119,4 +165,6 @@ export {
   getCredenciales,
   insertAplicacion,
   getPeriodos,
+  insertCredencial,
+  getCurp,
 };

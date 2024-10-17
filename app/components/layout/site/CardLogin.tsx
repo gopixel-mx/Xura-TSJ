@@ -15,11 +15,17 @@ import {
 } from '@mui/icons-material';
 import { CardHome } from '@/app/components/common/Cards';
 import SliderLogin from './SliderLogin';
+import CardAspirante from './CardAspirante';
 
 export default function CardLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [activeSlide, setActiveSlide] = useState<'ingresa' | 'registrate'>('ingresa');
+  const [curp, setCurp] = useState('');
+  const [email, setEmail] = useState('');
+  const [celular, setCelular] = useState('');
+  const [password, setPassword] = useState('');
+  const [isAspiranteMode, setIsAspiranteMode] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -29,6 +35,18 @@ export default function CardLogin() {
     setIsRegister(value === 'registrate');
     setActiveSlide(value);
   };
+
+  const handleRegister = () => {
+    // Aquí almacenamos los datos y activamos el modo para mostrar CardAspirante
+    if (curp && email && celular && password) {
+      setIsAspiranteMode(true);
+    }
+  };
+
+  // Si estamos en modo CardAspirante, renderizamos el componente CardAspirante
+  if (isAspiranteMode) {
+    return <CardAspirante email={email} celular={celular} password={password} curp={curp} />;
+  }
 
   return (
     <CardHome>
@@ -44,7 +62,6 @@ export default function CardLogin() {
 
         {!isRegister ? (
           <>
-            {/* Formulario de inicio de sesión */}
             <TextField
               label='Cuenta'
               variant='outlined'
@@ -170,12 +187,13 @@ export default function CardLogin() {
           </>
         ) : (
           <>
-            {/* Formulario de registro */}
             <TextField
               label='CURP'
               variant='outlined'
               fullWidth
               placeholder='CURP'
+              value={curp}
+              onChange={(e) => setCurp(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -189,6 +207,8 @@ export default function CardLogin() {
               variant='outlined'
               fullWidth
               placeholder='Correo electrónico'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -202,6 +222,8 @@ export default function CardLogin() {
               variant='outlined'
               fullWidth
               placeholder='Celular'
+              value={celular}
+              onChange={(e) => setCelular(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -215,6 +237,8 @@ export default function CardLogin() {
               variant='outlined'
               type={showPassword ? 'text' : 'password'}
               fullWidth
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -248,6 +272,7 @@ export default function CardLogin() {
               variant='contained'
               color='primary'
               fullWidth
+              onClick={handleRegister} // Aquí ejecutamos la función de registro
               sx={{
                 py: 2,
                 fontFamily: 'MadaniArabic-SemiBold',
