@@ -37,13 +37,10 @@ export default function CardLogin() {
   };
 
   const handleRegister = () => {
-    // Aquí almacenamos los datos y activamos el modo para mostrar CardAspirante
     if (curp && email && celular && password) {
       setIsAspiranteMode(true);
     }
   };
-
-  // Si estamos en modo CardAspirante, renderizamos el componente CardAspirante
   if (isAspiranteMode) {
     return <CardAspirante email={email} celular={celular} password={password} curp={curp} />;
   }
