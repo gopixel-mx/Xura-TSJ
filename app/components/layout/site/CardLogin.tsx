@@ -11,19 +11,25 @@ import CardAspirante from './CardAspirante';
 
 export default function CardLogin() {
   const [activeSlide, setActiveSlide] = useState<'ingresa' | 'registrate'>('ingresa');
-  const [curp, setCurp] = useState('');
-  const [email, setEmail] = useState('');
-  const [celular, setCelular] = useState('');
-  const [password, setPassword] = useState('');
+
+  const [userData, setUserData] = useState({
+    curp: '',
+    email: '',
+    celular: '',
+    password: '',
+  });
+
+  const [userErrors, setUserErrors] = useState({
+    curpError: '',
+    emailError: '',
+    celularError: '',
+    passwordError: '',
+  });
+
   const [isAspiranteMode, setIsAspiranteMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [nombreCompleto, setNombreCompleto] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
-
-  const [curpError, setCurpError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [celularError, setCelularError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
 
   const handleSliderChange = (value: 'ingresa' | 'registrate') => {
     setActiveSlide(value);
@@ -45,51 +51,50 @@ export default function CardLogin() {
 
   const handleRegister = async () => {
     let valid = true;
+    const errors = {
+      curpError: '', emailError: '', celularError: '', passwordError: '',
+    };
 
-    if (!isValidCurp(curp)) {
-      setCurpError('La CURP debe tener exactamente 18 caracteres.');
+    if (!isValidCurp(userData.curp)) {
+      errors.curpError = 'La CURP debe tener exactamente 18 caracteres.';
       valid = false;
-    } else {
-      setCurpError('');
     }
 
-    if (!isValidEmail(email)) {
-      setEmailError('Ingrese un correo electrónico válido.');
+    if (!isValidEmail(userData.email)) {
+      errors.emailError = 'Ingrese un correo electrónico válido.';
       valid = false;
-    } else {
-      setEmailError('');
     }
 
-    if (!isValidCelular(celular)) {
-      setCelularError('El número de celular debe tener 10 dígitos.');
+    if (!isValidCelular(userData.celular)) {
+      errors.celularError = 'El número de celular debe tener 10 dígitos.';
       valid = false;
-    } else {
-      setCelularError('');
     }
 
-    if (!isValidPassword(password)) {
-      setPasswordError(
-        `La contraseña debe tener al menos 8 caracteres,
-        incluir una mayúscula, un número y un carácter especial.`,
-      );
+    if (!isValidPassword(userData.password)) {
+      errors.passwordError = `La contraseña debe tener al menos 8 caracteres,
+        incluir una mayúscula, un número y un carácter especial.`;
       valid = false;
-    } else {
-      setPasswordError('');
     }
+
+    setUserErrors(errors);
 
     if (valid) {
       setLoading(true);
       try {
-        const response = await getCurp(curp);
+        const response = await getCurp(userData.curp);
         const { Nombre, ApellidoPaterno, ApellidoMaterno } = response.datos;
         if (response.estatus === 'ok' && response.datos) {
           setNombreCompleto(`${Nombre} ${ApellidoPaterno} ${ApellidoMaterno}`);
           setIsAspiranteMode(true);
         } else {
-          setCurpError('No se encontró a la persona con esa CURP.');
+          setUserErrors((prevErrors) => (
+            { ...prevErrors, curpError: 'No se encontró a la persona con esa CURP.' }
+          ));
         }
       } catch (error) {
-        setCurpError('Error al consultar la CURP.');
+        setUserErrors((prevErrors) => (
+          { ...prevErrors, curpError: 'Error al consultar la CURP.' }
+        ));
       } finally {
         setLoading(false);
       }
@@ -99,10 +104,10 @@ export default function CardLogin() {
   if (isAspiranteMode) {
     return (
       <CardAspirante
-        email={email}
-        celular={celular}
-        password={password}
-        curp={curp.toUpperCase()}
+        email={userData.email}
+        celular={userData.celular}
+        password={userData.password}
+        curp={userData.curp.toUpperCase()}
         nombreCompleto={nombreCompleto}
       />
     );
@@ -129,18 +134,9 @@ export default function CardLogin() {
             loading={loading}
             termsAccepted={termsAccepted}
             onCheckboxChange={handleCheckboxChange}
-            curp={curp}
-            setCurp={setCurp}
-            email={email}
-            setEmail={setEmail}
-            celular={celular}
-            setCelular={setCelular}
-            password={password}
-            setPassword={setPassword}
-            curpError={curpError}
-            emailError={emailError}
-            celularError={celularError}
-            passwordError={passwordError}
+            userData={userData}
+            setUserData={setUserData}
+            userErrors={userErrors}
           />
         )}
       </Box>

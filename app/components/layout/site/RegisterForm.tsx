@@ -3,11 +3,7 @@ import {
   Box, TextField, InputAdornment, IconButton, Button, Typography, Checkbox, Link, CircularProgress,
 } from '@mui/material';
 import {
-  PersonOutline,
-  MailOutline,
-  SmartphoneOutlined,
-  VisibilityOutlined,
-  VisibilityOffOutlined,
+  PersonOutline, MailOutline, SmartphoneOutlined, VisibilityOutlined, VisibilityOffOutlined,
 } from '@mui/icons-material';
 
 export default function RegisterForm({
@@ -15,36 +11,33 @@ export default function RegisterForm({
   loading,
   termsAccepted,
   onCheckboxChange,
-  curp,
-  setCurp,
-  email,
-  setEmail,
-  celular,
-  setCelular,
-  password,
-  setPassword,
-  curpError,
-  emailError,
-  celularError,
-  passwordError,
+  userData,
+  setUserData,
+  userErrors,
 }: {
   onRegister: () => void,
   loading: boolean,
   termsAccepted: boolean,
   // eslint-disable-next-line no-unused-vars
   onCheckboxChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
-  curp: string,
-  setCurp: React.Dispatch<React.SetStateAction<string>>,
-  email: string,
-  setEmail: React.Dispatch<React.SetStateAction<string>>,
-  celular: string,
-  setCelular: React.Dispatch<React.SetStateAction<string>>,
-  password: string,
-  setPassword: React.Dispatch<React.SetStateAction<string>>,
-  curpError: string,
-  emailError: string,
-  celularError: string,
-  passwordError: string,
+  userData: {
+    curp: string,
+    email: string,
+    celular: string,
+    password: string,
+  },
+  setUserData: React.Dispatch<React.SetStateAction<{
+    curp: string,
+    email: string,
+    celular: string,
+    password: string,
+  }>>,
+  userErrors: {
+    curpError: string,
+    emailError: string,
+    celularError: string,
+    passwordError: string,
+  },
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -59,10 +52,12 @@ export default function RegisterForm({
         variant='outlined'
         fullWidth
         placeholder='CURP'
-        value={curp}
-        onChange={(e) => setCurp(e.target.value.toUpperCase())}
-        error={Boolean(curpError)}
-        helperText={curpError}
+        value={userData.curp}
+        onChange={(e) => setUserData(
+          (prevData) => ({ ...prevData, curp: e.target.value.toUpperCase() }),
+        )}
+        error={Boolean(userErrors.curpError)}
+        helperText={userErrors.curpError}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -76,10 +71,10 @@ export default function RegisterForm({
         variant='outlined'
         fullWidth
         placeholder='Correo electrónico'
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        error={Boolean(emailError)}
-        helperText={emailError}
+        value={userData.email}
+        onChange={(e) => setUserData((prevData) => ({ ...prevData, email: e.target.value }))}
+        error={Boolean(userErrors.emailError)}
+        helperText={userErrors.emailError}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -93,10 +88,10 @@ export default function RegisterForm({
         variant='outlined'
         fullWidth
         placeholder='Celular'
-        value={celular}
-        onChange={(e) => setCelular(e.target.value)}
-        error={Boolean(celularError)}
-        helperText={celularError}
+        value={userData.celular}
+        onChange={(e) => setUserData((prevData) => ({ ...prevData, celular: e.target.value }))}
+        error={Boolean(userErrors.celularError)}
+        helperText={userErrors.celularError}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -110,10 +105,10 @@ export default function RegisterForm({
         variant='outlined'
         type={showPassword ? 'text' : 'password'}
         fullWidth
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        error={Boolean(passwordError)}
-        helperText={passwordError}
+        value={userData.password}
+        onChange={(e) => setUserData((prevData) => ({ ...prevData, password: e.target.value }))}
+        error={Boolean(userErrors.passwordError)}
+        helperText={userErrors.passwordError}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
