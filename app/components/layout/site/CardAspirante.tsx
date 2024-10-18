@@ -43,10 +43,9 @@ export default function CardAspirante({
   };
 
   const handleCancel = () => {
-    router.back();
+    window.location.reload()
   };
 
-  // Si la CURP existe, mostrar los datos de la persona
   return (
     <CardHome title='Confirma tus datos'>
       <Box sx={{
@@ -114,7 +113,7 @@ export default function CardAspirante({
         />
         <TextField
           label='Contraseña'
-          value={formatPassword(password)} // Mostrar solo los últimos 4 caracteres
+          value={formatPassword(password)}
           fullWidth
           disabled
           variant='outlined'
@@ -130,7 +129,7 @@ export default function CardAspirante({
           variant='contained'
           color='primary'
           fullWidth
-          onClick={handleConfirm} // Llamada al callback vacío
+          onClick={handleConfirm}
           sx={{
             py: 2,
             fontFamily: 'MadaniArabic-SemiBold',
@@ -145,7 +144,7 @@ export default function CardAspirante({
         <Button
           variant='contained'
           fullWidth
-          onClick={handleCancel} // Redirigir al inicio o volver a la página anterior
+          onClick={handleCancel}
           sx={{
             py: 2,
             fontFamily: 'MadaniArabic-SemiBold',

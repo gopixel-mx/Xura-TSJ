@@ -38,6 +38,7 @@ export default function CardLogin() {
   const [isAspiranteMode, setIsAspiranteMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [nombreCompleto, setNombreCompleto] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [curpError, setCurpError] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -53,7 +54,10 @@ export default function CardLogin() {
     setActiveSlide(value);
   };
 
-  // Validaciones
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTermsAccepted(e.target.checked);
+  };
+
   const isValidEmail = (correo: string) => /\S+@\S+\.\S+/.test(correo);
   const isValidCurp = (crp: string) => crp.length === 18;
   const isValidCelular = (cel: string) => /^\d{10}$/.test(cel);
@@ -67,7 +71,6 @@ export default function CardLogin() {
   const handleRegister = async () => {
     let valid = true;
 
-    // Validar CURP
     if (!isValidCurp(curp)) {
       setCurpError('La CURP debe tener exactamente 18 caracteres.');
       valid = false;
@@ -75,7 +78,6 @@ export default function CardLogin() {
       setCurpError('');
     }
 
-    // Validar correo
     if (!isValidEmail(email)) {
       setEmailError('Ingrese un correo electrónico válido.');
       valid = false;
@@ -83,7 +85,6 @@ export default function CardLogin() {
       setEmailError('');
     }
 
-    // Validar celular
     if (!isValidCelular(celular)) {
       setCelularError('El número de celular debe tener 10 dígitos.');
       valid = false;
@@ -91,7 +92,6 @@ export default function CardLogin() {
       setCelularError('');
     }
 
-    // Validar contraseña
     if (!isValidPassword(password)) {
       setPasswordError(
         `La contraseña debe tener al menos 8 caracteres, incluir una mayúscula,
@@ -153,7 +153,6 @@ export default function CardLogin() {
               variant='outlined'
               placeholder='Email o CURP'
               fullWidth
-              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -168,11 +167,10 @@ export default function CardLogin() {
               type={showPassword ? 'text' : 'password'}
               placeholder='Contraseña'
               fullWidth
-              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
-                    <IconButton onClick={togglePasswordVisibility} edge='end' disabled={loading}>
+                    <IconButton onClick={togglePasswordVisibility} edge='end'>
                       {showPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
                     </IconButton>
                   </InputAdornment>
@@ -204,7 +202,6 @@ export default function CardLogin() {
               variant='contained'
               color='primary'
               fullWidth
-              disabled={loading}
               sx={{
                 py: 2,
                 fontFamily: 'MadaniArabic-SemiBold',
@@ -294,7 +291,6 @@ export default function CardLogin() {
               onChange={(e) => setCurp(e.target.value.toUpperCase())}
               error={Boolean(curpError)}
               helperText={curpError}
-              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -312,7 +308,6 @@ export default function CardLogin() {
               onChange={(e) => setEmail(e.target.value)}
               error={Boolean(emailError)}
               helperText={emailError}
-              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -330,7 +325,6 @@ export default function CardLogin() {
               onChange={(e) => setCelular(e.target.value)}
               error={Boolean(celularError)}
               helperText={celularError}
-              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -348,11 +342,10 @@ export default function CardLogin() {
               onChange={(e) => setPassword(e.target.value)}
               error={Boolean(passwordError)}
               helperText={passwordError}
-              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
-                    <IconButton onClick={togglePasswordVisibility} edge='end' disabled={loading}>
+                    <IconButton onClick={togglePasswordVisibility} edge='end'>
                       {showPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
                     </IconButton>
                   </InputAdornment>
@@ -360,7 +353,10 @@ export default function CardLogin() {
               }}
             />
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Checkbox disabled={loading} />
+              <Checkbox
+                checked={termsAccepted}
+                onChange={handleCheckboxChange}
+              />
               <Typography sx={{ fontFamily: 'MadaniArabic-Regular' }}>
                 Acepto los
                 {' '}
@@ -383,7 +379,7 @@ export default function CardLogin() {
               color='primary'
               fullWidth
               onClick={handleRegister}
-              disabled={loading}
+              disabled={!termsAccepted || loading}
               sx={{
                 py: 2,
                 fontFamily: 'MadaniArabic-SemiBold',
