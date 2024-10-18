@@ -106,8 +106,9 @@ export default function CardLogin() {
       setLoading(true);
       try {
         const response = await getCurp(curp);
+        const { Nombre, ApellidoPaterno, ApellidoMaterno } = response.datos;
         if (response.estatus === 'ok' && response.datos) {
-          setNombreCompleto(`${response.datos.Nombre} ${response.datos.ApellidoPaterno} ${response.datos.ApellidoMaterno}`);
+          setNombreCompleto(`${Nombre} ${ApellidoPaterno} ${ApellidoMaterno}`);
           setIsAspiranteMode(true);
         } else {
           setCurpError('No se encontró a la persona con esa CURP.');
@@ -152,6 +153,7 @@ export default function CardLogin() {
               variant='outlined'
               placeholder='Email o CURP'
               fullWidth
+              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -166,10 +168,11 @@ export default function CardLogin() {
               type={showPassword ? 'text' : 'password'}
               placeholder='Contraseña'
               fullWidth
+              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
-                    <IconButton onClick={togglePasswordVisibility} edge='end'>
+                    <IconButton onClick={togglePasswordVisibility} edge='end' disabled={loading}>
                       {showPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
                     </IconButton>
                   </InputAdornment>
@@ -201,6 +204,7 @@ export default function CardLogin() {
               variant='contained'
               color='primary'
               fullWidth
+              disabled={loading}
               sx={{
                 py: 2,
                 fontFamily: 'MadaniArabic-SemiBold',
@@ -287,9 +291,10 @@ export default function CardLogin() {
               fullWidth
               placeholder='CURP'
               value={curp}
-              onChange={(e) => setCurp(e.target.value.toUpperCase())} // Convertir a mayúsculas
+              onChange={(e) => setCurp(e.target.value.toUpperCase())}
               error={Boolean(curpError)}
               helperText={curpError}
+              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -304,9 +309,10 @@ export default function CardLogin() {
               fullWidth
               placeholder='Correo electrónico'
               value={email}
-              onChange={(e) => setEmail(e.target.value)} // Sin conversión
+              onChange={(e) => setEmail(e.target.value)}
               error={Boolean(emailError)}
               helperText={emailError}
+              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -321,9 +327,10 @@ export default function CardLogin() {
               fullWidth
               placeholder='Celular'
               value={celular}
-              onChange={(e) => setCelular(e.target.value)} // Sin conversión
+              onChange={(e) => setCelular(e.target.value)}
               error={Boolean(celularError)}
               helperText={celularError}
+              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
@@ -338,13 +345,14 @@ export default function CardLogin() {
               type={showPassword ? 'text' : 'password'}
               fullWidth
               value={password}
-              onChange={(e) => setPassword(e.target.value)} // Sin conversión
+              onChange={(e) => setPassword(e.target.value)}
               error={Boolean(passwordError)}
               helperText={passwordError}
+              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>
-                    <IconButton onClick={togglePasswordVisibility} edge='end'>
+                    <IconButton onClick={togglePasswordVisibility} edge='end' disabled={loading}>
                       {showPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
                     </IconButton>
                   </InputAdornment>
@@ -352,7 +360,7 @@ export default function CardLogin() {
               }}
             />
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Checkbox />
+              <Checkbox disabled={loading} />
               <Typography sx={{ fontFamily: 'MadaniArabic-Regular' }}>
                 Acepto los
                 {' '}
@@ -375,6 +383,7 @@ export default function CardLogin() {
               color='primary'
               fullWidth
               onClick={handleRegister}
+              disabled={loading}
               sx={{
                 py: 2,
                 fontFamily: 'MadaniArabic-SemiBold',
@@ -382,6 +391,11 @@ export default function CardLogin() {
                 borderRadius: '10px',
                 backgroundColor: '#32169b',
                 '&:hover': { backgroundColor: '#14005E' },
+                '&.Mui-disabled': {
+                  backgroundColor: '#32169b',
+                  color: '#fff',
+                  opacity: 1,
+                },
               }}
             >
               {loading ? <CircularProgress size={24} color='inherit' /> : 'Registrate'}
