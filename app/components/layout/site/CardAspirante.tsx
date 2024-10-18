@@ -10,7 +10,7 @@ import {
   SmartphoneOutlined,
   VisibilityOffOutlined,
 } from '@mui/icons-material';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { CardHome } from '@/app/components/common/Cards';
 
 interface CardAspiranteProps {
@@ -28,7 +28,7 @@ export default function CardAspirante({
   curp,
   nombreCompleto,
 }: CardAspiranteProps) {
-  const router = useRouter();
+  // const router = useRouter();
 
   const formatPassword = (passwd: string) => {
     if (passwd.length > 4) {
@@ -43,7 +43,7 @@ export default function CardAspirante({
   };
 
   const handleCancel = () => {
-    window.location.reload()
+    window.location.reload();
   };
 
   return (
