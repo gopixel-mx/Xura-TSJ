@@ -2,7 +2,16 @@
 
 import { useState } from 'react';
 import {
-  Box, Typography, Button, TextField, InputAdornment, IconButton, Divider, Checkbox, Link,
+  Box,
+  Typography,
+  Button,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Divider,
+  Checkbox,
+  Link,
+  CircularProgress,
 } from '@mui/material';
 import Image from 'next/image';
 import { signIn } from 'next-auth/react';
@@ -14,6 +23,7 @@ import {
   SmartphoneOutlined,
 } from '@mui/icons-material';
 import { CardHome } from '@/app/components/common/Cards';
+import { getCurp } from '@/app/services/handlers/getMatricula';
 import SliderLogin from './SliderLogin';
 import CardAspirante from './CardAspirante';
 
@@ -26,6 +36,8 @@ export default function CardLogin() {
   const [celular, setCelular] = useState('');
   const [password, setPassword] = useState('');
   const [isAspiranteMode, setIsAspiranteMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [nombreCompleto, setNombreCompleto] = useState('');
 
   const [curpError, setCurpError] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -52,7 +64,7 @@ export default function CardLogin() {
     && /[!@#$%^&*(),.?":{}|<>]/.test(passw)
   );
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     let valid = true;
 
     // Validar CURP
@@ -91,7 +103,20 @@ export default function CardLogin() {
     }
 
     if (valid) {
-      setIsAspiranteMode(true);
+      setLoading(true);
+      try {
+        const response = await getCurp(curp);
+        if (response.estatus === 'ok' && response.datos) {
+          setNombreCompleto(`${response.datos.Nombre} ${response.datos.ApellidoPaterno} ${response.datos.ApellidoMaterno}`);
+          setIsAspiranteMode(true);
+        } else {
+          setCurpError('No se encontró a la persona con esa CURP.');
+        }
+      } catch (error) {
+        setCurpError('Error al consultar la CURP.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -102,6 +127,7 @@ export default function CardLogin() {
         celular={celular}
         password={password}
         curp={curp.toUpperCase()}
+        nombreCompleto={nombreCompleto}
       />
     );
   }
@@ -358,26 +384,8 @@ export default function CardLogin() {
                 '&:hover': { backgroundColor: '#14005E' },
               }}
             >
-              Registrate
+              {loading ? <CircularProgress size={24} color='inherit' /> : 'Registrate'}
             </Button>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Typography sx={{ fontFamily: 'MadaniArabic-Regular', opacity: '70%' }}>
-                ¿Ya tienes una cuenta?
-                {' '}
-                <Typography
-                  component='span'
-                  color='primary'
-                  sx={{
-                    cursor: 'pointer',
-                    fontFamily: 'MadaniArabic-SemiBold',
-                    color: '#32169b',
-                  }}
-                  onClick={() => handleSliderChange('ingresa')}
-                >
-                  Ingresa
-                </Typography>
-              </Typography>
-            </Box>
           </>
         )}
       </Box>

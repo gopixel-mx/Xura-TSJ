@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
-  Button, TextField, Box, InputAdornment, Typography,
+  Button, TextField, Box, InputAdornment,
 } from '@mui/material';
 import {
   PersonOutline,
@@ -12,13 +12,13 @@ import {
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { CardHome } from '@/app/components/common/Cards';
-import { getCurp } from '@/app/services/handlers/getMatricula';
 
 interface CardAspiranteProps {
   email?: string;
   celular?: string;
   password?: string;
   curp: string;
+  nombreCompleto: string;
 }
 
 export default function CardAspirante({
@@ -26,11 +26,8 @@ export default function CardAspirante({
   celular = '',
   password = '',
   curp,
+  nombreCompleto,
 }: CardAspiranteProps) {
-  const [nombreCompleto, setNombreCompleto] = useState('');
-  const [curpValue, setCurpValue] = useState('');
-  const [curpNotFound, setCurpNotFound] = useState(false);
-  const [loading, setLoading] = useState(true); // Estado de carga
   const router = useRouter();
 
   const formatPassword = (passwd: string) => {
@@ -41,32 +38,6 @@ export default function CardAspirante({
     return passwd;
   };
 
-  const fetchCurpData = async () => {
-    try {
-      setLoading(true); // Iniciar la carga
-      const response = await getCurp(curp);
-      if (response.estatus === 'ok' && response.datos) {
-        const {
-          Nombre, ApellidoPaterno, ApellidoMaterno, Curp,
-        } = response.datos;
-        setNombreCompleto(`${Nombre} ${ApellidoPaterno} ${ApellidoMaterno}`);
-        setCurpValue(Curp);
-        setCurpNotFound(false); // La CURP existe
-      } else {
-        setCurpNotFound(true); // La CURP no existe
-      }
-    } catch (error) {
-      console.error('Error obteniendo los datos del CURP:', error);
-      setCurpNotFound(true); // En caso de error, asumir que la CURP no existe
-    } finally {
-      setLoading(false); // Finalizar la carga
-    }
-  };
-
-  useEffect(() => {
-    fetchCurpData();
-  }, [curp]); // La función se ejecuta cuando cambia la curp
-
   const handleConfirm = () => {
     console.log('Confirmado');
   };
@@ -74,84 +45,6 @@ export default function CardAspirante({
   const handleCancel = () => {
     router.back();
   };
-
-  // Loader estilizado para centrarse correctamente en la pantalla y desactivar scroll
-  const loaderStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '80vh', // Ajustado a 80vh para subir el loader
-    overflow: 'hidden', // Desactiva cualquier scroll
-  };
-
-  const spinnerStyle = {
-    width: '100px',
-    height: '100px',
-    border: '10px solid rgba(255, 255, 255, 0.3)',
-    borderTop: '10px solid #32169b',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-  };
-
-  // Añadimos la animación del loader
-  const styleTag = `
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    body {
-      overflow: hidden;
-    }
-  `;
-
-  // Si está cargando, mostrar el loader
-  if (loading) {
-    return (
-      <Box sx={loaderStyle}>
-        <style>{styleTag}</style>
-        <div style={spinnerStyle} />
-      </Box>
-    );
-  }
-
-  // Si la CURP no existe, mostrar el mensaje de que la persona no fue encontrada
-  if (curpNotFound) {
-    return (
-      <CardHome title='Revisa tus datos'>
-        <Box sx={{ display: 'flex', justifyContent: 'center', padding: 3 }}>
-          <Typography
-            variant='body1'
-            sx={{
-              textAlign: 'center',
-              color: '#ff4d63',
-              whiteSpace: 'pre-line',
-              width: '100%',
-            }}
-          >
-            No pudimos encontrar a la persona con esa CURP.
-            {'\n'}
-            O el servicio no está disponible.
-          </Typography>
-        </Box>
-        <Button
-          variant='contained'
-          color='primary'
-          fullWidth
-          onClick={handleCancel} // Llamada al callback vacío
-          sx={{
-            py: 2,
-            fontFamily: 'MadaniArabic-SemiBold',
-            textTransform: 'capitalize',
-            borderRadius: '10px',
-            backgroundColor: '#32169b',
-            '&:hover': { backgroundColor: '#14005E' },
-          }}
-        >
-          Regresar
-        </Button>
-      </CardHome>
-    );
-  }
 
   // Si la CURP existe, mostrar los datos de la persona
   return (
@@ -179,7 +72,7 @@ export default function CardAspirante({
         />
         <TextField
           label='CURP'
-          value={curpValue}
+          value={curp}
           fullWidth
           disabled
           variant='outlined'
