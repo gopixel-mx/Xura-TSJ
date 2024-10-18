@@ -45,14 +45,12 @@ export default function CardLogin() {
   const isValidEmail = (correo: string) => /\S+@\S+\.\S+/.test(correo);
   const isValidCurp = (crp: string) => crp.length === 18;
   const isValidCelular = (cel: string) => /^\d{10}$/.test(cel);
-  const isValidPassword = (passw: string) => {
-    return (
-      passw.length >= 8 &&
-      /[A-Z]/.test(passw) &&
-      /\d/.test(passw) &&
-      /[!@#$%^&*(),.?":{}|<>]/.test(passw)
-    );
-  };
+  const isValidPassword = (passw: string) => (
+    passw.length >= 8
+    && /[A-Z]/.test(passw)
+    && /\d/.test(passw)
+    && /[!@#$%^&*(),.?":{}|<>]/.test(passw)
+  );
 
   const handleRegister = () => {
     let valid = true;
@@ -98,7 +96,14 @@ export default function CardLogin() {
   };
 
   if (isAspiranteMode) {
-    return <CardAspirante email={email} celular={celular} password={password} curp={curp} />;
+    return (
+      <CardAspirante
+        email={email}
+        celular={celular}
+        password={password}
+        curp={curp.toUpperCase()}
+      />
+    );
   }
 
   return (
@@ -256,7 +261,7 @@ export default function CardLogin() {
               fullWidth
               placeholder='CURP'
               value={curp}
-              onChange={(e) => setCurp(e.target.value)}
+              onChange={(e) => setCurp(e.target.value.toUpperCase())} // Convertir a mayúsculas
               error={Boolean(curpError)}
               helperText={curpError}
               InputProps={{
@@ -273,7 +278,7 @@ export default function CardLogin() {
               fullWidth
               placeholder='Correo electrónico'
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)} // Sin conversión
               error={Boolean(emailError)}
               helperText={emailError}
               InputProps={{
@@ -290,7 +295,7 @@ export default function CardLogin() {
               fullWidth
               placeholder='Celular'
               value={celular}
-              onChange={(e) => setCelular(e.target.value)}
+              onChange={(e) => setCelular(e.target.value)} // Sin conversión
               error={Boolean(celularError)}
               helperText={celularError}
               InputProps={{
@@ -307,7 +312,7 @@ export default function CardLogin() {
               type={showPassword ? 'text' : 'password'}
               fullWidth
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)} // Sin conversión
               error={Boolean(passwordError)}
               helperText={passwordError}
               InputProps={{

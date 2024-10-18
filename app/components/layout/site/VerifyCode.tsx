@@ -70,7 +70,7 @@ export default function VerifyCode({ userData, type }: VerifyCodeProps) {
       case 'Auth':
         return 'Ingresa el código de autenticación de dos factores';
       case 'Register':
-        return 'Ingresa el código de verificación';
+        return 'Ingresa el código de validación';
       case 'Forgot':
         return 'Ingresa el código de recuperación';
       default:
@@ -86,8 +86,8 @@ export default function VerifyCode({ userData, type }: VerifyCodeProps) {
           : `Te enviamos un código de autenticación a tu celular ${userData}.`;
       case 'Register':
         return isEmail
-          ? `Te enviamos un código de verificación a tu correo electrónico de ${userData}.`
-          : `Te enviamos un código de verificación a tu celular ${userData}.`;
+          ? `Te enviamos un código de validación a tu correo electrónico de ${userData}.`
+          : `Te enviamos un código de validación a tu celular ${userData}.`;
       case 'Forgot':
         return isEmail
           ? `Te enviamos un código de recuperación a tu correo electrónico de ${userData}.`
