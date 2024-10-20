@@ -9,11 +9,13 @@ import { CardHome } from '@/app/components/common/Cards';
 const generateUniqueId = (index: number) => `input-code-${index}-${Date.now()}`;
 
 interface VerifyCodeProps {
-  userData: string;
+  userData?: string;
   type: 'Auth' | 'Register' | 'Forgot';
+  email?: string;
+  celular?: string;
 }
 
-export default function VerifyCode({ userData, type }: VerifyCodeProps) {
+export default function VerifyCode({ userData, type, email, celular }: VerifyCodeProps) {
   const [resendDisabled, setResendDisabled] = useState(true);
   const [altSendDisabled, setAltSendDisabled] = useState(false);
   const [permanentlyDisabled, setPermanentlyDisabled] = useState(false);
@@ -23,7 +25,10 @@ export default function VerifyCode({ userData, type }: VerifyCodeProps) {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const inputIds = useRef([0, 1, 2, 3].map((index) => generateUniqueId(index)));
 
-  const isEmail = /\S+@\S+\.\S+/.test(userData);
+  const [isEmailStep, setIsEmailStep] = useState(true);
+
+  const currentData = type === 'Register' ? (isEmailStep ? email : celular) : userData;
+  const isEmail = /\S+@\S+\.\S+/.test(currentData ?? '');
 
   useEffect(() => {
     if (counter > 0) {
@@ -64,7 +69,12 @@ export default function VerifyCode({ userData, type }: VerifyCodeProps) {
     }
   };
 
-  // Determinar el título y el texto de acuerdo al tipo de operación
+  const handleNextStep = () => {
+    if (type === 'Register' && isEmailStep && celular) {
+      setIsEmailStep(false);
+    }
+  };
+
   const getTitle = () => {
     switch (type) {
       case 'Auth':
@@ -82,16 +92,16 @@ export default function VerifyCode({ userData, type }: VerifyCodeProps) {
     switch (type) {
       case 'Auth':
         return isEmail
-          ? `Te enviamos un código de autenticación a tu correo electrónico de ${userData}.`
-          : `Te enviamos un código de autenticación a tu celular ${userData}.`;
+          ? `Te enviamos un código de autenticación a tu correo electrónico de ${currentData}.`
+          : `Te enviamos un código de autenticación a tu celular ${currentData}.`;
       case 'Register':
-        return isEmail
-          ? `Te enviamos un código de validación a tu correo electrónico de ${userData}.`
-          : `Te enviamos un código de validación a tu celular ${userData}.`;
+        return isEmailStep
+          ? `Te enviamos un código de validación a tu correo electrónico de ${email}.`
+          : `Te enviamos un código de validación a tu celular ${celular}.`;
       case 'Forgot':
         return isEmail
-          ? `Te enviamos un código de recuperación a tu correo electrónico de ${userData}.`
-          : `Te enviamos un código de recuperación a tu celular ${userData}.`;
+          ? `Te enviamos un código de recuperación a tu correo electrónico de ${currentData}.`
+          : `Te enviamos un código de recuperación a tu celular ${currentData}.`;
       default:
         return '';
     }
@@ -186,7 +196,7 @@ export default function VerifyCode({ userData, type }: VerifyCodeProps) {
           onClick={handleAltSend}
         >
           <Link color='inherit' underline='hover'>
-            {isEmail
+            {isEmailStep
               ? '¿No recibió el código? Envíamelo al celular'
               : '¿No recibió el código? Envíamelo al correo'}
           </Link>
@@ -204,9 +214,16 @@ export default function VerifyCode({ userData, type }: VerifyCodeProps) {
           backgroundColor: '#32169b',
           '&:hover': { backgroundColor: '#14005E' },
         }}
+        onClick={handleNextStep}
       >
         Confirmar código
       </Button>
     </CardHome>
   );
 }
+
+VerifyCode.defaultProps = {
+  userData: undefined,
+  email: '',
+  celular: '',
+};

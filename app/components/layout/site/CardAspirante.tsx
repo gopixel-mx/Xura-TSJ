@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button, TextField, Box, InputAdornment,
 } from '@mui/material';
@@ -10,8 +10,8 @@ import {
   SmartphoneOutlined,
   VisibilityOffOutlined,
 } from '@mui/icons-material';
-// import { useRouter } from 'next/navigation';
 import { CardHome } from '@/app/components/common/Cards';
+import VerifyCode from './VerifyCode';
 
 interface CardAspiranteProps {
   email?: string;
@@ -28,7 +28,7 @@ export default function CardAspirante({
   curp,
   nombreCompleto,
 }: CardAspiranteProps) {
-  // const router = useRouter();
+  const [isConfirmed, setIsConfirmed] = useState(false); // Estado para manejar la confirmación
 
   const formatPassword = (passwd: string) => {
     if (passwd.length > 4) {
@@ -39,12 +39,17 @@ export default function CardAspirante({
   };
 
   const handleConfirm = () => {
-    console.log('Confirmado');
+    setIsConfirmed(true); // Activar la confirmación
   };
 
   const handleCancel = () => {
     window.location.reload();
   };
+
+  // Si ya se ha presionado "Confirmar", renderizar VerifyCode
+  if (isConfirmed) {
+    return <VerifyCode email={email} celular={celular} type='Register' />;
+  }
 
   return (
     <CardHome title='Confirma tus datos'>
