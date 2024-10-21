@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Box, Typography, Button, TextField, Link,
 } from '@mui/material';
+import { useRouter } from 'next/navigation'; // For redirection
 import { CardHome } from '@/app/components/common/Cards';
 
 const generateUniqueId = (index: number) => `input-code-${index}-${Date.now()}`;
@@ -16,6 +17,7 @@ interface VerifyCodeProps {
 }
 
 export default function VerifyCode({ userData, type, email, celular }: VerifyCodeProps) {
+  const router = useRouter(); // Initialize router for navigation
   const [resendDisabled, setResendDisabled] = useState(true);
   const [altSendDisabled, setAltSendDisabled] = useState(false);
   const [permanentlyDisabled, setPermanentlyDisabled] = useState(false);
@@ -25,8 +27,10 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const inputIds = useRef([0, 1, 2, 3].map((index) => generateUniqueId(index)));
 
-  const [isEmailStep, setIsEmailStep] = useState(true);
+  const [isEmailStep, setIsEmailStep] = useState(type === 'Register');
+  const [error, setError] = useState('');
 
+  // Determine the current data (email or celular) for Register type
   const currentData = type === 'Register' ? (isEmailStep ? email : celular) : userData;
   const isEmail = /\S+@\S+\.\S+/.test(currentData ?? '');
 
@@ -47,6 +51,7 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
       setResendDisabled(true);
       setPermanentlyDisabled(true);
       setCounter(30);
+      // Aquí se haría la llamada para reenvío del código
     }
   };
 
@@ -55,6 +60,7 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
       setResendDisabled(true);
       setAltSendDisabled(true);
       setCounter(30);
+      // Aquí se haría la llamada para enviar el código alterno
     }
   };
 
@@ -63,15 +69,37 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
       const newValues = [...codeValues];
       newValues[index] = value;
       setCodeValues(newValues);
+      setError('');
       if (value !== '' && index < inputRefs.current.length - 1) {
         inputRefs.current[index + 1]?.focus();
       }
     }
   };
 
-  const handleNextStep = () => {
-    if (type === 'Register' && isEmailStep && celular) {
-      setIsEmailStep(false);
+  const handleConfirmCode = () => {
+    const enteredCode = codeValues.join('');
+    // Mock verification against '1234'
+    if (enteredCode === '1234') {
+      if (type === 'Register' && isEmailStep) {
+        // Proceed to celular verification
+        setIsEmailStep(false);
+        setCodeValues(['', '', '', '']); // Reset code values
+        setCounter(30); // Reset the counter
+      } else {
+        // Successful verification
+        if (type === 'Register') {
+          // Redirect to 'https://admision.tsj.mx:3000' after both verifications
+          window.location.href = 'https://admision.tsj.mx:3000';
+        } else {
+          // Redirect to '/' for other types
+          router.push('/');
+        }
+      }
+    } else {
+      // Incorrect code entered
+      setError('El código ingresado es incorrecto.');
+      setCodeValues(['', '', '', '']); // Reset code values
+      inputRefs.current[0]?.focus();
     }
   };
 
@@ -92,15 +120,15 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
     switch (type) {
       case 'Auth':
         return isEmail
-          ? `Te enviamos un código de autenticación a tu correo electrónico de ${currentData}.`
+          ? `Te enviamos un código de autenticación a tu correo electrónico ${currentData}.`
           : `Te enviamos un código de autenticación a tu celular ${currentData}.`;
       case 'Register':
         return isEmailStep
-          ? `Te enviamos un código de validación a tu correo electrónico de ${email}.`
+          ? `Te enviamos un código de validación a tu correo electrónico ${email}.`
           : `Te enviamos un código de validación a tu celular ${celular}.`;
       case 'Forgot':
         return isEmail
-          ? `Te enviamos un código de recuperación a tu correo electrónico de ${currentData}.`
+          ? `Te enviamos un código de recuperación a tu correo electrónico ${currentData}.`
           : `Te enviamos un código de recuperación a tu celular ${currentData}.`;
       default:
         return '';
@@ -136,6 +164,7 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
             value={codeValues[index]}
             onChange={(e) => handleInputChange(index, e.target.value)}
             variant='outlined'
+            error={Boolean(error)}
             inputProps={{
               inputMode: 'numeric',
               maxLength: 1,
@@ -159,6 +188,18 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
           />
         ))}
       </Box>
+      {error && (
+        <Typography
+          sx={{
+            color: 'red',
+            textAlign: 'center',
+            fontFamily: 'MadaniArabic-Regular',
+            marginBottom: '24px',
+          }}
+        >
+          {error}
+        </Typography>
+      )}
       <Box sx={{
         display: 'flex',
         alignItems: 'center',
@@ -182,7 +223,7 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
           {resendDisabled ? `${counter}:00 seg.` : ''}
         </Typography>
       </Box>
-      {showAltSend && (
+      {type !== 'Register' && showAltSend && (
         <Typography
           component='div'
           sx={{
@@ -214,7 +255,7 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
           backgroundColor: '#32169b',
           '&:hover': { backgroundColor: '#14005E' },
         }}
-        onClick={handleNextStep}
+        onClick={handleConfirmCode}
       >
         Confirmar código
       </Button>
