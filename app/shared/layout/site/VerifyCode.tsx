@@ -5,7 +5,7 @@ import {
   Box, Typography, Button, TextField, Link,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { CardHome } from '@/app/components/common/Cards';
+import { CardHome } from '@/app/shared/common/Cards';
 
 interface VerifyCodeProps {
   userData?: string;

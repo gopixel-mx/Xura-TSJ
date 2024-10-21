@@ -7,8 +7,8 @@ import {
 } from '@mui/icons-material';
 import {
   GraphBarAll, FilterSelect, CardTemplate, LineChartPeriods,
-} from '@/app/components/common';
-import { TableGrid } from '@/app/components/common/Tables';
+} from '@/app/shared/common';
+import { TableGrid } from '@/app/components/dashboard';
 
 const matriculaTotal = async () => {
   const data = await fetch('http://192.168.8.164:3001/api/matricula/total')

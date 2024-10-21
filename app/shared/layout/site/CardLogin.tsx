@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
-import { CardHome } from '@/app/components/common/Cards';
+import { CardHome } from '@/app/shared/common';
 import { getCurp } from '@/app/services/handlers/getMatricula';
 import SliderLogin from './SliderLogin';
 import LoginForm from './LoginForm';

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { Navbar } from '@/app/components/layout';
+import { Navbar } from '@/app/shared/layout';
 import { CssBaseline, Toolbar } from '@mui/material';
 // import { AuthProvider } from '@/app/context/AuthContext';
 

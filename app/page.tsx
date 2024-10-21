@@ -1,4 +1,4 @@
-import { CardLogin } from '@/app/components/layout';
+import { CardLogin } from '@/app/shared/layout';
 import { Box } from '@mui/material';
 
 export default function LoginPage() {

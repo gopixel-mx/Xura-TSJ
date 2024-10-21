@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { CardForgotPassw } from '@/app/components/layout';
+import { CardForgotPassw } from '@/app/shared/layout';
 
 export default function ForgotPasswPage() {
   return (

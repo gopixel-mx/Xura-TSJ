@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { Box } from '@mui/material';
 import { getPeriodos } from '@/app/services/handlers/getMatricula';
-import { getColorByYear } from '@/app/mocks/periodosColors';
+// import { getColorByYear } from '@/app/mocks/periodosColors';
 
 interface PeriodoEstudiantes {
   periodo: string;
@@ -55,7 +55,7 @@ export default function LineChartPeriods() {
           {
             data: xAxisData, // Eje X con periodos B primero, luego periodos A
             scaleType: 'point',
-            tickPadding: 20, // Ajustamos los ticks
+            // tickPadding: 20, // Ajustamos los ticks
           },
         ]}
         yAxis={[{ min: 1000 }]} // Ajustamos el eje Y para no empezar en 0

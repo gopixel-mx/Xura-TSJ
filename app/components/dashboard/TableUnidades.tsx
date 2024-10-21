@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
 import { getMatriculaTotalUnidades } from '@/app/services/handlers/getMatricula';
-import TableTemplate from './TableTemplate';
+import { TableTemplate } from '@/app/shared/common';
 
 // Definir la interfaz para los datos de la tabla
 interface UnidadData {

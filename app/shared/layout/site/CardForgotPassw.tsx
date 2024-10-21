@@ -5,7 +5,7 @@ import {
   Typography, Button, TextField, InputAdornment, Link,
 } from '@mui/material';
 import { PersonOutline } from '@mui/icons-material';
-import { CardHome } from '@/app/components/common/Cards';
+import { CardHome } from '@/app/shared/common';
 import VerifyCode from './VerifyCode';
 
 export default function CardForgotPassw() {
@@ -73,7 +73,7 @@ export default function CardForgotPassw() {
           marginBottom: '24px',
         }}
       >
-        <Link href='/' color='inherit' underline='hover'>
+        <Link href='/public' color='inherit' underline='hover'>
           Regresar al inicio
         </Link>
       </Typography>

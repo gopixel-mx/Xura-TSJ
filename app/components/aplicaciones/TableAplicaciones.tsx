@@ -3,10 +3,9 @@
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
 import { getAplicaciones, insertAplicacion } from '@/app/services/handlers/getMatricula';
-import { ActionButtons } from '@/app/components/common/Buttons';
-import ModalAplicaciones from '@/app/components/modals/aplicaciones/ModalAplicaciones';
+import ModalAplicaciones from '@/app/shared/modals/aplicaciones/ModalAplicaciones';
 import { AplicacionFields } from '@/app/services/handlers/formFields';
-import TableTemplate from './TableTemplate';
+import { TableTemplate, ActionButtons } from '@/app/shared/common';
 
 interface AplicacionData {
   clave: string;

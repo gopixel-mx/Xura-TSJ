@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
 import { getGrupos } from '@/app/services/handlers/getMatricula';
-import ActionButtons from '@/app/components/common/Buttons/ActionButtons';
-import TableTemplate from './TableTemplate';
+import { TableTemplate, ActionButtons } from '@/app/shared/common';
 
 interface GrupoData {
   clave: string;

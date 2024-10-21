@@ -4,7 +4,7 @@ import {
   ReactNode, useState, useMemo, useCallback, useEffect,
 } from 'react';
 import { useRouter } from 'next/router';
-import SnackAlert from '@/app/components/common/Alert';
+import SnackAlert from '@/app/shared/common/Alert';
 import { AuthContext } from './AuthContext';
 
 interface ProviderProps {

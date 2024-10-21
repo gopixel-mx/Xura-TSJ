@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { Box, Typography } from '@mui/material';
-import { GraphBarUnidad } from '@/app/components/common';
+import { GraphBarUnidad } from '@/app/shared/common';
 
 const formatName = (name: string) => decodeURIComponent(name)
   .toLowerCase()

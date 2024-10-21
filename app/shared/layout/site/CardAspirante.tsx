@@ -10,7 +10,7 @@ import {
   SmartphoneOutlined,
   VisibilityOffOutlined,
 } from '@mui/icons-material';
-import { CardHome } from '@/app/components/common/Cards';
+import { CardHome } from '@/app/shared/common';
 import VerifyCode from './VerifyCode';
 
 interface CardAspiranteProps {

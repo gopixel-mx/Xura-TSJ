@@ -100,7 +100,7 @@ import React, {
   createContext, useEffect, useState, useMemo, useCallback, ReactNode,
 } from 'react';
 import { useRouter } from 'next/router';
-import SnackAlert from '@/app/components/common/Alert';
+import SnackAlert from '@/app/shared/common/Alert';
 
 // Define the shape of the context
 interface NotificationType {

@@ -1,6 +1,6 @@
 import { Box, Paper, Typography } from '@mui/material';
-import { TableGrupos } from '@/app/components/common/Tables';
-import BottomActionButtons from '@/app/components/common/Buttons/BottomActionButtons';
+import { TableGrupos } from '@/app/components/grupos';
+import BottomActionButtons from '@/app/shared/common/Buttons/BottomActionButtons';
 
 export default function GruposPage() {
   return (

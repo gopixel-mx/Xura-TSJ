@@ -1,4 +1,4 @@
-import { TableGrid } from '@/app/components/common/Tables';
+import { TableGrid } from '@/app/components/dashboard';
 
 export default function TerminosPage() {
   return (

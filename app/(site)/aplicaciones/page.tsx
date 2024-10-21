@@ -1,6 +1,6 @@
 import { Box, Paper, Typography } from '@mui/material';
-import { TableAplicaciones } from '@/app/components/common/Tables';
-import BottomActionButtons from '@/app/components/common/Buttons/BottomActionButtons';
+import { TableAplicaciones } from '@/app/components/aplicaciones';
+import BottomActionButtons from '@/app/shared/common/Buttons/BottomActionButtons';
 
 export default function AplicacionesPage() {
   return (

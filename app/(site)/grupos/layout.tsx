@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { Sidebar } from '@/app/components/layout';
+import { Sidebar } from '@/app/shared/layout';
 
 export const metadata: Metadata = {
   title: 'Grupos',
