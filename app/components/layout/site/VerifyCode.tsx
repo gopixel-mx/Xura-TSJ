@@ -4,10 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Box, Typography, Button, TextField, Link,
 } from '@mui/material';
-import { useRouter } from 'next/navigation'; // For redirection
+import { useRouter } from 'next/navigation';
 import { CardHome } from '@/app/components/common/Cards';
-
-const generateUniqueId = (index: number) => `input-code-${index}-${Date.now()}`;
 
 interface VerifyCodeProps {
   userData?: string;
@@ -16,8 +14,15 @@ interface VerifyCodeProps {
   celular?: string;
 }
 
-export default function VerifyCode({ userData, type, email, celular }: VerifyCodeProps) {
-  const router = useRouter(); // Initialize router for navigation
+const generateUniqueId = (index: number) => `input-code-${index}-${Date.now()}`;
+
+export default function VerifyCode({
+  userData,
+  type,
+  email,
+  celular,
+}: VerifyCodeProps) {
+  const router = useRouter();
   const [resendDisabled, setResendDisabled] = useState(true);
   const [altSendDisabled, setAltSendDisabled] = useState(false);
   const [permanentlyDisabled, setPermanentlyDisabled] = useState(false);
@@ -30,8 +35,12 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
   const [isEmailStep, setIsEmailStep] = useState(type === 'Register');
   const [error, setError] = useState('');
 
-  // Determine the current data (email or celular) for Register type
-  const currentData = type === 'Register' ? (isEmailStep ? email : celular) : userData;
+  let currentData;
+  if (type === 'Register') {
+    currentData = isEmailStep ? email : celular;
+  } else {
+    currentData = userData;
+  }
   const isEmail = /\S+@\S+\.\S+/.test(currentData ?? '');
 
   useEffect(() => {
@@ -78,27 +87,22 @@ export default function VerifyCode({ userData, type, email, celular }: VerifyCod
 
   const handleConfirmCode = () => {
     const enteredCode = codeValues.join('');
-    // Mock verification against '1234'
     if (enteredCode === '1234') {
       if (type === 'Register' && isEmailStep) {
-        // Proceed to celular verification
         setIsEmailStep(false);
-        setCodeValues(['', '', '', '']); // Reset code values
-        setCounter(30); // Reset the counter
+        setCodeValues(['', '', '', '']);
+        setCounter(30);
+        setResendDisabled(true);
+        setPermanentlyDisabled(false);
+      } else if (type === 'Register') {
+        window.location.href = 'https://admision.tsj.mx:3000';
       } else {
-        // Successful verification
-        if (type === 'Register') {
-          // Redirect to 'https://admision.tsj.mx:3000' after both verifications
-          window.location.href = 'https://admision.tsj.mx:3000';
-        } else {
-          // Redirect to '/' for other types
-          router.push('/');
-        }
+        router.push('/');
       }
     } else {
       // Incorrect code entered
       setError('El código ingresado es incorrecto.');
-      setCodeValues(['', '', '', '']); // Reset code values
+      setCodeValues(['', '', '', '']);
       inputRefs.current[0]?.focus();
     }
   };

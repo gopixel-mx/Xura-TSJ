@@ -45,7 +45,6 @@ const getMatriculaTotal = async () => {
   }
 };
 
-// getAplicaciones.ts
 const getAplicaciones = async () => {
   try {
     const response = await axios.get('http://localhost:3001/aplicaciones'); // URL completa
@@ -69,10 +68,8 @@ const insertAplicacion = async (
     return response.data;
   } catch (error: any) {
     console.error('Error al insertar la aplicación:', error);
-
-    // Lanza el error en lugar de retornar un array vacío
     if (error.response && error.response.data) {
-      throw error.response.data; // Lanzar el error para que el frontend lo capture
+      throw error.response.data;
     } else {
       throw new Error('Error inesperado en la inserción de la aplicación');
     }
@@ -130,10 +127,8 @@ const insertCredencial = async (
     return response.data;
   } catch (error: any) {
     console.error('Error al insertar la aplicación:', error);
-
-    // Lanza el error en lugar de retornar un array vacío
     if (error.response && error.response.data) {
-      throw error.response.data; // Lanzar el error para que el frontend lo capture
+      throw error.response.data;
     } else {
       throw new Error('Error inesperado en la inserción de la aplicación');
     }

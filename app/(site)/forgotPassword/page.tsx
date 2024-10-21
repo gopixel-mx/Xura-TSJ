@@ -12,7 +12,7 @@ export default function ForgotPasswPage() {
         padding: '16px',
         boxSizing: 'border-box',
         height: 'calc(100vh - 64px)',
-        marginTop: '-15px',
+        marginTop: '-25px',
       }}
     >
       <Box
