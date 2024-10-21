@@ -11,25 +11,25 @@ import {
 import { TableGrid } from '@/app/components/dashboard';
 
 const matriculaTotal = async () => {
-  const data = await fetch('http://192.168.8.164:3001/api/matricula/total')
+  const data = await fetch('http://192.168.8.206:3001/api/matricula/total')
     .then((res) => res.json());
   return data;
 };
 
 const generoTotal = async () => {
-  const data = await fetch('http://192.168.8.164:3001/api/estudiantes/genero')
+  const data = await fetch('http://192.168.8.206:3001/api/estudiantes/genero')
     .then((res) => res.json());
   return data;
 };
 
 const modalidadTotal = async () => {
-  const data = await fetch('http://192.168.8.164:3001/api/modalidades')
+  const data = await fetch('http://192.168.8.206:3001/api/modalidades')
     .then((res) => res.json());
   return data;
 };
 
 const estatusTotal = async () => {
-  const data = await fetch('http://192.168.8.164:3001/api/matricula/estatus')
+  const data = await fetch('http://192.168.8.206:3001/api/matricula/estatus')
     .then((res) => res.json());
   return data;
 };
