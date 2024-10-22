@@ -15,7 +15,7 @@ interface BarchartTemplateProps {
 }
 
 export default function GraphBarAll({
-  title, description, image, clase,
+  title = '', description = '', image, clase,
 }: BarchartTemplateProps) {
   const [chartData, setChartData] = useState<
     { clave: string; nombre: string; cantidad: number }[]
@@ -103,8 +103,3 @@ export default function GraphBarAll({
     </Box>
   );
 }
-
-GraphBarAll.defaultProps = {
-  description: '',
-  image: '',
-};

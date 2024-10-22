@@ -54,7 +54,7 @@ export default function ActionButtons({
     },
   };
 
-  const isSingleSelection = selectedRowsCount === 1;
+  // const isSingleSelection = selectedRowsCount === 1;
   const isMultipleSelection = selectedRowsCount > 1;
 
   const handleAction = (action: string) => {
@@ -197,17 +197,3 @@ export default function ActionButtons({
     </Box>
   );
 }
-
-ActionButtons.defaultProps = {
-  agregar: undefined,
-  consultar: undefined,
-  editar: undefined,
-  cancelar: undefined,
-  perfil: undefined,
-  grupos: undefined,
-  etiquetas: undefined,
-  subir: undefined,
-  descargar: undefined,
-  eliminar: undefined,
-  onAgregar: undefined,
-};

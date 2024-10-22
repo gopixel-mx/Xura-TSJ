@@ -50,7 +50,6 @@ const getAplicaciones = async () => {
     const response = await axios.get('http://localhost:3001/aplicaciones'); // URL completa
     return response.data;
   } catch (error) {
-    console.error('Error al obtener las aplicaciones:', error);
     return [];
   }
 };
@@ -67,7 +66,6 @@ const insertAplicacion = async (
     );
     return response.data;
   } catch (error: any) {
-    console.error('Error al insertar la aplicación:', error);
     if (error.response && error.response.data) {
       throw error.response.data;
     } else {
@@ -81,7 +79,6 @@ const getGrupos = async () => {
     const response = await axios.get('http://localhost:3001/grupos'); // URL completa
     return response.data;
   } catch (error) {
-    console.error('Error al obtener las aplicaciones:', error);
     return [];
   }
 };
@@ -91,7 +88,6 @@ const getCredenciales = async () => {
     const response = await axios.get('http://localhost:3001/credenciales'); // URL completa
     return response.data;
   } catch (error) {
-    console.error('Error al obtener las aplicaciones:', error);
     return [];
   }
 };
@@ -101,7 +97,6 @@ const getPeriodos = async () => {
     const response = await axios.get('/api/matricula/periodo');
     return response.data;
   } catch (error) {
-    console.error('Error al obtener las aplicaciones:', error);
     return [];
   }
 };
@@ -126,7 +121,6 @@ const insertCredencial = async (
     );
     return response.data;
   } catch (error: any) {
-    console.error('Error al insertar la aplicación:', error);
     if (error.response && error.response.data) {
       throw error.response.data;
     } else {
@@ -145,7 +139,6 @@ const getCurp = async (curp: string) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error al obtener los datos de la CURP:', error);
     return {};
   }
 };
@@ -162,4 +155,5 @@ export {
   getPeriodos,
   insertCredencial,
   getCurp,
+  getTablaMatricula,
 };

@@ -19,8 +19,8 @@ const generateUniqueId = (index: number) => `input-code-${index}-${Date.now()}`;
 export default function VerifyCode({
   userData,
   type,
-  email,
-  celular,
+  email = '',
+  celular = '',
 }: VerifyCodeProps) {
   const router = useRouter();
   const [resendDisabled, setResendDisabled] = useState(true);
@@ -266,9 +266,3 @@ export default function VerifyCode({
     </CardHome>
   );
 }
-
-VerifyCode.defaultProps = {
-  userData: undefined,
-  email: '',
-  celular: '',
-};

@@ -18,7 +18,7 @@ export default function TableAplicaciones() {
   const [rowData, setRowData] = useState<AplicacionData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
-  const [openModal, setOpenModal] = useState<boolean>(false); // Estado para controlar el modal
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +27,6 @@ export default function TableAplicaciones() {
         setRowData(data);
         setLoading(false);
       } catch (error) {
-        console.error('Error al cargar los datos:', error);
         setLoading(false);
       }
     };
@@ -42,7 +41,6 @@ export default function TableAplicaciones() {
       setRowData(datos);
       setOpenModal(false); // Solo cierra el modal si la operación es exitosa
     } catch (error: any) {
-      console.error('Error al insertar la aplicación:', error);
       if (error.response && error.response.data && error.response.data.errors) {
         throw error; // Lanza el error para que ModalAplicaciones lo capture
       } else {

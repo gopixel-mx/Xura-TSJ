@@ -248,9 +248,9 @@ export default async function DashboardPage() {
           </Box>
 
           {/* LineChartPeriods a la derecha */}
-          <Box sx={{ paddingLeft: 2 }}>
-            <LineChartPeriods />
-          </Box>
+          {/* <Box sx={{ paddingLeft: 2 }}> */}
+          {/*  <LineChartPeriods /> */}
+          {/* </Box> */}
         </Box>
       </Box>
     </Box>

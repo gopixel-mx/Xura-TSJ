@@ -24,7 +24,6 @@ export default function TableUnidades() {
         setRowData(data);
         setLoading(false);
       } catch (error) {
-        console.error('Error al cargar los datos:', error);
         setLoading(false);
       }
     };

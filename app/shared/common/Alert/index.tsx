@@ -50,7 +50,3 @@ export default function SnackAlert({
     </Snackbar>
   );
 }
-
-SnackAlert.defaultProps = {
-  mensaje: '',
-};
