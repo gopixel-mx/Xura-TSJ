@@ -13,7 +13,7 @@ interface CardHomeProps extends PaperProps {
   children: React.ReactNode;
 }
 
-export default function CardHome({ title, children, ...props }: CardHomeProps) {
+export default function CardHome({ title = '', children, ...props }: CardHomeProps) {
   return (
     <Paper
       elevation={6}
@@ -73,7 +73,3 @@ export default function CardHome({ title, children, ...props }: CardHomeProps) {
     </Paper>
   );
 }
-
-CardHome.defaultProps = {
-  title: undefined,
-};

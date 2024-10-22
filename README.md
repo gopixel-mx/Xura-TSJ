@@ -48,12 +48,15 @@ Abre [http://localhost:3000](http://localhost:3000) en el navegador.
 Este proyecto utiliza un linter para mantener un código limpio y consistente.
 Es muy importante seguir las siguientes reglas y buenas prácticas al trabajar en el código:
 
-```bash
+```
 > 1. No suprimir errores del linter.
 > 2. Cumplir con las reglas del linter.
 > 3. Ejecutar el comando de linter para validar el código una vez termine una tarea.
 
 npm run lint
+
+> 4. OPCIONAL: Ejecutar el comando linter para arreglar los problemas de linting automáticamente.
+npm run lint -- --fix
 ```
 
 ### Consideraciones en la estructura de archivos
