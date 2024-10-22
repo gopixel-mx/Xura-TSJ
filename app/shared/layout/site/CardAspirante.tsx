@@ -25,8 +25,8 @@ export default function CardAspirante({
   email = '',
   celular = '',
   password = '',
-  curp,
-  nombreCompleto,
+  curp = '',
+  nombreCompleto = '',
 }: CardAspiranteProps) {
   const [isConfirmed, setIsConfirmed] = useState(false);
 
@@ -190,9 +190,3 @@ export default function CardAspirante({
     </CardHome>
   );
 }
-
-CardAspirante.defaultProps = {
-  email: '',
-  celular: '',
-  password: '',
-};

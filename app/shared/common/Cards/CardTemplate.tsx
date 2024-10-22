@@ -11,7 +11,7 @@ interface CardProps {
 }
 
 export default function CardTemplate({
-  title, description, image, width = 1500, height = 'auto', icon,
+  title = '', description = '', image = '', width = 1500, height = 'auto', icon = undefined,
 }: CardProps) {
   return (
     <Box sx={{ maxWidth: width, height, padding: 2 }}>
@@ -60,11 +60,3 @@ export default function CardTemplate({
     </Box>
   );
 }
-
-CardTemplate.defaultProps = {
-  description: '',
-  image: '',
-  width: 1500,
-  height: 'auto',
-  icon: undefined,
-};
