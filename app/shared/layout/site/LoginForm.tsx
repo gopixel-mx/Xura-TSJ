@@ -5,12 +5,55 @@ import {
 import { PersonOutline, VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
 import Image from 'next/image';
 import { signIn } from 'next-auth/react';
+import { loginUser } from '@/app/services/handlers/getMatricula';
 
-export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
+interface LoginFormProps {
+  onSwitchToRegister: () => void;
+}
+
+export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+  const [account, setAccount] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
+  const isValidAccount = (value: string) => {
+    const isEmail = /\S+@\S+\.\S+/.test(value);
+    const isCurp = /^[A-Z0-9]{18}$/i.test(value);
+    const isPhone = /^\d{10}$/.test(value);
+    return isEmail || isCurp || isPhone;
+  };
+
+  const loginSubmit = async () => {
+    if (!isValidAccount(account)) {
+      setError('Ingrese un CURP, email o número de celular válido.');
+      return;
+    }
+
+    if (password.length === 0) {
+      setError('La contraseña es obligatoria.');
+      return;
+    }
+
+    let payload = {};
+    if (/^[A-Z0-9]{18}$/i.test(account)) {
+      payload = { curp: account, contrasena: password };
+    } else if (/^\d{10}$/.test(account)) {
+      payload = { celular: account, contrasena: password };
+    } else if (/\S+@\S+\.\S+/.test(account)) {
+      payload = { email: account, contrasena: password };
+    }
+
+    try {
+      const { token } = await loginUser(payload);
+      localStorage.setItem('authToken', token);
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -18,8 +61,10 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
       <TextField
         label='Cuenta'
         variant='outlined'
-        placeholder='Email o CURP'
+        placeholder='CURP, Email o Celular'
         fullWidth
+        value={account}
+        onChange={(e) => setAccount(e.target.value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -34,6 +79,8 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
         type={showPassword ? 'text' : 'password'}
         placeholder='Contraseña'
         fullWidth
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -44,6 +91,11 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
           ),
         }}
       />
+      {error && (
+        <Typography color='error' sx={{ marginBottom: '16px' }}>
+          {error}
+        </Typography>
+      )}
       <Typography
         align='right'
         color='primary'
@@ -69,6 +121,7 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
         variant='contained'
         color='primary'
         fullWidth
+        onClick={loginSubmit}
         sx={{
           py: 2,
           fontFamily: 'MadaniArabic-SemiBold',
