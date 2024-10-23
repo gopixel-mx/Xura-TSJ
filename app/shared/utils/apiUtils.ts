@@ -20,9 +20,11 @@ const makeCall = async ({
   data,
   query,
 }: MakeCallParams) => {
+  const isLoginCall = endpoint === '/sesiones';
+
   const tokenData = getToken();
 
-  if (!tokenData || !tokenData.token) {
+  if (!isLoginCall && (!tokenData || !tokenData.token)) {
     return {
       statusCode: 401,
       errorMessage: '¡Usuario no autorizado!',
@@ -30,7 +32,7 @@ const makeCall = async ({
     };
   }
 
-  const { token } = tokenData;
+  const token = isLoginCall ? null : tokenData?.token;
   const apiKey = process.env.NEXT_PUBLIC_API_KEY;
   const domain = process.env.NEXT_PUBLIC_URL;
   const url = `${domain}${endpoint}${query || ''}`;
@@ -40,7 +42,7 @@ const makeCall = async ({
     url,
     headers: {
       api_key: apiKey!,
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
       'Content-Type': 'application/json',
     },
     data,

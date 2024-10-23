@@ -18,11 +18,18 @@ interface ParsedToken {
   token: string;
 }
 
-function parseJwt(token: string): TokenPayload | null {
+export function parseJwt(token: string) {
   try {
     const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace('-', '+').replace('_', '/');
-    return JSON.parse(window.atob(base64)) as TokenPayload;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .join(''),
+    );
+
+    return JSON.parse(jsonPayload) as TokenPayload;
   } catch (error) {
     return null;
   }

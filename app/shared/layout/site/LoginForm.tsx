@@ -73,6 +73,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
       payload,
       errors,
       setErrorMessages,
+      activateAuth,
       setLoading,
     );
 

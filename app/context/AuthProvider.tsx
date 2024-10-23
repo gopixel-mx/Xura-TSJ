@@ -3,7 +3,7 @@
 import {
   ReactNode, useState, useMemo, useCallback, useEffect,
 } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import SnackAlert from '@/app/shared/common/Alert';
 import getTokenLocalStorage from '@/app/shared/utils/getToken';
 import { AuthContext } from './AuthContext';
@@ -36,9 +36,15 @@ export default function AuthProvider({ children }: ProviderProps) {
 
   // Función para activar la autenticación
   const activateAuth = useCallback((userData: any) => {
-    setUser(userData);
+    setUser({
+      id: userData.idCredencial,
+      token: userData.token,
+      email: userData.correo,
+      curp: userData.curp,
+      celular: userData.celular,
+    });
     localStorage.setItem('authToken', userData.token);
-    router.push('/');
+    router.push('/dashboard');
   }, [router]);
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { createRecord } from '@/app/shared/utils/apiUtils';
+import { parseJwt } from '@/app/shared/utils/getToken';
 
 interface LoginPayload {
   curp?: string;
@@ -11,36 +12,44 @@ const submitNewLogin = async (
   form: LoginPayload,
   errors: any,
   setErrorMessages: (errors: any) => void,
+  activateAuth: (userData: any) => void,
   setLoading: (loading: boolean) => void,
 ) => {
   const endpoint = '/sesiones';
   setLoading(true);
 
   try {
-    // Hacemos la llamada a la API usando createRecord
+    // Agregamos un console.log para ver qué datos se están enviando
+    console.log('Enviando datos al servidor:', form);
+
     const response = await createRecord({ data: form, endpoint });
 
-    if (response.statusCode === 200 && response.data && response.data.token) {
-      const { token, user } = response.data;
-      localStorage.setItem('authToken', token);
+    // Agregamos otro console.log para ver qué respuesta se recibe
+    console.log('Respuesta recibida del servidor:', response);
 
-      // Devuelve los datos completos del usuario
-      return {
-        token,
-        id: user.idCredencial,
-        email: user.correo,
-        curp: user.curp,
-        celular: user.celular,
-      };
-    } else {
-      if (response.statusCode === 404) {
-        setErrorMessages({ account: errors.account });
-      } else if (response.statusCode === 401) {
-        setErrorMessages({ password: errors.password });
+    if (response.statusCode === 200 && response.data && response.data.token) {
+      const { token } = response.data;
+      const decodedToken = parseJwt(token);
+
+      // Imprimir el token decodificado
+      console.log('Token decodificado:', decodedToken);
+
+      if (decodedToken) {
+        activateAuth({
+          ...decodedToken,
+          token,
+        });
+      } else {
+        setErrorMessages({ general: 'Error al decodificar el token' });
       }
+    } else if (response.statusCode === 404) {
+      setErrorMessages({ account: errors.account });
+    } else if (response.statusCode === 401) {
+      setErrorMessages({ password: errors.password });
     }
   } catch (error) {
-    console.error('Error:', error);
+    // Agregamos un console.log para ver si ocurre algún error
+    console.error('Error al realizar la solicitud:', error);
     setErrorMessages({ general: 'Hubo un error al iniciar sesión.' });
   } finally {
     setLoading(false);
