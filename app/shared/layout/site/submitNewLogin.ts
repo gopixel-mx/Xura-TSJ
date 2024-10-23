@@ -1,6 +1,13 @@
 import { createRecord } from '@/app/shared/utils/apiUtils';
 import { parseJwt } from '@/app/shared/utils/getToken';
 
+interface LoginResponse {
+  statusCode: number;
+  token?: string;
+  errorMessage?: string;
+  data?: any;
+}
+
 interface LoginPayload {
   curp?: string;
   celular?: string;
@@ -11,7 +18,7 @@ interface LoginPayload {
 const submitNewLogin = async (
   form: LoginPayload,
   errors: any,
-  setErrorMessages: (errors: any) => void,
+  setErrorMessages: (errores: any) => void,
   activateAuth: (userData: any) => void,
   setLoading: (loading: boolean) => void,
 ) => {
@@ -19,7 +26,7 @@ const submitNewLogin = async (
   setLoading(true);
 
   try {
-    const response = await createRecord({ data: form, endpoint });
+    const response: LoginResponse = await createRecord({ data: form, endpoint });
 
     if (response.statusCode === 200 && response.token) {
       const { token } = response;

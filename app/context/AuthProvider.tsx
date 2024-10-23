@@ -24,20 +24,15 @@ export default function AuthProvider({ children }: ProviderProps) {
   const [noti, setNoti] = useState<Noti | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Función para verificar si el usuario está autenticado
   const isAuthenticated = useCallback(() => !!user, [user]);
 
-  // Función para eliminar la autenticación y redirigir al usuario
   const removeAuth = useCallback(() => {
     localStorage.removeItem('authToken');
     setUser(null);
     router.push('/');
   }, [router]);
 
-  // Función para activar la autenticación
   const activateAuth = useCallback((userData: any) => {
-    console.log('Datos recibidos en activateAuth:', userData); // <-- Verifica que los datos son correctos
-
     setUser({
       id: userData.idCredencial,
       token: userData.token,
@@ -45,11 +40,7 @@ export default function AuthProvider({ children }: ProviderProps) {
       curp: userData.curp,
       celular: userData.celular,
     });
-
-    console.log('Guardando token en localStorage...'); // <-- Para confirmar que estamos a punto de almacenar el token
-    localStorage.setItem('authToken', userData.token); // <-- Aquí debería almacenarse el token
-
-    // Redirigimos al dashboard
+    localStorage.setItem('authToken', userData.token);
     router.push('/dashboard');
   }, [router]);
 

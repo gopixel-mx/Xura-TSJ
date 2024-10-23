@@ -28,7 +28,6 @@ interface AuthContextProps {
   activateAuth: (userData: User) => void;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export function useAuthContext() {

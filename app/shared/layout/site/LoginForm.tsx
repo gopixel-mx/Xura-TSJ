@@ -78,7 +78,6 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
       setLoading,
     );
 
-    // Aquí activamos la autenticación con los datos completos del usuario
     if (userData) {
       activateAuth(userData);
     }
