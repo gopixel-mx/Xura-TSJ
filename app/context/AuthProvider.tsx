@@ -3,8 +3,9 @@
 import {
   ReactNode, useState, useMemo, useCallback, useEffect,
 } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import SnackAlert from '@/app/shared/common/Alert';
+import getTokenLocalStorage from '@/app/shared/utils/getToken';
 import { AuthContext } from './AuthContext';
 
 interface ProviderProps {
@@ -19,25 +20,40 @@ interface Noti {
 
 export default function AuthProvider({ children }: ProviderProps) {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [noti, setNoti] = useState<Noti | null>(null); // Puede ser null si no hay notificaciones
+  const [user, setUser] = useState<any | null>(null);
+  const [noti, setNoti] = useState<Noti | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Función para verificar si el usuario está autenticado
   const isAuthenticated = useCallback(() => !!user, [user]);
 
-  // Función para eliminar la autenticación y redirigir al usuario
   const removeAuth = useCallback(() => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
     setUser(null);
     router.push('/');
   }, [router]);
 
-  // Efecto para verificar el token almacenado en el localStorage al cargar la página
+  const activateAuth = useCallback((userData: any) => {
+    setUser({
+      id: userData.idCredencial,
+      token: userData.token,
+      email: userData.correo,
+      curp: userData.curp,
+      celular: userData.celular,
+    });
+    localStorage.setItem('authToken', userData.token);
+    router.push('/dashboard');
+  }, [router]);
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setUser({ token });
+    const storedUser = getTokenLocalStorage();
+    if (storedUser) {
+      setUser({
+        id: storedUser.idCredencial,
+        token: storedUser.token,
+        email: storedUser.correo,
+        curp: storedUser.curp,
+        celular: storedUser.celular,
+      });
     } else {
       removeAuth();
     }
@@ -53,7 +69,8 @@ export default function AuthProvider({ children }: ProviderProps) {
     setLoading,
     isAuthenticated,
     removeAuth,
-  }), [user, noti, loading, isAuthenticated, removeAuth]);
+    activateAuth,
+  }), [user, noti, loading, isAuthenticated, removeAuth, activateAuth]);
 
   return (
     <AuthContext.Provider value={providerValue}>

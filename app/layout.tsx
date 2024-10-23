@@ -1,8 +1,8 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { Navbar } from '@/app/shared/layout';
 import { CssBaseline, Toolbar } from '@mui/material';
-// import { AuthProvider } from '@/app/context/AuthContext';
+import AuthProvider from '@/app/context/AuthProvider';
 
 export const metadata: Metadata = {
   title: 'Xura',
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   const isAuthenticated = true;
   const userRole = 1;
@@ -19,12 +19,14 @@ export default function RootLayout({ children }: {
   return (
     <html lang='en'>
       <body>
-        <CssBaseline />
-        <Navbar isAuthenticated={isAuthenticated} rol={userRole} />
-        <Toolbar />
-        <div>
-          {children}
-        </div>
+        <AuthProvider>
+          <CssBaseline />
+          <Navbar isAuthenticated={isAuthenticated} rol={userRole} />
+          <Toolbar />
+          <div>
+            {children}
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

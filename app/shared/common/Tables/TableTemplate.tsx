@@ -49,11 +49,11 @@ export default function TableTemplate({
     </div>
   );
 }
-
-TableTemplate.defaultProps = {
-  pageSize: 10,
-  loading: true,
-  rowSelection: 'multiple',
-  isRowSelectable: undefined,
-  onSelectionChanged: undefined,
-};
+//
+// TableTemplate.defaultProps = {
+//   pageSize: 10,
+//   loading: true,
+//   rowSelection: 'multiple',
+//   isRowSelectable: undefined,
+//   onSelectionChanged: undefined,
+// };

@@ -5,12 +5,84 @@ import {
 import { PersonOutline, VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
 import Image from 'next/image';
 import { signIn } from 'next-auth/react';
+import { useAuthContext } from '@/app/context/AuthContext';
+import submitNewLogin from './submitNewLogin';
 
-export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
+interface LoginFormProps {
+  onSwitchToRegister: () => void;
+}
+
+interface LoginPayload {
+  curp?: string;
+  celular?: string;
+  email?: string;
+  contrasena: string;
+}
+
+interface ErrorMessages {
+  account?: string;
+  password?: string;
+}
+
+export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+  const { activateAuth, setLoading } = useAuthContext();
+  const [account, setAccount] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessages, setErrorMessages] = useState<ErrorMessages>({});
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
+  const isValidAccount = (value: string) => {
+    const isEmail = /\S+@\S+\.\S+/.test(value);
+    const isCurp = /^[A-Z0-9]{18}$/i.test(value);
+    const isPhone = /^\d{10}$/.test(value);
+    return isEmail || isCurp || isPhone;
+  };
+
+  const handleSubmit = async () => {
+    if (!isValidAccount(account)) {
+      setErrorMessages({ account: 'Ingrese un CURP, email o número de celular válido.' });
+      return;
+    }
+
+    if (password.length === 0) {
+      setErrorMessages({ password: 'La contraseña es obligatoria.' });
+      return;
+    }
+
+    const payload: LoginPayload = { contrasena: password };
+
+    if (/^[A-Z0-9]{18}$/i.test(account)) {
+      payload.curp = account;
+    } else if (/^\d{10}$/.test(account)) {
+      payload.celular = account;
+    } else if (/\S+@\S+\.\S+/.test(account)) {
+      payload.email = account;
+    }
+
+    const errors = {
+      account: '¡Cuenta equivocada!',
+      password: '¡Contraseña equivocada!',
+    };
+
+    setLoading(true);
+
+    const userData = await submitNewLogin(
+      payload,
+      errors,
+      setErrorMessages,
+      activateAuth,
+      setLoading,
+    );
+
+    if (userData) {
+      activateAuth(userData);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -18,8 +90,10 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
       <TextField
         label='Cuenta'
         variant='outlined'
-        placeholder='Email o CURP'
+        placeholder='CURP, Email o Celular'
         fullWidth
+        value={account}
+        onChange={(e) => setAccount(e.target.value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -27,6 +101,8 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
             </InputAdornment>
           ),
         }}
+        error={!!errorMessages.account}
+        helperText={errorMessages.account}
       />
       <TextField
         label='Contraseña'
@@ -34,6 +110,8 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
         type={showPassword ? 'text' : 'password'}
         placeholder='Contraseña'
         fullWidth
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -43,6 +121,8 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
             </InputAdornment>
           ),
         }}
+        error={!!errorMessages.password}
+        helperText={errorMessages.password}
       />
       <Typography
         align='right'
@@ -69,6 +149,7 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
         variant='contained'
         color='primary'
         fullWidth
+        onClick={handleSubmit}
         sx={{
           py: 2,
           fontFamily: 'MadaniArabic-SemiBold',

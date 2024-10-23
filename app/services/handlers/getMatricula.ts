@@ -143,6 +143,18 @@ const getCurp = async (curp: string) => {
   }
 };
 
+const loginUser = async (payload: object) => {
+  try {
+    const { data } = await axios.post('http://localhost:3001/sesiones', payload);
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Error al iniciar sesión.');
+    }
+    throw new Error('Error de conexión al iniciar sesión.');
+  }
+};
+
 export {
   getMatricula,
   getMatriculaByNombre,
@@ -156,4 +168,5 @@ export {
   insertCredencial,
   getCurp,
   getTablaMatricula,
+  loginUser,
 };

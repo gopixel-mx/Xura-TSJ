@@ -1,6 +1,14 @@
 'use client';
 
-import { createContext } from 'react';
+import { createContext, useContext } from 'react';
+
+interface User {
+  id: string;
+  token: string;
+  email?: string;
+  curp?: string;
+  celular?: string;
+}
 
 interface Noti {
   open: boolean;
@@ -9,15 +17,25 @@ interface Noti {
 }
 
 interface AuthContextProps {
-  user: any;
-  setUser: (user: any) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   noti: Noti | null;
   setNoti: (noti: Noti | null) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   isAuthenticated: () => boolean;
   removeAuth: () => void;
+  activateAuth: (userData: User) => void;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+
+export function useAuthContext() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error(
+      'useAuthContext must be used within a AuthProvider',
+    );
+  }
+  return context;
+}
