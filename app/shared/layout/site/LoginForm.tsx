@@ -5,17 +5,31 @@ import {
 import { PersonOutline, VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
 import Image from 'next/image';
 import { signIn } from 'next-auth/react';
-import { loginUser } from '@/app/services/handlers/getMatricula';
+import { useAuthContext } from '@/app/context/AuthContext';
+import submitNewLogin from './submitNewLogin';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
 }
 
+interface LoginPayload {
+  curp?: string;
+  celular?: string;
+  email?: string;
+  contrasena: string;
+}
+
+interface ErrorMessages {
+  account?: string;
+  password?: string;
+}
+
 export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+  const { activateAuth, setLoading } = useAuthContext();
   const [account, setAccount] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [errorMessages, setErrorMessages] = useState<ErrorMessages>({});
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -28,32 +42,46 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
     return isEmail || isCurp || isPhone;
   };
 
-  const loginSubmit = async () => {
+  const handleSubmit = async () => {
     if (!isValidAccount(account)) {
-      setError('Ingrese un CURP, email o número de celular válido.');
+      setErrorMessages({ account: 'Ingrese un CURP, email o número de celular válido.' });
       return;
     }
 
     if (password.length === 0) {
-      setError('La contraseña es obligatoria.');
+      setErrorMessages({ password: 'La contraseña es obligatoria.' });
       return;
     }
 
-    let payload = {};
+    const payload: LoginPayload = { contrasena: password };
+
     if (/^[A-Z0-9]{18}$/i.test(account)) {
-      payload = { curp: account, contrasena: password };
+      payload.curp = account;
     } else if (/^\d{10}$/.test(account)) {
-      payload = { celular: account, contrasena: password };
+      payload.celular = account;
     } else if (/\S+@\S+\.\S+/.test(account)) {
-      payload = { email: account, contrasena: password };
+      payload.email = account;
     }
 
-    try {
-      const { token } = await loginUser(payload);
-      localStorage.setItem('authToken', token);
-    } catch (err: any) {
-      setError(err.message);
+    const errors = {
+      account: '¡Cuenta equivocada!',
+      password: '¡Contraseña equivocada!',
+    };
+
+    setLoading(true);
+    const userData = await submitNewLogin(
+      payload,
+      errors,
+      setErrorMessages,
+      setLoading,
+    );
+
+    // Aquí activamos la autenticación con los datos completos del usuario
+    if (userData) {
+      activateAuth(userData);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -72,6 +100,8 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             </InputAdornment>
           ),
         }}
+        error={!!errorMessages.account}
+        helperText={errorMessages.account}
       />
       <TextField
         label='Contraseña'
@@ -90,12 +120,9 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             </InputAdornment>
           ),
         }}
+        error={!!errorMessages.password}
+        helperText={errorMessages.password}
       />
-      {error && (
-        <Typography color='error' sx={{ marginBottom: '16px' }}>
-          {error}
-        </Typography>
-      )}
       <Typography
         align='right'
         color='primary'
@@ -121,7 +148,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         variant='contained'
         color='primary'
         fullWidth
-        onClick={loginSubmit}
+        onClick={handleSubmit}
         sx={{
           py: 2,
           fontFamily: 'MadaniArabic-SemiBold',

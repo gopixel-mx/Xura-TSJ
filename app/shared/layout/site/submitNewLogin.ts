@@ -11,25 +11,32 @@ const submitNewLogin = async (
   form: LoginPayload,
   errors: any,
   setErrorMessages: (errors: any) => void,
-  activateAuth: (token: string) => void,
   setLoading: (loading: boolean) => void,
 ) => {
   const endpoint = '/sesiones';
-
   setLoading(true);
 
   try {
     // Hacemos la llamada a la API usando createRecord
     const response = await createRecord({ data: form, endpoint });
-    if (response.statusCode === 200) {
-      const { token } = response.data;
+
+    if (response.statusCode === 200 && response.data && response.data.token) {
+      const { token, user } = response.data;
       localStorage.setItem('authToken', token);
-      activateAuth(token); // Activa la autenticación
+
+      // Devuelve los datos completos del usuario
+      return {
+        token,
+        id: user.idCredencial,
+        email: user.correo,
+        curp: user.curp,
+        celular: user.celular,
+      };
     } else {
       if (response.statusCode === 404) {
-        setErrorMessages({ usuario: errors.usuario });
+        setErrorMessages({ account: errors.account });
       } else if (response.statusCode === 401) {
-        setErrorMessages({ contrasena: errors.contrasena });
+        setErrorMessages({ password: errors.password });
       }
     }
   } catch (error) {
@@ -38,6 +45,8 @@ const submitNewLogin = async (
   } finally {
     setLoading(false);
   }
+
+  return null;
 };
 
 export default submitNewLogin;
