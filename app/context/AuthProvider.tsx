@@ -36,6 +36,8 @@ export default function AuthProvider({ children }: ProviderProps) {
 
   // Función para activar la autenticación
   const activateAuth = useCallback((userData: any) => {
+    console.log('Datos recibidos en activateAuth:', userData); // <-- Verifica que los datos son correctos
+
     setUser({
       id: userData.idCredencial,
       token: userData.token,
@@ -43,7 +45,11 @@ export default function AuthProvider({ children }: ProviderProps) {
       curp: userData.curp,
       celular: userData.celular,
     });
-    localStorage.setItem('authToken', userData.token);
+
+    console.log('Guardando token en localStorage...'); // <-- Para confirmar que estamos a punto de almacenar el token
+    localStorage.setItem('authToken', userData.token); // <-- Aquí debería almacenarse el token
+
+    // Redirigimos al dashboard
     router.push('/dashboard');
   }, [router]);
 

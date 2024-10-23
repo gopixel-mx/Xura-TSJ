@@ -20,8 +20,7 @@ const makeCall = async ({
   data,
   query,
 }: MakeCallParams) => {
-  const isLoginCall = endpoint === '/sesiones';
-
+  const isLoginCall = endpoint === '/sesiones'; // Detectar si es una llamada de login
   const tokenData = getToken();
 
   if (!isLoginCall && (!tokenData || !tokenData.token)) {
@@ -50,6 +49,14 @@ const makeCall = async ({
 
   try {
     const response = await axios(config);
+
+    if (isLoginCall) {
+      return {
+        statusCode: response.status,
+        token: response.data.token,
+      };
+    }
+
     return {
       statusCode: response.status,
       data: response.data.data,

@@ -69,6 +69,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
     };
 
     setLoading(true);
+
     const userData = await submitNewLogin(
       payload,
       errors,
