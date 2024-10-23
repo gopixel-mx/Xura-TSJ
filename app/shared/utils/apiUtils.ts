@@ -20,7 +20,7 @@ const makeCall = async ({
   data,
   query,
 }: MakeCallParams) => {
-  const isLoginCall = endpoint === '/sesiones'; // Detectar si es una llamada de login
+  const isLoginCall = endpoint === '/sesiones';
   const tokenData = getToken();
 
   if (!isLoginCall && (!tokenData || !tokenData.token)) {
