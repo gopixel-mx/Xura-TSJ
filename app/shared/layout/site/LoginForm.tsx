@@ -15,7 +15,7 @@ interface LoginFormProps {
 interface LoginPayload {
   curp?: string;
   celular?: string;
-  email?: string;
+  correo?: string;
   contrasena: string;
 }
 
@@ -60,7 +60,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
     } else if (/^\d{10}$/.test(account)) {
       payload.celular = account;
     } else if (/\S+@\S+\.\S+/.test(account)) {
-      payload.email = account;
+      payload.correo = account;
     }
 
     const errors = {

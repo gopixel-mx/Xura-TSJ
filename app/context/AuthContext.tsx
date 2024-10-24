@@ -5,7 +5,7 @@ import { createContext, useContext } from 'react';
 interface User {
   id: string;
   token: string;
-  email?: string;
+  correo?: string;
   curp?: string;
   celular?: string;
 }

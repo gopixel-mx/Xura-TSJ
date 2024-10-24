@@ -9,15 +9,6 @@ const getMatricula = async (clase: string) => {
   }
 };
 
-const getTablaMatricula = async (clase: string) => {
-  try {
-    const { data } = await axios.get(`/api/matricula/real/${clase}`);
-    return data;
-  } catch (error) {
-    throw new Error(`Error al cargar los datos para la clase ${clase}`);
-  }
-};
-
 const getMatriculaByNombre = async (nombre: string) => {
   try {
     const { data } = await axios.get(`/api/carrera/real/${nombre}`);
@@ -33,24 +24,6 @@ const getMatriculaTotalUnidades = async () => {
     return data;
   } catch (error) {
     throw new Error('Error al cargar los datos');
-  }
-};
-
-const getMatriculaTotal = async () => {
-  try {
-    const { data } = await axios.get('/api/matricula/total');
-    return data;
-  } catch (error) {
-    throw new Error('Error al cargar los datos');
-  }
-};
-
-const getAplicaciones = async () => {
-  try {
-    const response = await axios.get('http://localhost:3001/aplicaciones'); // URL completa
-    return response.data;
-  } catch (error) {
-    return [];
   }
 };
 
@@ -71,24 +44,6 @@ const insertAplicacion = async (
     } else {
       throw new Error('Error inesperado en la inserción de la aplicación');
     }
-  }
-};
-
-const getGrupos = async () => {
-  try {
-    const response = await axios.get('http://localhost:3001/grupos'); // URL completa
-    return response.data;
-  } catch (error) {
-    return [];
-  }
-};
-
-const getCredenciales = async () => {
-  try {
-    const response = await axios.get('http://localhost:3001/credenciales'); // URL completa
-    return response.data;
-  } catch (error) {
-    return [];
   }
 };
 
@@ -143,30 +98,12 @@ const getCurp = async (curp: string) => {
   }
 };
 
-const loginUser = async (payload: object) => {
-  try {
-    const { data } = await axios.post('http://localhost:3001/sesiones', payload);
-    return data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Error al iniciar sesión.');
-    }
-    throw new Error('Error de conexión al iniciar sesión.');
-  }
-};
-
 export {
   getMatricula,
   getMatriculaByNombre,
   getMatriculaTotalUnidades,
-  getMatriculaTotal,
-  getAplicaciones,
-  getGrupos,
-  getCredenciales,
   insertAplicacion,
   getPeriodos,
   insertCredencial,
   getCurp,
-  getTablaMatricula,
-  loginUser,
 };

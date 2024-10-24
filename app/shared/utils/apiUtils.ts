@@ -59,7 +59,7 @@ const makeCall = async ({
 
     return {
       statusCode: response.status,
-      data: response.data.data,
+      data: response.data,
     };
   } catch (error: any) {
     const statusCode = error.response?.status || 500;

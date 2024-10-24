@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
-import { getAplicaciones, insertAplicacion } from '@/app/services/handlers/getMatricula';
+import { getData } from '@/app/shared/utils/apiUtils';
+import { insertAplicacion } from '@/app/services/handlers/getMatricula';
 import ModalAplicaciones from '@/app/shared/modals/aplicaciones/ModalAplicaciones';
 import { AplicacionFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
@@ -23,7 +24,8 @@ export default function TableAplicaciones() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getAplicaciones();
+        const { data } = await getData({ endpoint: '/aplicaciones' });
+        console.log(data);
         setRowData(data);
         setLoading(false);
       } catch (error) {
@@ -37,12 +39,13 @@ export default function TableAplicaciones() {
     const { clave, nombre, redireccion } = data;
     try {
       await insertAplicacion(clave, nombre, redireccion);
-      const datos = await getAplicaciones();
-      setRowData(datos);
-      setOpenModal(false); // Solo cierra el modal si la operación es exitosa
+      // eslint-disable-next-line no-shadow
+      const { data } = await getData({ endpoint: '/aplicaciones' });
+      setRowData(data);
+      setOpenModal(false);
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.errors) {
-        throw error; // Lanza el error para que ModalAplicaciones lo capture
+        throw error;
       } else {
         throw new Error('Error inesperado en la inserción de la aplicación');
       }
@@ -56,7 +59,6 @@ export default function TableAplicaciones() {
       sortable: true,
       filter: true,
       flex: 1,
-      checkboxSelection: true,
     },
     {
       field: 'nombre',
@@ -102,7 +104,7 @@ export default function TableAplicaciones() {
         colDefs={colDefs}
         pageSize={20}
         loading={loading}
-        rowSelection='multiple'
+        selectionMode='multiRow'
         isRowSelectable={isRowSelectable}
         onSelectionChanged={handleRowSelectionChanged}
       />

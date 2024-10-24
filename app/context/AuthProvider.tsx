@@ -36,7 +36,7 @@ export default function AuthProvider({ children }: ProviderProps) {
     setUser({
       id: userData.idCredencial,
       token: userData.token,
-      email: userData.correo,
+      correo: userData.correo,
       curp: userData.curp,
       celular: userData.celular,
     });
@@ -50,7 +50,7 @@ export default function AuthProvider({ children }: ProviderProps) {
       setUser({
         id: storedUser.idCredencial,
         token: storedUser.token,
-        email: storedUser.correo,
+        correo: storedUser.correo,
         curp: storedUser.curp,
         celular: storedUser.celular,
       });

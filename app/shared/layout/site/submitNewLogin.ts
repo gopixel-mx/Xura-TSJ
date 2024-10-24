@@ -11,7 +11,7 @@ interface LoginResponse {
 interface LoginPayload {
   curp?: string;
   celular?: string;
-  email?: string;
+  correo?: string;
   contrasena: string;
 }
 
