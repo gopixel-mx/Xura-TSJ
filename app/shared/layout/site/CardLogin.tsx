@@ -19,11 +19,19 @@ export default function CardLogin() {
     password: '',
   });
 
-  const [userErrors, setUserErrors] = useState({
+  const [registerErrors, setRegisterErrors] = useState({
     curpError: '',
     emailError: '',
     celularError: '',
     passwordError: '',
+  });
+
+  const [loginErrors, setLoginErrors] = useState<{
+    account?: string;
+    password?: string;
+  }>({
+    account: '',
+    password: '',
   });
 
   const [isAspiranteMode, setIsAspiranteMode] = useState(false);
@@ -72,11 +80,11 @@ export default function CardLogin() {
 
     if (!isValidPassword(userData.password)) {
       errors.passwordError = `La contraseña debe tener al menos 8 caracteres,
-        incluir una mayúscula, un número y un carácter especial.`;
+      incluir una mayúscula, un número y un carácter especial.`;
       valid = false;
     }
 
-    setUserErrors(errors);
+    setRegisterErrors(errors); // Aquí se usa setRegisterErrors en lugar de setUserErrors
 
     if (valid) {
       setLoading(true);
@@ -87,12 +95,12 @@ export default function CardLogin() {
           setNombreCompleto(`${Nombre} ${ApellidoPaterno} ${ApellidoMaterno}`);
           setIsAspiranteMode(true);
         } else {
-          setUserErrors((prevErrors) => (
+          setRegisterErrors((prevErrors) => (
             { ...prevErrors, curpError: 'No se encontró a la persona con esa CURP.' }
           ));
         }
       } catch (error) {
-        setUserErrors((prevErrors) => (
+        setRegisterErrors((prevErrors) => (
           { ...prevErrors, curpError: 'Error al consultar la CURP.' }
         ));
       } finally {
@@ -127,7 +135,11 @@ export default function CardLogin() {
         <SliderLogin active={activeSlide} onChange={handleSliderChange} />
 
         {activeSlide === 'ingresa' ? (
-          <LoginForm onSwitchToRegister={() => handleSliderChange('registrate')} />
+          <LoginForm
+            onSwitchToRegister={() => handleSliderChange('registrate')}
+            userErrors={loginErrors}
+            setUserErrors={setLoginErrors}
+          />
         ) : (
           <RegisterForm
             onRegister={handleRegister}
@@ -136,7 +148,7 @@ export default function CardLogin() {
             onCheckboxChange={handleCheckboxChange}
             userData={userData}
             setUserData={setUserData}
-            userErrors={userErrors}
+            userErrors={registerErrors}
           />
         )}
       </Box>

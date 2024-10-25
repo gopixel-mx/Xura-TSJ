@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Box, TextField, InputAdornment, IconButton, Button, Typography, Link, Divider,
 } from '@mui/material';
@@ -8,10 +8,6 @@ import { signIn } from 'next-auth/react';
 import { useAuthContext } from '@/app/context/AuthContext';
 import submitNewLogin from './submitNewLogin';
 
-interface LoginFormProps {
-  onSwitchToRegister: () => void;
-}
-
 interface LoginPayload {
   curp?: string;
   celular?: string;
@@ -19,17 +15,26 @@ interface LoginPayload {
   contrasena: string;
 }
 
-interface ErrorMessages {
-  account?: string;
-  password?: string;
+interface LoginFormProps {
+  onSwitchToRegister: () => void;
+  userErrors: {
+    account?: string;
+    password?: string;
+  };
+  setUserErrors: React.Dispatch<React.SetStateAction<{
+    account?: string;
+    password?: string;
+  }>>;
 }
 
-export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+export default function LoginForm({
+  onSwitchToRegister,
+  userErrors,
+  setUserErrors,
+}: LoginFormProps) {
   const { activateAuth, setLoading } = useAuthContext();
-  const [account, setAccount] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [errorMessages, setErrorMessages] = useState<ErrorMessages>({});
+  const [form, setForm] = React.useState({ account: '', password: '' });
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -38,42 +43,46 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const isValidAccount = (value: string) => {
     const isEmail = /\S+@\S+\.\S+/.test(value);
     const isCurp = /^[A-Z0-9]{18}$/i.test(value);
-    const isPhone = /^\d{10}$/.test(value);
+    const isPhone = /^\d{10}$/i.test(value);
     return isEmail || isCurp || isPhone;
   };
 
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prevForm) => ({ ...prevForm, [name]: value }));
+  };
+
   const handleSubmit = async () => {
-    if (!isValidAccount(account)) {
-      setErrorMessages({ account: 'Ingrese un CURP, email o número de celular válido.' });
-      return;
+    let valid = true;
+    const errors = { account: '', password: '' };
+
+    if (!isValidAccount(form.account)) {
+      errors.account = 'Ingrese un CURP, email o número de celular válido.';
+      valid = false;
     }
 
-    if (password.length === 0) {
-      setErrorMessages({ password: 'La contraseña es obligatoria.' });
-      return;
+    if (form.password.length === 0) {
+      errors.password = 'La contraseña es obligatoria.';
+      valid = false;
     }
 
-    const payload: LoginPayload = { contrasena: password };
+    setUserErrors(errors);
+    if (!valid) return;
 
-    if (/^[A-Z0-9]{18}$/i.test(account)) {
-      payload.curp = account;
-    } else if (/^\d{10}$/.test(account)) {
-      payload.celular = account;
-    } else if (/\S+@\S+\.\S+/.test(account)) {
-      payload.correo = account;
+    const payload: LoginPayload = { contrasena: form.password };
+
+    if (/^[A-Z0-9]{18}$/i.test(form.account)) {
+      payload.curp = form.account;
+    } else if (/^\d{10}$/i.test(form.account)) {
+      payload.celular = form.account;
+    } else if (/\S+@\S+\.\S+/.test(form.account)) {
+      payload.correo = form.account;
     }
-
-    const errors = {
-      account: '¡Cuenta equivocada!',
-      password: '¡Contraseña equivocada!',
-    };
 
     setLoading(true);
-
     const userData = await submitNewLogin(
       payload,
-      errors,
-      setErrorMessages,
+      setUserErrors,
       activateAuth,
       setLoading,
     );
@@ -92,8 +101,9 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         variant='outlined'
         placeholder='CURP, Email o Celular'
         fullWidth
-        value={account}
-        onChange={(e) => setAccount(e.target.value)}
+        name='account'
+        value={form.account}
+        onChange={handleOnChange}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -101,8 +111,8 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             </InputAdornment>
           ),
         }}
-        error={!!errorMessages.account}
-        helperText={errorMessages.account}
+        error={Boolean(userErrors.account)}
+        helperText={userErrors.account}
       />
       <TextField
         label='Contraseña'
@@ -110,8 +120,9 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         type={showPassword ? 'text' : 'password'}
         placeholder='Contraseña'
         fullWidth
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        name='password'
+        value={form.password}
+        onChange={handleOnChange}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -121,8 +132,8 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             </InputAdornment>
           ),
         }}
-        error={!!errorMessages.password}
-        helperText={errorMessages.password}
+        error={Boolean(userErrors.password)}
+        helperText={userErrors.password}
       />
       <Typography
         align='right'

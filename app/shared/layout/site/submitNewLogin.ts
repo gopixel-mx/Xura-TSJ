@@ -4,7 +4,7 @@ import { parseJwt } from '@/app/shared/utils/getToken';
 interface LoginResponse {
   statusCode: number;
   token?: string;
-  errorMessage?: string;
+  message?: string;
   data?: any;
 }
 
@@ -17,11 +17,10 @@ interface LoginPayload {
 
 const submitNewLogin = async (
   form: LoginPayload,
-  errors: any,
-  setErrorMessages: (errores: any) => void,
+  setErrorMessages: (errors: { account?: string; password?: string; general?: string }) => void,
   activateAuth: (userData: any) => void,
   setLoading: (loading: boolean) => void,
-) => {
+): Promise<any> => {
   const endpoint = '/sesiones';
   setLoading(true);
 
@@ -33,20 +32,21 @@ const submitNewLogin = async (
       const decodedToken = parseJwt(token);
 
       if (decodedToken) {
-        activateAuth({
+        const userDataWithToken = {
           ...decodedToken,
           token,
-        });
-      } else {
-        setErrorMessages({ general: 'Error al decodificar el token' });
+        };
+        activateAuth(userDataWithToken);
+        return userDataWithToken;
       }
-    } else if (response.statusCode === 404) {
-      setErrorMessages({ account: errors.account });
+      setErrorMessages({ general: 'Error al decodificar el token' });
     } else if (response.statusCode === 401) {
-      setErrorMessages({ password: errors.password });
+      setErrorMessages({ account: 'Cuenta no válida o contraseña incorrecta.' });
+    } else if (response.statusCode === 403) {
+      setErrorMessages({ account: 'La cuenta está inactiva.' });
     }
   } catch (error) {
-    setErrorMessages({ general: 'Hubo un error al iniciar sesión.' });
+    setErrorMessages({ general: 'Hubo un error al iniciar sesión. Inténtalo más tarde.' });
   } finally {
     setLoading(false);
   }
