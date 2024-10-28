@@ -6,6 +6,8 @@ interface LoginResponse {
   token?: string;
   message?: string;
   data?: any;
+  actionRequired?: string;
+  validationNeeded?: { correo?: boolean; celular?: boolean };
 }
 
 interface LoginPayload {
@@ -15,11 +17,15 @@ interface LoginPayload {
   contrasena: string;
 }
 
-const submitNewLogin = async (
+const SubmitNewLogin = async (
   form: LoginPayload,
   setErrorMessages: (errors: { account?: string; password?: string; general?: string }) => void,
   activateAuth: (userData: any) => void,
   setLoading: (loading: boolean) => void,
+  handleActionRequired: (
+    action: string,
+    validationNeeded: { correo?: boolean; celular?: boolean },
+  ) => void,
 ): Promise<any> => {
   const endpoint = '/sesiones';
   setLoading(true);
@@ -44,6 +50,8 @@ const submitNewLogin = async (
       setErrorMessages({ account: 'Cuenta no válida o contraseña incorrecta.' });
     } else if (response.statusCode === 403) {
       setErrorMessages({ account: 'La cuenta está inactiva.' });
+    } else if (response.actionRequired === 'VALIDATE_CONTACT_INFO') {
+      handleActionRequired(response.actionRequired, response.validationNeeded || {});
     }
   } catch (error) {
     setErrorMessages({ general: 'Hubo un error al iniciar sesión. Inténtalo más tarde.' });
@@ -54,4 +62,4 @@ const submitNewLogin = async (
   return null;
 };
 
-export default submitNewLogin;
+export default SubmitNewLogin;

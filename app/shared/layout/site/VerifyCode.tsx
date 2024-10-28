@@ -35,6 +35,12 @@ export default function VerifyCode({
   const [isEmailStep, setIsEmailStep] = useState(type === 'Register');
   const [error, setError] = useState('');
 
+  // Obtener la información de validación pendiente de localStorage al iniciar
+  const [validationNeeded, setValidationNeeded] = useState(() => {
+    const savedValidation = localStorage.getItem('validationNeeded');
+    return savedValidation ? JSON.parse(savedValidation) : { correo: true, celular: true };
+  });
+
   let currentData;
   if (type === 'Register') {
     currentData = isEmailStep ? email : celular;
@@ -55,12 +61,21 @@ export default function VerifyCode({
     return undefined;
   }, [counter, permanentlyDisabled]);
 
+  // Lógica para enviar el código según el tipo de validación pendiente
+  useEffect(() => {
+    if (validationNeeded.correo && isEmailStep) {
+      // Enviar código de validación de correo
+    } else if (validationNeeded.celular && !isEmailStep) {
+      // Enviar código de validación de celular
+    }
+  }, [validationNeeded, isEmailStep]);
+
   const handleResendCode = () => {
     if (!resendDisabled && !permanentlyDisabled) {
       setResendDisabled(true);
       setPermanentlyDisabled(true);
       setCounter(30);
-      // Aquí se haría la llamada para reenvío del código
+      // Aquí se haría la llamada para reenvío del código según `validationNeeded`
     }
   };
 
@@ -69,7 +84,7 @@ export default function VerifyCode({
       setResendDisabled(true);
       setAltSendDisabled(true);
       setCounter(30);
-      // Aquí se haría la llamada para enviar el código alterno
+      // Aquí se haría la llamada para enviar el código alterno según `validationNeeded`
     }
   };
 
@@ -87,20 +102,27 @@ export default function VerifyCode({
 
   const handleConfirmCode = () => {
     const enteredCode = codeValues.join('');
-    if (enteredCode === '1234') {
+    if (enteredCode === '1234') { // Sustituir por la lógica de verificación del código real
       if (type === 'Register' && isEmailStep) {
         setIsEmailStep(false);
         setCodeValues(['', '', '', '']);
         setCounter(30);
         setResendDisabled(true);
         setPermanentlyDisabled(false);
+        setValidationNeeded((prev: any) => ({
+          ...prev,
+          correo: false, // Marca correo como validado
+        }));
+        localStorage.setItem('validationNeeded', JSON.stringify({
+          ...validationNeeded,
+          correo: false,
+        }));
       } else if (type === 'Register') {
         window.location.href = 'https://admision.tsj.mx:3000';
       } else {
         router.push('/');
       }
     } else {
-      // Incorrect code entered
       setError('El código ingresado es incorrecto.');
       setCodeValues(['', '', '', '']);
       inputRefs.current[0]?.focus();

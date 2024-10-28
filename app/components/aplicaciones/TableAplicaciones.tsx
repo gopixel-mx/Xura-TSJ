@@ -25,7 +25,6 @@ export default function TableAplicaciones() {
     const fetchData = async () => {
       try {
         const { data } = await getData({ endpoint: '/aplicaciones' });
-        console.log(data);
         setRowData(data);
         setLoading(false);
       } catch (error) {

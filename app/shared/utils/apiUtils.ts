@@ -54,6 +54,10 @@ const makeCall = async ({
       return {
         statusCode: response.status,
         token: response.data.token,
+        message: response.data.message,
+        actionRequired: response.data.actionRequired,
+        validationNeeded: response.data.validationNeeded,
+        authenticationNeeded: response.data.authenticationNeeded,
       };
     }
 

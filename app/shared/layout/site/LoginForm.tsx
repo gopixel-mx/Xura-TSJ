@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import {
+  useState, Dispatch, SetStateAction, ChangeEvent,
+} from 'react';
 import {
   Box, TextField, InputAdornment, IconButton, Button, Typography, Link, Divider,
 } from '@mui/material';
@@ -6,7 +8,8 @@ import { PersonOutline, VisibilityOffOutlined, VisibilityOutlined } from '@mui/i
 import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 import { useAuthContext } from '@/app/context/AuthContext';
-import submitNewLogin from './submitNewLogin';
+import SubmitNewLogin from './SubmitNewLogin';
+import VerifyCode from './VerifyCode';
 
 interface LoginPayload {
   curp?: string;
@@ -15,13 +18,13 @@ interface LoginPayload {
   contrasena: string;
 }
 
-interface LoginFormProps {
+export interface LoginFormProps {
   onSwitchToRegister: () => void;
   userErrors: {
     account?: string;
     password?: string;
   };
-  setUserErrors: React.Dispatch<React.SetStateAction<{
+  setUserErrors: Dispatch<SetStateAction<{
     account?: string;
     password?: string;
   }>>;
@@ -33,8 +36,20 @@ export default function LoginForm({
   setUserErrors,
 }: LoginFormProps) {
   const { activateAuth, setLoading } = useAuthContext();
-  const [form, setForm] = React.useState({ account: '', password: '' });
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [form, setForm] = useState({ account: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showVerifyCode, setShowVerifyCode] = useState(false);
+  const [validationNeed, setValidationNeed] = useState<{ correo?: boolean; celular?: boolean }>({});
+
+  const showVerifyCodeComponent = (
+    action: string,
+    validationNeeded: { correo?: boolean; celular?: boolean },
+  ) => {
+    if (action === 'VALIDATE_CONTACT_INFO') {
+      setValidationNeed(validationNeeded);
+      setShowVerifyCode(true);
+    }
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -47,7 +62,7 @@ export default function LoginForm({
     return isEmail || isCurp || isPhone;
   };
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prevForm) => ({ ...prevForm, [name]: value }));
   };
@@ -80,11 +95,12 @@ export default function LoginForm({
     }
 
     setLoading(true);
-    const userData = await submitNewLogin(
+    const userData = await SubmitNewLogin(
       payload,
       setUserErrors,
       activateAuth,
       setLoading,
+      showVerifyCodeComponent,
     );
 
     if (userData) {
@@ -93,6 +109,16 @@ export default function LoginForm({
 
     setLoading(false);
   };
+
+  if (showVerifyCode) {
+    return (
+      <VerifyCode
+        type='Register'
+        email={validationNeed.correo ? form.account : undefined}
+        celular={validationNeed.celular ? form.account : undefined}
+      />
+    );
+  }
 
   return (
     <>
