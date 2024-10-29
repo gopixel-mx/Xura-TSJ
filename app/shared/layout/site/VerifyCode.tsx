@@ -8,19 +8,19 @@ import { useRouter } from 'next/navigation';
 import { CardHome } from '@/app/shared/common/Cards';
 
 interface VerifyCodeProps {
-  userData?: string;
   type: 'Auth' | 'Register' | 'Forgot';
   email?: string;
   celular?: string;
+  credencial?: string;
 }
 
 const generateUniqueId = (index: number) => `input-code-${index}-${Date.now()}`;
 
 export default function VerifyCode({
-  userData,
   type,
   email = '',
   celular = '',
+  credencial,
 }: VerifyCodeProps) {
   const router = useRouter();
   const [resendDisabled, setResendDisabled] = useState(true);
@@ -35,18 +35,7 @@ export default function VerifyCode({
   const [isEmailStep, setIsEmailStep] = useState(type === 'Register');
   const [error, setError] = useState('');
 
-  // Obtener la información de validación pendiente de localStorage al iniciar
-  const [validationNeeded, setValidationNeeded] = useState(() => {
-    const savedValidation = localStorage.getItem('validationNeeded');
-    return savedValidation ? JSON.parse(savedValidation) : { correo: true, celular: true };
-  });
-
-  let currentData;
-  if (type === 'Register') {
-    currentData = isEmailStep ? email : celular;
-  } else {
-    currentData = userData;
-  }
+  const currentData = isEmailStep ? email : celular;
   const isEmail = /\S+@\S+\.\S+/.test(currentData ?? '');
 
   useEffect(() => {
@@ -61,21 +50,12 @@ export default function VerifyCode({
     return undefined;
   }, [counter, permanentlyDisabled]);
 
-  // Lógica para enviar el código según el tipo de validación pendiente
-  useEffect(() => {
-    if (validationNeeded.correo && isEmailStep) {
-      // Enviar código de validación de correo
-    } else if (validationNeeded.celular && !isEmailStep) {
-      // Enviar código de validación de celular
-    }
-  }, [validationNeeded, isEmailStep]);
-
   const handleResendCode = () => {
     if (!resendDisabled && !permanentlyDisabled) {
       setResendDisabled(true);
       setPermanentlyDisabled(true);
       setCounter(30);
-      // Aquí se haría la llamada para reenvío del código según `validationNeeded`
+      // Aquí se haría la llamada para reenvío del código según el paso actual
     }
   };
 
@@ -84,7 +64,7 @@ export default function VerifyCode({
       setResendDisabled(true);
       setAltSendDisabled(true);
       setCounter(30);
-      // Aquí se haría la llamada para enviar el código alterno según `validationNeeded`
+      // Aquí se haría la llamada para enviar el código alterno según el paso actual
     }
   };
 
@@ -102,23 +82,15 @@ export default function VerifyCode({
 
   const handleConfirmCode = () => {
     const enteredCode = codeValues.join('');
-    if (enteredCode === '1234') { // Sustituir por la lógica de verificación del código real
+    if (enteredCode === '1234') { // Sustituir con la lógica de verificación real
       if (type === 'Register' && isEmailStep) {
         setIsEmailStep(false);
         setCodeValues(['', '', '', '']);
         setCounter(30);
         setResendDisabled(true);
         setPermanentlyDisabled(false);
-        setValidationNeeded((prev: any) => ({
-          ...prev,
-          correo: false, // Marca correo como validado
-        }));
-        localStorage.setItem('validationNeeded', JSON.stringify({
-          ...validationNeeded,
-          correo: false,
-        }));
       } else if (type === 'Register') {
-        window.location.href = 'https://admision.tsj.mx:3000';
+        router.push('/dashboard'); // Redirigir una vez completadas ambas validaciones
       } else {
         router.push('/');
       }

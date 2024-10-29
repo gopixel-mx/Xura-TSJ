@@ -8,13 +8,17 @@ import SliderLogin from './SliderLogin';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import CardAspirante from './CardAspirante';
+import VerifyCode from './VerifyCode';
 
 export default function CardLogin() {
   const [activeSlide, setActiveSlide] = useState<'ingresa' | 'registrate'>('ingresa');
+  const [showVerifyCode, setShowVerifyCode] = useState(false);
+  const [validationNeed, setValidationNeed] = useState<{ correo?: boolean; celular?: boolean }>({});
+  const [contactData, setContactData] = useState<{ correo?: string; celular?: string; credencial?: string }>({});
 
   const [userData, setUserData] = useState({
     curp: '',
-    email: '',
+    correo: '',
     celular: '',
     password: '',
   });
@@ -68,7 +72,7 @@ export default function CardLogin() {
       valid = false;
     }
 
-    if (!isValidEmail(userData.email)) {
+    if (!isValidEmail(userData.correo)) {
       errors.emailError = 'Ingrese un correo electrónico válido.';
       valid = false;
     }
@@ -84,7 +88,7 @@ export default function CardLogin() {
       valid = false;
     }
 
-    setRegisterErrors(errors); // Aquí se usa setRegisterErrors en lugar de setUserErrors
+    setRegisterErrors(errors);
 
     if (valid) {
       setLoading(true);
@@ -109,10 +113,56 @@ export default function CardLogin() {
     }
   };
 
+  const handleShowVerifyCode = (
+    validationNeeded: { correo?: boolean; celular?: boolean },
+    correo?: string,
+    celular?: string,
+    credencial?: string,
+  ) => {
+    setValidationNeed(validationNeeded);
+    setContactData({ correo, celular, credencial });
+    setShowVerifyCode(true);
+  };
+
+  if (showVerifyCode) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '16px',
+          boxSizing: 'border-box',
+          height: 'calc(100vh - 64px)',
+          marginTop: '-35px',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            maxWidth: '100%',
+            gap: '20px',
+            width: '100%',
+          }}
+        >
+          <VerifyCode
+            type='Register'
+            email={validationNeed.correo ? contactData.correo : undefined}
+            celular={validationNeed.celular ? contactData.celular : undefined}
+            credencial={contactData.credencial}
+          />
+        </Box>
+      </Box>
+    );
+  }
+
   if (isAspiranteMode) {
     return (
       <CardAspirante
-        email={userData.email}
+        email={userData.correo}
         celular={userData.celular}
         password={userData.password}
         curp={userData.curp.toUpperCase()}
@@ -139,6 +189,7 @@ export default function CardLogin() {
             onSwitchToRegister={() => handleSliderChange('registrate')}
             userErrors={loginErrors}
             setUserErrors={setLoginErrors}
+            onShowVerifyCode={handleShowVerifyCode}
           />
         ) : (
           <RegisterForm

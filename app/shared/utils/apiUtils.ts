@@ -58,6 +58,9 @@ const makeCall = async ({
         actionRequired: response.data.actionRequired,
         validationNeeded: response.data.validationNeeded,
         authenticationNeeded: response.data.authenticationNeeded,
+        correo: response.data.correo,
+        celular: response.data.celular,
+        credencial: response.data.credencial,
       };
     }
 

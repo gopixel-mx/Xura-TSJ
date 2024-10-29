@@ -8,6 +8,9 @@ interface LoginResponse {
   data?: any;
   actionRequired?: string;
   validationNeeded?: { correo?: boolean; celular?: boolean };
+  correo?: string;
+  celular?: string;
+  credencial?: string;
 }
 
 interface LoginPayload {
@@ -25,6 +28,9 @@ const SubmitNewLogin = async (
   handleActionRequired: (
     action: string,
     validationNeeded: { correo?: boolean; celular?: boolean },
+    correo?: string,
+    celular?: string,
+    credencial?: string,
   ) => void,
 ): Promise<any> => {
   const endpoint = '/sesiones';
@@ -51,7 +57,13 @@ const SubmitNewLogin = async (
     } else if (response.statusCode === 403) {
       setErrorMessages({ account: 'La cuenta está inactiva.' });
     } else if (response.actionRequired === 'VALIDATE_CONTACT_INFO') {
-      handleActionRequired(response.actionRequired, response.validationNeeded || {});
+      handleActionRequired(
+        response.actionRequired,
+        response.validationNeeded || {},
+        response.correo,
+        response.celular,
+        response.credencial,
+      );
     }
   } catch (error) {
     setErrorMessages({ general: 'Hubo un error al iniciar sesión. Inténtalo más tarde.' });

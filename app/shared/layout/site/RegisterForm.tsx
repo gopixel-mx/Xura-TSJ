@@ -22,13 +22,13 @@ export default function RegisterForm({
   onCheckboxChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
   userData: {
     curp: string,
-    email: string,
+    correo: string,
     celular: string,
     password: string,
   },
   setUserData: React.Dispatch<React.SetStateAction<{
     curp: string,
-    email: string,
+    correo: string,
     celular: string,
     password: string,
   }>>,
@@ -71,8 +71,8 @@ export default function RegisterForm({
         variant='outlined'
         fullWidth
         placeholder='Correo electrónico'
-        value={userData.email}
-        onChange={(e) => setUserData((prevData) => ({ ...prevData, email: e.target.value }))}
+        value={userData.correo}
+        onChange={(e) => setUserData((prevData) => ({ ...prevData, correo: e.target.value }))}
         error={Boolean(userErrors.emailError)}
         helperText={userErrors.emailError}
         InputProps={{

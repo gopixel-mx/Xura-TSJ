@@ -9,7 +9,6 @@ import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 import { useAuthContext } from '@/app/context/AuthContext';
 import SubmitNewLogin from './SubmitNewLogin';
-import VerifyCode from './VerifyCode';
 
 interface LoginPayload {
   curp?: string;
@@ -28,28 +27,23 @@ export interface LoginFormProps {
     account?: string;
     password?: string;
   }>>;
+  onShowVerifyCode: (
+    validationNeeded: { correo?: boolean; celular?: boolean },
+    correo?: string,
+    celular?: string,
+    credencial?: string,
+  ) => void;
 }
 
 export default function LoginForm({
   onSwitchToRegister,
   userErrors,
   setUserErrors,
+  onShowVerifyCode,
 }: LoginFormProps) {
   const { activateAuth, setLoading } = useAuthContext();
   const [form, setForm] = useState({ account: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [showVerifyCode, setShowVerifyCode] = useState(false);
-  const [validationNeed, setValidationNeed] = useState<{ correo?: boolean; celular?: boolean }>({});
-
-  const showVerifyCodeComponent = (
-    action: string,
-    validationNeeded: { correo?: boolean; celular?: boolean },
-  ) => {
-    if (action === 'VALIDATE_CONTACT_INFO') {
-      setValidationNeed(validationNeeded);
-      setShowVerifyCode(true);
-    }
-  };
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -100,7 +94,12 @@ export default function LoginForm({
       setUserErrors,
       activateAuth,
       setLoading,
-      showVerifyCodeComponent,
+      (action, validationNeeded, correo, celular, credencial) => {
+        if (action === 'VALIDATE_CONTACT_INFO') {
+          onShowVerifyCode(validationNeeded, correo, celular, credencial);
+          console.log('correo', correo, 'celular', celular, 'credencial', credencial);
+        }
+      },
     );
 
     if (userData) {
@@ -109,16 +108,6 @@ export default function LoginForm({
 
     setLoading(false);
   };
-
-  if (showVerifyCode) {
-    return (
-      <VerifyCode
-        type='Register'
-        email={validationNeed.correo ? form.account : undefined}
-        celular={validationNeed.celular ? form.account : undefined}
-      />
-    );
-  }
 
   return (
     <>
