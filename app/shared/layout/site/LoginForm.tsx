@@ -97,7 +97,6 @@ export default function LoginForm({
       (action, validationNeeded, correo, celular, credencial) => {
         if (action === 'VALIDATE_CONTACT_INFO') {
           onShowVerifyCode(validationNeeded, correo, celular, credencial);
-          console.log('correo', correo, 'celular', celular, 'credencial', credencial);
         }
       },
     );

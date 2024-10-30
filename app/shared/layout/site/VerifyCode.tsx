@@ -15,6 +15,8 @@ interface VerifyCodeProps {
 }
 
 const generateUniqueId = (index: number) => `input-code-${index}-${Date.now()}`;
+const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+const domain = process.env.NEXT_PUBLIC_URL;
 
 export default function VerifyCode({
   type,
@@ -24,47 +26,108 @@ export default function VerifyCode({
 }: VerifyCodeProps) {
   const router = useRouter();
   const [resendDisabled, setResendDisabled] = useState(true);
-  const [altSendDisabled, setAltSendDisabled] = useState(false);
-  const [permanentlyDisabled, setPermanentlyDisabled] = useState(false);
   const [showAltSend, setShowAltSend] = useState(false);
   const [counter, setCounter] = useState(30);
   const [codeValues, setCodeValues] = useState(['', '', '', '']);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const inputIds = useRef([0, 1, 2, 3].map((index) => generateUniqueId(index)));
-
   const [isEmailStep, setIsEmailStep] = useState(type === 'Register');
   const [error, setError] = useState('');
+  const [resendPressedOnce, setResendPressedOnce] = useState(false);
 
   const currentData = isEmailStep ? email : celular;
   const isEmail = /\S+@\S+\.\S+/.test(currentData ?? '');
+
+  const messageType = type === 'Auth' ? 'Autenticación' : type === 'Register' ? 'Validación' : 'Recuperación';
+  const messageMedium = isEmailStep ? 'Correo' : 'Celular';
+  const destinatario = isEmailStep ? email : celular;
+
+  const initiateVerification = async () => {
+    if (!credencial || !destinatario) return;
+    try {
+      await fetch(`${domain}/credenciales/${credencial}/codigos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          api_key: apiKey || '',
+        },
+        body: JSON.stringify({
+          tipo: messageType,
+          medio: messageMedium,
+          destinatario,
+        }),
+      });
+    } catch (errorcito: any) {
+      setError('Hubo un error al enviar el código.');
+    }
+  };
+
+  useEffect(() => {
+    initiateVerification();
+  }, [credencial, destinatario, messageType, messageMedium]);
 
   useEffect(() => {
     if (counter > 0) {
       const timeout = setTimeout(() => setCounter((prev) => prev - 1), 1000);
       return () => clearTimeout(timeout);
     }
-    setResendDisabled(false);
-    if (permanentlyDisabled) {
-      setShowAltSend(true);
+
+    if (!resendPressedOnce) {
+      setResendDisabled(false);
     }
     return undefined;
-  }, [counter, permanentlyDisabled]);
+  }, [counter, resendPressedOnce]);
 
-  const handleResendCode = () => {
-    if (!resendDisabled && !permanentlyDisabled) {
-      setResendDisabled(true);
-      setPermanentlyDisabled(true);
-      setCounter(30);
-      // Aquí se haría la llamada para reenvío del código según el paso actual
+  const resetCode = () => {
+    setCodeValues(['', '', '', '']);
+    inputRefs.current[0]?.focus();
+  };
+
+  const verifyCode = async () => {
+    const enteredCode = codeValues.join('');
+    if (!credencial || enteredCode.length !== 4) return;
+
+    try {
+      const response = await fetch(`${domain}/credenciales/${credencial}/codigos/${enteredCode}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          api_key: apiKey || '',
+        },
+        body: JSON.stringify({
+          tipo: messageType,
+          medio: messageMedium,
+        }),
+      });
+
+      if (response.statusText === 'OK') {
+        if (type === 'Register' && isEmailStep) {
+          setIsEmailStep(false);
+          resetCode();
+        } else {
+          router.push('/dashboard');
+        }
+      } else {
+        setError('El código ingresado es incorrecto.');
+        resetCode();
+      }
+    } catch (errorcito: any) {
+      setError('Hubo un error al verificar el código.');
+      resetCode();
     }
   };
 
-  const handleAltSend = () => {
-    if (!altSendDisabled) {
+  const handleResendCode = async () => {
+    if (resendDisabled || resendPressedOnce || !credencial || !destinatario) return;
+
+    try {
+      await initiateVerification();
       setResendDisabled(true);
-      setAltSendDisabled(true);
+      setResendPressedOnce(true);
       setCounter(30);
-      // Aquí se haría la llamada para enviar el código alterno según el paso actual
+      setShowAltSend(false);
+    } catch {
+      setError('Hubo un error al reenviar el código.');
     }
   };
 
@@ -77,27 +140,6 @@ export default function VerifyCode({
       if (value !== '' && index < inputRefs.current.length - 1) {
         inputRefs.current[index + 1]?.focus();
       }
-    }
-  };
-
-  const handleConfirmCode = () => {
-    const enteredCode = codeValues.join('');
-    if (enteredCode === '1234') { // Sustituir con la lógica de verificación real
-      if (type === 'Register' && isEmailStep) {
-        setIsEmailStep(false);
-        setCodeValues(['', '', '', '']);
-        setCounter(30);
-        setResendDisabled(true);
-        setPermanentlyDisabled(false);
-      } else if (type === 'Register') {
-        router.push('/dashboard'); // Redirigir una vez completadas ambas validaciones
-      } else {
-        router.push('/');
-      }
-    } else {
-      setError('El código ingresado es incorrecto.');
-      setCodeValues(['', '', '', '']);
-      inputRefs.current[0]?.focus();
     }
   };
 
@@ -208,31 +250,31 @@ export default function VerifyCode({
         <Typography
           sx={{
             fontFamily: 'MadaniArabic-SemiBold',
-            cursor: resendDisabled || permanentlyDisabled ? 'default' : 'pointer',
-            color: resendDisabled || permanentlyDisabled ? '#aaa' : '#000',
-            textDecoration: resendDisabled || permanentlyDisabled ? 'none' : 'underline',
-            pointerEvents: resendDisabled || permanentlyDisabled ? 'none' : 'auto',
+            cursor: resendDisabled ? 'default' : 'pointer',
+            color: resendDisabled ? '#aaa' : '#000',
+            textDecoration: resendDisabled ? 'none' : 'underline',
+            pointerEvents: resendDisabled ? 'none' : 'auto',
           }}
           onClick={handleResendCode}
         >
           Reenviar código
         </Typography>
-        <Typography sx={{ fontFamily: 'MadaniArabic-Regular' }}>
-          {resendDisabled ? `${counter}:00 seg.` : ''}
-        </Typography>
+        {counter > 0 && (
+          <Typography sx={{ fontFamily: 'MadaniArabic-Regular' }}>
+            {`${counter}:00 seg.`}
+          </Typography>
+        )}
       </Box>
       {type !== 'Register' && showAltSend && (
         <Typography
           component='div'
           sx={{
-            cursor: altSendDisabled ? 'default' : 'pointer',
-            color: altSendDisabled ? '#aaa' : '#0066cc',
+            cursor: 'pointer',
+            color: '#0066cc',
             fontFamily: 'MadaniArabic-Regular',
             textDecoration: 'underline',
-            pointerEvents: altSendDisabled ? 'none' : 'auto',
             marginBottom: '24px',
           }}
-          onClick={handleAltSend}
         >
           <Link color='inherit' underline='hover'>
             {isEmailStep
@@ -253,7 +295,7 @@ export default function VerifyCode({
           backgroundColor: '#32169b',
           '&:hover': { backgroundColor: '#14005E' },
         }}
-        onClick={handleConfirmCode}
+        onClick={verifyCode}
       >
         Confirmar código
       </Button>
