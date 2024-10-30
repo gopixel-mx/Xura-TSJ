@@ -153,6 +153,7 @@ export default function CardLogin() {
             email={validationNeed.correo ? contactData.correo : undefined}
             celular={validationNeed.celular ? contactData.celular : undefined}
             credencial={contactData.credencial}
+            validation={validationNeed}
           />
         </Box>
       </Box>

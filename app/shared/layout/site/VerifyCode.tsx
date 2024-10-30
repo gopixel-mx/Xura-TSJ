@@ -12,6 +12,7 @@ interface VerifyCodeProps {
   email?: string;
   celular?: string;
   credencial?: string;
+  validation: { correo?: boolean; celular?: boolean };
 }
 
 const generateUniqueId = (index: number) => `input-code-${index}-${Date.now()}`;
@@ -23,6 +24,7 @@ export default function VerifyCode({
   email = '',
   celular = '',
   credencial,
+  validation,
 }: VerifyCodeProps) {
   const router = useRouter();
   const [resendDisabled, setResendDisabled] = useState(true);
@@ -31,12 +33,11 @@ export default function VerifyCode({
   const [codeValues, setCodeValues] = useState(['', '', '', '']);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const inputIds = useRef([0, 1, 2, 3].map((index) => generateUniqueId(index)));
-  const [isEmailStep, setIsEmailStep] = useState(type === 'Register');
+  const [isEmailStep, setIsEmailStep] = useState(validation.correo);
   const [error, setError] = useState('');
   const [resendPressedOnce, setResendPressedOnce] = useState(false);
 
   const currentData = isEmailStep ? email : celular;
-  const isEmail = /\S+@\S+\.\S+/.test(currentData ?? '');
 
   const messageType = type === 'Auth' ? 'Autenticación' : type === 'Register' ? 'Validación' : 'Recuperación';
   const messageMedium = isEmailStep ? 'Correo' : 'Celular';
@@ -101,7 +102,7 @@ export default function VerifyCode({
       });
 
       if (response.statusText === 'OK') {
-        if (type === 'Register' && isEmailStep) {
+        if (type === 'Register' && isEmailStep && validation.celular) {
           setIsEmailStep(false);
           resetCode();
         } else {
@@ -159,17 +160,14 @@ export default function VerifyCode({
   const getDescription = () => {
     switch (type) {
       case 'Auth':
-        return isEmail
-          ? `Te enviamos un código de autenticación a tu correo electrónico ${currentData}.`
-          : `Te enviamos un código de autenticación a tu celular ${currentData}.`;
+        return `Te enviamos un código de autenticación a tu
+        ${isEmailStep ? 'correo electrónico' : 'celular'} ${currentData}.`;
       case 'Register':
-        return isEmailStep
-          ? `Te enviamos un código de validación a tu correo electrónico ${email}.`
-          : `Te enviamos un código de validación a tu celular ${celular}.`;
+        return `Te enviamos un código de validación a tu
+        ${isEmailStep ? 'correo electrónico' : 'celular'} ${currentData}.`;
       case 'Forgot':
-        return isEmail
-          ? `Te enviamos un código de recuperación a tu correo electrónico ${currentData}.`
-          : `Te enviamos un código de recuperación a tu celular ${currentData}.`;
+        return `Te enviamos un código de recuperación a tu
+        ${isEmailStep ? 'correo electrónico' : 'celular'} ${currentData}.`;
       default:
         return '';
     }

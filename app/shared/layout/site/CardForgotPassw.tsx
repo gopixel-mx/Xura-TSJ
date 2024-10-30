@@ -16,6 +16,7 @@ export default function CardForgotPassw() {
   // Validación para verificar si es un correo electrónico o un celular de 10 dígitos
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
   const isValidPhone = (phone: string) => /^\d{10}$/.test(phone);
+  const isValidCurp = (crp: string) => crp.length === 18;
 
   const handleSendCode = () => {
     if (isValidEmail(userData) || isValidPhone(userData)) {
@@ -44,7 +45,7 @@ export default function CardForgotPassw() {
           marginBottom: '24px',
         }}
       >
-        Introduzca su correo electrónico ó celular asociado a su cuenta.
+        Introduzca su correo, celular ó CURP asociado a su cuenta.
       </Typography>
       <TextField
         variant='outlined'
