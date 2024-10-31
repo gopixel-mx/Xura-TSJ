@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import {
   Typography, Button, TextField, InputAdornment, Link,
 } from '@mui/material';
@@ -27,7 +27,7 @@ export default function CardForgotPassw() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
     setUserData(e.target.value);
     setError(''); // Limpiar el mensaje de error al cambiar el valor
   };
@@ -74,7 +74,7 @@ export default function CardForgotPassw() {
           marginBottom: '24px',
         }}
       >
-        <Link href='/public' color='inherit' underline='hover'>
+        <Link href='/' color='inherit' underline='hover'>
           Regresar al inicio
         </Link>
       </Typography>

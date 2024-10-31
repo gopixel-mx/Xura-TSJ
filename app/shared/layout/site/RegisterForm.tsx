@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
 import {
-  Box, TextField, InputAdornment, IconButton, Button, Typography, Checkbox, Link, CircularProgress,
+  useState,
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  MouseEvent,
+} from 'react';
+import {
+  Box,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Button,
+  Typography,
+  Checkbox,
+  Link,
+  CircularProgress,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import {
   PersonOutline, MailOutline, SmartphoneOutlined, VisibilityOutlined, VisibilityOffOutlined,
 } from '@mui/icons-material';
+import countryCodes from '@/app/mocks/countryCodes';
 
 export default function RegisterForm({
   onRegister,
@@ -19,14 +36,14 @@ export default function RegisterForm({
   loading: boolean,
   termsAccepted: boolean,
   // eslint-disable-next-line no-unused-vars
-  onCheckboxChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+  onCheckboxChange: (e: ChangeEvent<HTMLInputElement>) => void,
   userData: {
     curp: string,
     correo: string,
     celular: string,
     password: string,
   },
-  setUserData: React.Dispatch<React.SetStateAction<{
+  setUserData: Dispatch<SetStateAction<{
     curp: string,
     correo: string,
     celular: string,
@@ -40,9 +57,70 @@ export default function RegisterForm({
   },
 }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [countryCode, setCountryCode] = useState<{
+    code: string; label: string }>({ code: '52', label: '🇲🇽 +52' });
+  const [rawPhoneNumber, setRawPhoneNumber] = useState('');
+  const [curpError, setCurpError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [celularError, setCelularError] = useState('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
+  const handleCountryMenuClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCountrySelect = (country: { code: string; label: string }) => {
+    setCountryCode(country);
+    setAnchorEl(null);
+  };
+
+  const handleCelularChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const rawNumber = e.target.value.replace(/[^0-9]/g, '');
+    setRawPhoneNumber(rawNumber);
+  };
+
+  const handleCelularBlur = () => {
+    const formattedCelular = `${countryCode.code}-${rawPhoneNumber}`;
+    if (!/^\d{2,3}-\d{10}$/.test(formattedCelular)) {
+      setCelularError('El número de celular debe tener 10 dígitos.');
+    } else {
+      setCelularError('');
+      setUserData((prevData) => ({
+        ...prevData,
+        celular: formattedCelular,
+      }));
+    }
+  };
+
+  const isValidCurp = (crp: string) => crp.length === 18;
+  const handleCurpBlur = () => {
+    if (!isValidCurp(userData.curp)) {
+      setCurpError('La CURP debe tener exactamente 18 caracteres.');
+    } else {
+      setCurpError('');
+    }
+  };
+
+  const isValidEmail = (correo: string) => /\S+@\S+\.\S+/.test(correo);
+  const handleEmailBlur = () => {
+    if (!isValidEmail(userData.correo)) {
+      setEmailError('Ingrese un correo electrónico válido.');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const handleRegister = () => {
+    const formattedCelular = `${countryCode.code}-${rawPhoneNumber}`;
+    setUserData((prevData) => ({
+      ...prevData,
+      celular: formattedCelular,
+    }));
+    onRegister();
   };
 
   return (
@@ -56,8 +134,9 @@ export default function RegisterForm({
         onChange={(e) => setUserData(
           (prevData) => ({ ...prevData, curp: e.target.value.toUpperCase() }),
         )}
-        error={Boolean(userErrors.curpError)}
-        helperText={userErrors.curpError}
+        onBlur={handleCurpBlur}
+        error={Boolean(curpError)}
+        helperText={curpError}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -73,8 +152,9 @@ export default function RegisterForm({
         placeholder='Correo electrónico'
         value={userData.correo}
         onChange={(e) => setUserData((prevData) => ({ ...prevData, correo: e.target.value }))}
-        error={Boolean(userErrors.emailError)}
-        helperText={userErrors.emailError}
+        onBlur={handleEmailBlur}
+        error={Boolean(emailError)}
+        helperText={emailError}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -88,11 +168,22 @@ export default function RegisterForm({
         variant='outlined'
         fullWidth
         placeholder='Celular'
-        value={userData.celular}
-        onChange={(e) => setUserData((prevData) => ({ ...prevData, celular: e.target.value }))}
-        error={Boolean(userErrors.celularError)}
-        helperText={userErrors.celularError}
+        value={rawPhoneNumber}
+        onChange={handleCelularChange}
+        onBlur={handleCelularBlur}
+        error={Boolean(celularError)}
+        helperText={celularError || userErrors.celularError}
         InputProps={{
+          startAdornment: (
+            <InputAdornment position='start'>
+              <Box
+                onClick={handleCountryMenuClick}
+                sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                <Typography>{countryCode.label}</Typography>
+              </Box>
+            </InputAdornment>
+          ),
           endAdornment: (
             <InputAdornment position='end'>
               <SmartphoneOutlined />
@@ -100,6 +191,23 @@ export default function RegisterForm({
           ),
         }}
       />
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+        MenuListProps={{
+          style: {
+            maxHeight: 200,
+            width: '20ch',
+          },
+        }}
+      >
+        {countryCodes.map((country) => (
+          <MenuItem key={country.code} onClick={() => handleCountrySelect(country)}>
+            {country.label}
+          </MenuItem>
+        ))}
+      </Menu>
       <TextField
         label='Contraseña'
         variant='outlined'
@@ -145,7 +253,7 @@ export default function RegisterForm({
         variant='contained'
         color='primary'
         fullWidth
-        onClick={onRegister}
+        onClick={handleRegister}
         disabled={!termsAccepted || loading}
         sx={{
           py: 2,

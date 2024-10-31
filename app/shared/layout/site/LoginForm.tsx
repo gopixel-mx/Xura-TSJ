@@ -2,7 +2,7 @@ import {
   useState, Dispatch, SetStateAction, ChangeEvent,
 } from 'react';
 import {
-  Box, TextField, InputAdornment, IconButton, Button, Typography, Link, Divider,
+  Box, TextField, InputAdornment, IconButton, Button, Typography, Divider,
 } from '@mui/material';
 import { PersonOutline, VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
 import Image from 'next/image';
@@ -28,11 +28,16 @@ export interface LoginFormProps {
     password?: string;
   }>>;
   onShowVerifyCode: (
+    // eslint-disable-next-line no-unused-vars
     validationNeeded: { correo?: boolean; celular?: boolean },
+    // eslint-disable-next-line no-unused-vars
     correo?: string,
+    // eslint-disable-next-line no-unused-vars
     celular?: string,
+    // eslint-disable-next-line no-unused-vars
     credencial?: string,
   ) => void;
+  onForgotPassword: () => void;
 }
 
 export default function LoginForm({
@@ -40,6 +45,7 @@ export default function LoginForm({
   userErrors,
   setUserErrors,
   onShowVerifyCode,
+  onForgotPassword,
 }: LoginFormProps) {
   const { activateAuth, setLoading } = useAuthContext();
   const [form, setForm] = useState({ account: '', password: '' });
@@ -157,18 +163,9 @@ export default function LoginForm({
           textDecoration: 'underline',
           fontFamily: 'MadaniArabic-Regular',
         }}
+        onClick={onForgotPassword}
       >
-        <Link
-          href='/forgotPassword'
-          color='inherit'
-          underline='hover'
-          sx={{
-            textDecoration: 'underline',
-            fontFamily: 'MadaniArabic-Regular',
-          }}
-        >
-          ¿Olvidaste tu contraseña?
-        </Link>
+        ¿Olvidaste tu contraseña?
       </Typography>
       <Button
         variant='contained'

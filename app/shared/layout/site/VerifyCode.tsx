@@ -79,6 +79,12 @@ export default function VerifyCode({
     return undefined;
   }, [counter, resendPressedOnce]);
 
+  useEffect(() => {
+    setCounter(30);
+    setResendDisabled(true);
+    setResendPressedOnce(false);
+  }, [isEmailStep]);
+
   const resetCode = () => {
     setCodeValues(['', '', '', '']);
     inputRefs.current[0]?.focus();

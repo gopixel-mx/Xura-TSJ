@@ -9,27 +9,35 @@ import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import CardAspirante from './CardAspirante';
 import VerifyCode from './VerifyCode';
+import CardForgotPassw from './CardForgotPassw';
 
 export default function CardLogin() {
   const [activeSlide, setActiveSlide] = useState<'ingresa' | 'registrate'>('ingresa');
   const [showVerifyCode, setShowVerifyCode] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [validationNeed, setValidationNeed] = useState<{ correo?: boolean; celular?: boolean }>({});
-  const [contactData, setContactData] = useState<{ correo?: string; celular?: string; credencial?: string }>({});
-
+  const [contactData, setContactData] = useState<{
+    correo?: string; celular?: string; credencial?: string }>({});
+  const [isAspiranteMode, setIsAspiranteMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [nombre, setNombre] = useState('');
+  const [apellidoPaterno, setApellidoPaterno] = useState('');
+  const [apellidoMaterno, setApellidoMaterno] = useState('');
+  const [numEntidadReg, setNumEntidadReg] = useState('');
+  const [fechaNac, setFechaNac] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [userData, setUserData] = useState({
     curp: '',
     correo: '',
     celular: '',
     password: '',
   });
-
   const [registerErrors, setRegisterErrors] = useState({
     curpError: '',
     emailError: '',
     celularError: '',
     passwordError: '',
   });
-
   const [loginErrors, setLoginErrors] = useState<{
     account?: string;
     password?: string;
@@ -38,13 +46,12 @@ export default function CardLogin() {
     password: '',
   });
 
-  const [isAspiranteMode, setIsAspiranteMode] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [nombreCompleto, setNombreCompleto] = useState('');
-  const [termsAccepted, setTermsAccepted] = useState(false);
-
   const handleSliderChange = (value: 'ingresa' | 'registrate') => {
     setActiveSlide(value);
+  };
+
+  const handleForgotPassword = () => {
+    setShowForgotPassword(true);
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +60,7 @@ export default function CardLogin() {
 
   const isValidEmail = (correo: string) => /\S+@\S+\.\S+/.test(correo);
   const isValidCurp = (crp: string) => crp.length === 18;
-  const isValidCelular = (cel: string) => /^\d{10}$/.test(cel);
+  const isValidCelular = (cel: string) => /^\d{2,3}-\d{10}$/.test(cel);
   const isValidPassword = (passw: string) => (
     passw.length >= 8
     && /[A-Z]/.test(passw)
@@ -94,9 +101,19 @@ export default function CardLogin() {
       setLoading(true);
       try {
         const response = await getCurp(userData.curp);
-        const { Nombre, ApellidoPaterno, ApellidoMaterno } = response.datos;
+        const {
+          Nombre,
+          ApellidoPaterno,
+          ApellidoMaterno,
+          FechaNacimiento,
+          NumEntidadReg,
+        } = response.datos;
         if (response.estatus === 'ok' && response.datos) {
-          setNombreCompleto(`${Nombre} ${ApellidoPaterno} ${ApellidoMaterno}`);
+          setNombre(Nombre);
+          setApellidoPaterno(ApellidoPaterno);
+          setApellidoMaterno(ApellidoMaterno);
+          setFechaNac(FechaNacimiento);
+          setNumEntidadReg(NumEntidadReg);
           setIsAspiranteMode(true);
         } else {
           setRegisterErrors((prevErrors) => (
@@ -160,6 +177,36 @@ export default function CardLogin() {
     );
   }
 
+  if (showForgotPassword) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '16px',
+          boxSizing: 'border-box',
+          height: 'calc(100vh - 64px)',
+          marginTop: '-35px',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            maxWidth: '100%',
+            gap: '20px',
+            width: '100%',
+          }}
+        >
+          <CardForgotPassw />
+        </Box>
+      </Box>
+    );
+  }
+
   if (isAspiranteMode) {
     return (
       <CardAspirante
@@ -167,7 +214,11 @@ export default function CardLogin() {
         celular={userData.celular}
         password={userData.password}
         curp={userData.curp.toUpperCase()}
-        nombreCompleto={nombreCompleto}
+        nombre={nombre}
+        apellidoPaterno={apellidoPaterno}
+        apellidoMaterno={apellidoMaterno}
+        fechaNacimiento={fechaNac}
+        numEntidadReg={numEntidadReg}
       />
     );
   }
@@ -191,6 +242,7 @@ export default function CardLogin() {
             userErrors={loginErrors}
             setUserErrors={setLoginErrors}
             onShowVerifyCode={handleShowVerifyCode}
+            onForgotPassword={handleForgotPassword}
           />
         ) : (
           <RegisterForm
