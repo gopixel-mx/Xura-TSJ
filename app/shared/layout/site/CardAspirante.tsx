@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import {
-  Button, TextField, Box, InputAdornment,
+  Button, TextField, Box, InputAdornment, Typography,
 } from '@mui/material';
 import {
   PersonOutline,
@@ -42,6 +42,7 @@ export default function CardAspirante({
 }: CardAspiranteProps) {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [credencialId, setCredencialId] = useState<string>('');
+  const [error, setError] = useState<string>('');
 
   const nombreCompleto = `${nombre} ${apellidoPaterno} ${apellidoMaterno}`;
 
@@ -59,12 +60,13 @@ export default function CardAspirante({
   };
 
   const handleConfirm = async () => {
+    setError('');
     const estadoNacimiento = estadosRepublica.find(
       (estado: any) => estado.code === Number(numEntidadReg),
     )?.name;
 
     if (!estadoNacimiento) {
-      console.error('Estado de nacimiento no encontrado');
+      setError('Estado de nacimiento no encontrado');
       return;
     }
 
@@ -90,14 +92,15 @@ export default function CardAspirante({
       });
 
       if (!response.ok) {
-        throw new Error('Error en la creación de credencial');
+        setError('Error en la creación de credencial');
+        return;
       }
 
       const data = await response.json();
       setCredencialId(data.idCredencial);
       setIsConfirmed(true);
-    } catch (error) {
-      console.error('Error al confirmar los datos:', error);
+    } catch {
+      setError('Error al confirmar los datos');
     }
   };
 
@@ -150,6 +153,11 @@ export default function CardAspirante({
         width: '100%',
       }}
       >
+        {error && (
+          <Typography color='error' sx={{ mb: 2, textAlign: 'center' }}>
+            {error}
+          </Typography>
+        )}
         <TextField
           label='Nombre Completo'
           value={nombreCompleto}
