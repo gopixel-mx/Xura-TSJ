@@ -60,7 +60,7 @@ const makeCall = async ({
         authenticationNeeded: response.data.authenticationNeeded,
         correo: response.data.correo,
         celular: response.data.celular,
-        credencial: response.data.credencial,
+        credencial: response.data.idCredencial,
       };
     }
 

@@ -35,16 +35,16 @@ export default function VerifyCode({
   const inputIds = useRef([0, 1, 2, 3].map((index) => generateUniqueId(index)));
   const [isEmailStep, setIsEmailStep] = useState(validation.correo);
   const [error, setError] = useState('');
-  const [resendPressedOnce, setResendPressedOnce] = useState(false);
+  const [resendAttempt, setResendAttempt] = useState(0);
+  const [altSendUsed, setAltSendUsed] = useState(false);
 
   const currentData = isEmailStep ? email : celular;
-
   const messageType = type === 'Auth' ? 'Autenticación' : type === 'Register' ? 'Validación' : 'Recuperación';
   const messageMedium = isEmailStep ? 'Correo' : 'Celular';
   const destinatario = isEmailStep ? email : celular;
 
-  const initiateVerification = async () => {
-    if (!credencial || !destinatario) return;
+  const initiateVerification = async (medio: string, destinatarioActual: string) => {
+    if (!credencial || !destinatarioActual) return;
     try {
       await fetch(`${domain}/credenciales/${credencial}/codigos`, {
         method: 'POST',
@@ -54,35 +54,38 @@ export default function VerifyCode({
         },
         body: JSON.stringify({
           tipo: messageType,
-          medio: messageMedium,
-          destinatario,
+          medio,
+          destinatario: destinatarioActual,
         }),
       });
-    } catch (errorcito: any) {
+    } catch {
       setError('Hubo un error al enviar el código.');
     }
   };
 
   useEffect(() => {
-    initiateVerification();
-  }, [credencial, destinatario, messageType, messageMedium]);
+    initiateVerification(messageMedium, destinatario);
+  }, [credencial]);
 
   useEffect(() => {
     if (counter > 0) {
       const timeout = setTimeout(() => setCounter((prev) => prev - 1), 1000);
       return () => clearTimeout(timeout);
     }
-
-    if (!resendPressedOnce) {
+    if (resendAttempt === 0) {
+      setResendDisabled(false);
+    } else if (resendAttempt === 1 && type === 'Forgot' && !altSendUsed) {
+      setShowAltSend(true);
+    } else if (resendAttempt === 2 && altSendUsed) {
       setResendDisabled(false);
     }
     return undefined;
-  }, [counter, resendPressedOnce]);
+  }, [counter, resendAttempt, type, altSendUsed]);
 
   useEffect(() => {
     setCounter(30);
     setResendDisabled(true);
-    setResendPressedOnce(false);
+    setShowAltSend(false);
   }, [isEmailStep]);
 
   const resetCode = () => {
@@ -118,23 +121,38 @@ export default function VerifyCode({
         setError('El código ingresado es incorrecto.');
         resetCode();
       }
-    } catch (errorcito: any) {
+    } catch {
       setError('Hubo un error al verificar el código.');
       resetCode();
     }
   };
 
   const handleResendCode = async () => {
-    if (resendDisabled || resendPressedOnce || !credencial || !destinatario) return;
+    if (resendDisabled || !credencial || !destinatario) return;
 
     try {
-      await initiateVerification();
+      await initiateVerification(messageMedium, destinatario);
       setResendDisabled(true);
-      setResendPressedOnce(true);
       setCounter(30);
-      setShowAltSend(false);
+      setResendAttempt((prev) => prev + 1);
     } catch {
       setError('Hubo un error al reenviar el código.');
+    }
+  };
+
+  const handleAltSend = async () => {
+    const newMedium = isEmailStep ? 'Celular' : 'Correo';
+    const newDestinatario = isEmailStep ? celular : email;
+
+    setIsEmailStep(!isEmailStep);
+    setCounter(30);
+    setResendDisabled(true);
+    setResendAttempt(2);
+    setShowAltSend(false);
+
+    if (!altSendUsed) {
+      setAltSendUsed(true);
+      await initiateVerification(newMedium, newDestinatario);
     }
   };
 
@@ -269,7 +287,7 @@ export default function VerifyCode({
           </Typography>
         )}
       </Box>
-      {type !== 'Register' && showAltSend && (
+      {type !== 'Register' && showAltSend && !altSendUsed && (
         <Typography
           component='div'
           sx={{
@@ -279,6 +297,7 @@ export default function VerifyCode({
             textDecoration: 'underline',
             marginBottom: '24px',
           }}
+          onClick={handleAltSend}
         >
           <Link color='inherit' underline='hover'>
             {isEmailStep

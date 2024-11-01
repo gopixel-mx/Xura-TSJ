@@ -6,34 +6,80 @@ import {
 } from '@mui/material';
 import { PersonOutline } from '@mui/icons-material';
 import { CardHome } from '@/app/shared/common';
+import { createRecord } from '@/app/shared/utils/apiUtils';
 import VerifyCode from './VerifyCode';
 
 export default function CardForgotPassw() {
   const [userData, setUserData] = useState('');
   const [isVerifyMode, setIsVerifyMode] = useState(false);
   const [error, setError] = useState('');
+  const [idCredencial, setIdCredencial] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [celular, setCelular] = useState<string>('');
 
-  // Validación para verificar si es un correo electrónico o un celular de 10 dígitos
-  const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+  const isValidEmail = (correo: string) => /\S+@\S+\.\S+/.test(correo);
   const isValidPhone = (phone: string) => /^\d{10}$/.test(phone);
   const isValidCurp = (crp: string) => crp.length === 18;
 
-  const handleSendCode = () => {
-    if (isValidEmail(userData) || isValidPhone(userData)) {
-      setIsVerifyMode(true);
-      setError('');
-    } else {
-      setError('Ingrese un correo electrónico válido o un número de celular de 10 dígitos.');
+  const getIdCredencial = async () => {
+    try {
+      let requestData;
+
+      if (isValidEmail(userData)) {
+        requestData = { correo: userData };
+      } else if (isValidPhone(userData)) {
+        requestData = { celular: userData };
+      } else if (isValidCurp(userData)) {
+        requestData = { curp: userData };
+      } else {
+        setError('Ingrese un correo electrónico, CURP o número de celular válido.');
+        return;
+      }
+
+      const response = await createRecord({
+        data: requestData,
+        endpoint: '/sesiones',
+      });
+
+      // @ts-ignore
+      if (response?.credencial) {
+        // @ts-ignore
+        setIdCredencial(response.credencial);
+        setIsVerifyMode(true);
+        // @ts-ignore
+        setEmail(response.correo || '');
+        // @ts-ignore
+        setCelular(response.celular || '');
+      } else {
+        setError('Error al obtener el id de credencial.');
+      }
+    } catch (err) {
+      setError('Hubo un error al procesar la solicitud.');
     }
   };
 
-  const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
-    setUserData(e.target.value);
-    setError(''); // Limpiar el mensaje de error al cambiar el valor
+  const handleSendCode = () => {
+    setError('');
+    getIdCredencial();
   };
 
-  return isVerifyMode ? (
-    <VerifyCode userData={userData} type='Forgot' />
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setUserData(e.target.value);
+    setError('');
+  };
+
+  const renderVerifyCode = () => (
+    <VerifyCode
+      type='Forgot'
+      email={email}
+      celular={celular}
+      credencial={idCredencial}
+      validation={{ correo: true, celular: true }}
+    />
+  );
+
+  return isVerifyMode && idCredencial ? (
+    renderVerifyCode()
   ) : (
     <CardHome title='¿Olvidaste tu contraseña?'>
       <Typography
@@ -49,7 +95,7 @@ export default function CardForgotPassw() {
       </Typography>
       <TextField
         variant='outlined'
-        placeholder='Correo ó celular'
+        placeholder='Correo, celular o CURP'
         fullWidth
         value={userData}
         onChange={handleChange}
