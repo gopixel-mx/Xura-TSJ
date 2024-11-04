@@ -6,6 +6,8 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { CardHome } from '@/app/shared/common/Cards';
+import { useAuthContext } from '@/app/context/AuthContext';
+import { parseJwt } from '@/app/shared/utils/getToken';
 
 interface VerifyCodeProps {
   type: 'Auth' | 'Register' | 'Forgot';
@@ -27,6 +29,7 @@ export default function VerifyCode({
   validation,
 }: VerifyCodeProps) {
   const router = useRouter();
+  const { activateAuth } = useAuthContext();
   const [resendDisabled, setResendDisabled] = useState(true);
   const [showAltSend, setShowAltSend] = useState(false);
   const [counter, setCounter] = useState(30);
@@ -65,7 +68,7 @@ export default function VerifyCode({
 
   useEffect(() => {
     initiateVerification(messageMedium, destinatario);
-  }, [credencial]);
+  }, [credencial, isEmailStep]);
 
   useEffect(() => {
     if (counter > 0) {
@@ -115,7 +118,24 @@ export default function VerifyCode({
           setIsEmailStep(false);
           resetCode();
         } else {
-          router.push('/dashboard');
+          const isValidResponse = await fetch(`${domain}/sesiones/is-valid`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              api_key: apiKey || '',
+            },
+            body: JSON.stringify({ correo: email || '' }),
+          });
+
+          const isValidData = await isValidResponse.json();
+          if (isValidData.token) {
+            const decodedToken = parseJwt(isValidData.token);
+            const userDataWithToken = { ...decodedToken, token: isValidData.token };
+            activateAuth(userDataWithToken);
+            router.push('/dashboard');
+          } else {
+            setError(isValidData.message || 'Cuenta no está validada.');
+          }
         }
       } else {
         setError('El código ingresado es incorrecto.');
@@ -123,7 +143,6 @@ export default function VerifyCode({
       }
     } catch {
       setError('Hubo un error al verificar el código.');
-      resetCode();
     }
   };
 

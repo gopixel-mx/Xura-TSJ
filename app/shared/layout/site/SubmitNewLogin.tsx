@@ -1,5 +1,3 @@
-import { parseJwt } from '@/app/shared/utils/getToken';
-
 interface LoginPayload {
   curp?: string;
   celular?: string;
@@ -10,7 +8,6 @@ interface LoginPayload {
 export default async function SubmitNewLogin(
   form: LoginPayload,
   setErrorMessages: (errors: { account?: string; password?: string; general?: string }) => void,
-  activateAuth: (userData: any) => void,
   setLoading: (loading: boolean) => void,
   handleActionRequired: (
     action: string,
@@ -19,7 +16,7 @@ export default async function SubmitNewLogin(
     celular?: string,
     credencial?: string,
   ) => void,
-): Promise<any> {
+): Promise<void> {
   const apiKey = process.env.NEXT_PUBLIC_API_KEY;
   const domain = process.env.NEXT_PUBLIC_URL;
   const endpoint = `${domain}/sesiones`;
@@ -37,7 +34,6 @@ export default async function SubmitNewLogin(
 
     const responseData = await response.json();
     const {
-      token,
       actionRequired,
       validationNeeded,
       correo,
@@ -45,30 +41,12 @@ export default async function SubmitNewLogin(
       credencial,
     } = responseData;
 
-    if (response.status === 200 && token) {
-      const decodedToken = parseJwt(token);
-      if (decodedToken) {
-        const userDataWithToken = {
-          ...decodedToken,
-          token,
-        };
-        activateAuth(userDataWithToken);
-        return userDataWithToken;
-      } else {
-        setErrorMessages({ general: 'Error al decodificar el token' });
-      }
-    } else if (response.status === 401) {
+    if (response.status === 401) {
       setErrorMessages({ account: 'Cuenta no válida o contraseña incorrecta.' });
     } else if (response.status === 403) {
       setErrorMessages({ account: 'La cuenta está inactiva.' });
     } else if (actionRequired === 'VALIDATE_CONTACT_INFO') {
-      handleActionRequired(
-        actionRequired,
-        validationNeeded || {},
-        correo,
-        celular,
-        credencial,
-      );
+      handleActionRequired(actionRequired, validationNeeded || {}, correo, celular, credencial);
     } else {
       setErrorMessages({ general: 'Hubo un error al iniciar sesión. Inténtalo más tarde.' });
     }
@@ -77,6 +55,4 @@ export default async function SubmitNewLogin(
   } finally {
     setLoading(false);
   }
-
-  return null;
 }

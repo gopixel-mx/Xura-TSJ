@@ -3,7 +3,7 @@
 import { createContext, useContext } from 'react';
 
 interface User {
-  id: string;
+  id?: string;
   token: string;
   correo?: string;
   curp?: string;

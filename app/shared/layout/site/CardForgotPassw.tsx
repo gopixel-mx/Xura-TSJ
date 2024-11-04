@@ -6,8 +6,10 @@ import {
 } from '@mui/material';
 import { PersonOutline } from '@mui/icons-material';
 import { CardHome } from '@/app/shared/common';
-import { createRecord } from '@/app/shared/utils/apiUtils';
 import VerifyCode from './VerifyCode';
+
+const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+const domain = process.env.NEXT_PUBLIC_URL;
 
 export default function CardForgotPassw() {
   const [userData, setUserData] = useState('');
@@ -36,20 +38,22 @@ export default function CardForgotPassw() {
         return;
       }
 
-      const response = await createRecord({
-        data: requestData,
-        endpoint: '/sesiones',
+      const response = await fetch(`${domain}/sesiones`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          api_key: apiKey || '',
+        },
+        body: JSON.stringify(requestData),
       });
 
-      // @ts-ignore
-      if (response?.credencial) {
-        // @ts-ignore
-        setIdCredencial(response.credencial);
+      const responseData = await response.json();
+
+      if (response.ok && responseData?.idCredencial) {
+        setIdCredencial(responseData.idCredencial);
         setIsVerifyMode(true);
-        // @ts-ignore
-        setEmail(response.correo || '');
-        // @ts-ignore
-        setCelular(response.celular || '');
+        setEmail(responseData.correo || '');
+        setCelular(responseData.celular || '');
       } else {
         setError('Error al obtener el id de credencial.');
       }

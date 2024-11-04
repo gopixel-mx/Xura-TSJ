@@ -47,7 +47,7 @@ export default function LoginForm({
   onShowVerifyCode,
   onForgotPassword,
 }: LoginFormProps) {
-  const { activateAuth, setLoading } = useAuthContext();
+  const { setLoading } = useAuthContext();
   const [form, setForm] = useState({ account: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -95,10 +95,9 @@ export default function LoginForm({
     }
 
     setLoading(true);
-    const userData = await SubmitNewLogin(
+    await SubmitNewLogin(
       payload,
       setUserErrors,
-      activateAuth,
       setLoading,
       (action, validationNeeded, correo, celular, credencial) => {
         if (action === 'VALIDATE_CONTACT_INFO') {
@@ -106,10 +105,6 @@ export default function LoginForm({
         }
       },
     );
-
-    if (userData) {
-      activateAuth(userData);
-    }
 
     setLoading(false);
   };
