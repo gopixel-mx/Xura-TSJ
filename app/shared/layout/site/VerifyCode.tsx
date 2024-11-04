@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { CardHome } from '@/app/shared/common/Cards';
 import { useAuthContext } from '@/app/context/AuthContext';
 import { parseJwt } from '@/app/shared/utils/getToken';
+import CardSetPassw from './CardSetPassw';
 
 interface VerifyCodeProps {
   type: 'Auth' | 'Register' | 'Forgot';
@@ -40,6 +41,7 @@ export default function VerifyCode({
   const [error, setError] = useState('');
   const [resendAttempt, setResendAttempt] = useState(0);
   const [altSendUsed, setAltSendUsed] = useState(false);
+  const [isSetPasswordMode, setIsSetPasswordMode] = useState(false);
 
   const currentData = isEmailStep ? email : celular;
   const messageType = type === 'Auth' ? 'Autenticación' : type === 'Register' ? 'Validación' : 'Recuperación';
@@ -96,6 +98,31 @@ export default function VerifyCode({
     inputRefs.current[0]?.focus();
   };
 
+  const validateSession = async () => {
+    try {
+      const isValidResponse = await fetch(`${domain}/sesiones/is-valid`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          api_key: apiKey || '',
+        },
+        body: JSON.stringify({ correo: email || '' }),
+      });
+
+      const isValidData = await isValidResponse.json();
+      if (isValidData.token) {
+        const decodedToken = parseJwt(isValidData.token);
+        const userDataWithToken = { ...decodedToken, token: isValidData.token };
+        activateAuth(userDataWithToken);
+        router.push('/dashboard');
+      } else {
+        setError(isValidData.message || 'Cuenta no está validada.');
+      }
+    } catch {
+      setError('Hubo un error al validar la sesión.');
+    }
+  };
+
   const verifyCode = async () => {
     const enteredCode = codeValues.join('');
     if (!credencial || enteredCode.length !== 4) return;
@@ -114,28 +141,13 @@ export default function VerifyCode({
       });
 
       if (response.statusText === 'OK') {
-        if (type === 'Register' && isEmailStep && validation.celular) {
+        if (type === 'Forgot') {
+          setIsSetPasswordMode(true);
+        } else if (type === 'Register' && isEmailStep && validation.celular) {
           setIsEmailStep(false);
           resetCode();
         } else {
-          const isValidResponse = await fetch(`${domain}/sesiones/is-valid`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              api_key: apiKey || '',
-            },
-            body: JSON.stringify({ correo: email || '' }),
-          });
-
-          const isValidData = await isValidResponse.json();
-          if (isValidData.token) {
-            const decodedToken = parseJwt(isValidData.token);
-            const userDataWithToken = { ...decodedToken, token: isValidData.token };
-            activateAuth(userDataWithToken);
-            router.push('/dashboard');
-          } else {
-            setError(isValidData.message || 'Cuenta no está validada.');
-          }
+          validateSession();
         }
       } else {
         setError('El código ingresado es incorrecto.');
@@ -216,7 +228,14 @@ export default function VerifyCode({
     }
   };
 
-  return (
+  return isSetPasswordMode ? (
+    <CardSetPassw
+      idCredencial={credencial!}
+      email={email}
+      celular={celular}
+      onSuccess={validateSession}
+    />
+  ) : (
     <CardHome title={getTitle()}>
       <Typography
         sx={{

@@ -2,10 +2,10 @@
 
 import { useState, ChangeEvent } from 'react';
 import {
-  Typography, Button, TextField, Link,
+  Typography, Button, TextField, InputAdornment, IconButton, Link,
 } from '@mui/material';
+import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { CardHome } from '@/app/shared/common';
-import { useRouter } from 'next/navigation';
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 const domain = process.env.NEXT_PUBLIC_URL;
@@ -14,14 +14,29 @@ interface CardSetPasswProps {
   idCredencial: string;
   email?: string;
   celular?: string;
+  onSuccess: () => void;
 }
 
-export default function CardSetPassw({ idCredencial, email, celular }: CardSetPasswProps) {
+export default function CardSetPassw({
+  idCredencial,
+  email,
+  celular,
+  onSuccess,
+}: CardSetPasswProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const router = useRouter();
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword((prev) => !prev);
+  };
 
   const handleChangePassword = (e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
@@ -57,7 +72,10 @@ export default function CardSetPassw({ idCredencial, email, celular }: CardSetPa
 
       if (response.ok) {
         setSuccessMessage('Contraseña actualizada con éxito.');
-        setTimeout(() => router.push('/'), 2000);
+        setTimeout(() => {
+          setSuccessMessage('');
+          onSuccess();
+        }, 2000);
       } else {
         setError('Hubo un error al actualizar la contraseña. Inténtalo más tarde.');
       }
@@ -83,22 +101,40 @@ export default function CardSetPassw({ idCredencial, email, celular }: CardSetPa
       <TextField
         label='Nueva contraseña'
         variant='outlined'
-        type='password'
+        type={showPassword ? 'text' : 'password'}
         fullWidth
         value={password}
         onChange={handleChangePassword}
         error={Boolean(error)}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position='end'>
+              <IconButton onClick={togglePasswordVisibility} edge='end'>
+                {showPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
         sx={{ marginBottom: '16px' }}
       />
       <TextField
         label='Confirmar contraseña'
         variant='outlined'
-        type='password'
+        type={showConfirmPassword ? 'text' : 'password'}
         fullWidth
         value={confirmPassword}
         onChange={handleChangeConfirmPassword}
         error={Boolean(error)}
         helperText={error}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position='end'>
+              <IconButton onClick={toggleConfirmPasswordVisibility} edge='end'>
+                {showConfirmPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
         sx={{ marginBottom: '24px' }}
       />
 
@@ -114,6 +150,21 @@ export default function CardSetPassw({ idCredencial, email, celular }: CardSetPa
           {successMessage}
         </Typography>
       )}
+
+      <Typography
+        component='div'
+        sx={{
+          cursor: 'pointer',
+          color: '#0066cc',
+          fontFamily: 'MadaniArabic-SemiBold',
+          textDecoration: 'underline',
+          marginBottom: '24px',
+        }}
+      >
+        <Link href='/' color='inherit' underline='hover'>
+          Regresar al inicio
+        </Link>
+      </Typography>
 
       <Button
         variant='contained'
@@ -132,21 +183,6 @@ export default function CardSetPassw({ idCredencial, email, celular }: CardSetPa
       >
         Confirmar contraseña
       </Button>
-
-      <Typography
-        component='div'
-        sx={{
-          cursor: 'pointer',
-          color: '#0066cc',
-          fontFamily: 'MadaniArabic-SemiBold',
-          textDecoration: 'underline',
-          marginTop: '24px',
-        }}
-      >
-        <Link href='/' color='inherit' underline='hover'>
-          Regresar al inicio
-        </Link>
-      </Typography>
     </CardHome>
   );
 }
