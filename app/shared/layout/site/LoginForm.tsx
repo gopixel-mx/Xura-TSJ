@@ -36,6 +36,8 @@ export interface LoginFormProps {
     celular?: string,
     // eslint-disable-next-line no-unused-vars
     credencial?: string,
+    // eslint-disable-next-line no-unused-vars
+    type?: 'Auth' | 'Register'
   ) => void;
   onForgotPassword: () => void;
 }
@@ -101,7 +103,9 @@ export default function LoginForm({
       setLoading,
       (action, validationNeeded, correo, celular, credencial) => {
         if (action === 'VALIDATE_CONTACT_INFO') {
-          onShowVerifyCode(validationNeeded, correo, celular, credencial);
+          onShowVerifyCode(validationNeeded, correo, celular, credencial, 'Register');
+        } else if (action === 'AUTHENTICATE_CONTACT_INFO') {
+          onShowVerifyCode(validationNeeded, correo, celular, credencial, 'Auth');
         }
       },
     );

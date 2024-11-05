@@ -44,7 +44,12 @@ export default function VerifyCode({
   const [isSetPasswordMode, setIsSetPasswordMode] = useState(false);
 
   const currentData = isEmailStep ? email : celular;
-  const messageType = type === 'Auth' ? 'Autenticación' : type === 'Register' ? 'Validación' : 'Recuperación';
+  const messageTypeMap = {
+    Auth: 'Autenticación',
+    Register: 'Validación',
+    Forgot: 'Recuperación',
+  };
+  const messageType = messageTypeMap[type];
   const messageMedium = isEmailStep ? 'Correo' : 'Celular';
   const destinatario = isEmailStep ? email : celular;
 
@@ -69,8 +74,10 @@ export default function VerifyCode({
   };
 
   useEffect(() => {
-    initiateVerification(messageMedium, destinatario);
-  }, [credencial, isEmailStep]);
+    if (type === 'Register' || (type === 'Auth' && !altSendUsed)) {
+      initiateVerification(messageMedium, destinatario);
+    }
+  }, [credencial, type, messageMedium, destinatario]);
 
   useEffect(() => {
     if (counter > 0) {
@@ -79,7 +86,7 @@ export default function VerifyCode({
     }
     if (resendAttempt === 0) {
       setResendDisabled(false);
-    } else if (resendAttempt === 1 && type === 'Forgot' && !altSendUsed) {
+    } else if ((resendAttempt === 1 && (type === 'Forgot' || type === 'Auth')) && !altSendUsed) {
       setShowAltSend(true);
     } else if (resendAttempt === 2 && altSendUsed) {
       setResendDisabled(false);
@@ -100,13 +107,16 @@ export default function VerifyCode({
 
   const validateSession = async () => {
     try {
+      const identifierField = email ? { correo: email }
+        : { celular };
+
       const isValidResponse = await fetch(`${domain}/sesiones/is-valid`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           api_key: apiKey || '',
         },
-        body: JSON.stringify({ correo: email || '' }),
+        body: JSON.stringify(identifierField),
       });
 
       const isValidData = await isValidResponse.json();
@@ -325,7 +335,7 @@ export default function VerifyCode({
           </Typography>
         )}
       </Box>
-      {type !== 'Register' && showAltSend && !altSendUsed && (
+      {(type !== 'Register' && showAltSend && !altSendUsed) && (
         <Typography
           component='div'
           sx={{

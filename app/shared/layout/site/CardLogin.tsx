@@ -14,6 +14,7 @@ import CardForgotPassw from './CardForgotPassw';
 export default function CardLogin() {
   const [activeSlide, setActiveSlide] = useState<'ingresa' | 'registrate'>('ingresa');
   const [showVerifyCode, setShowVerifyCode] = useState(false);
+  const [verifyCodeType, setVerifyCodeType] = useState<'Auth' | 'Register'>('Register');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [validationNeed, setValidationNeed] = useState<{ correo?: boolean; celular?: boolean }>({});
   const [contactData, setContactData] = useState<{
@@ -135,10 +136,12 @@ export default function CardLogin() {
     correo?: string,
     celular?: string,
     credencial?: string,
+    type: 'Auth' | 'Register' = 'Register',
   ) => {
     setValidationNeed(validationNeeded);
     setContactData({ correo, celular, credencial });
     setShowVerifyCode(true);
+    setVerifyCodeType(type);
   };
 
   if (showVerifyCode) {
@@ -166,7 +169,7 @@ export default function CardLogin() {
           }}
         >
           <VerifyCode
-            type='Register'
+            type={verifyCodeType}
             email={validationNeed.correo ? contactData.correo : undefined}
             celular={validationNeed.celular ? contactData.celular : undefined}
             credencial={contactData.credencial}

@@ -7,13 +7,20 @@ interface LoginPayload {
 
 export default async function SubmitNewLogin(
   form: LoginPayload,
+  // eslint-disable-next-line no-unused-vars
   setErrorMessages: (errors: { account?: string; password?: string; general?: string }) => void,
+  // eslint-disable-next-line no-unused-vars
   setLoading: (loading: boolean) => void,
   handleActionRequired: (
+    // eslint-disable-next-line no-unused-vars
     action: string,
+    // eslint-disable-next-line no-unused-vars
     validationNeeded: { correo?: boolean; celular?: boolean },
+    // eslint-disable-next-line no-unused-vars
     correo?: string,
+    // eslint-disable-next-line no-unused-vars
     celular?: string,
+    // eslint-disable-next-line no-unused-vars
     credencial?: string,
   ) => void,
 ): Promise<void> {
@@ -35,6 +42,7 @@ export default async function SubmitNewLogin(
     const responseData = await response.json();
     const {
       actionRequired,
+      authenticationNeeded,
       validationNeeded,
       correo,
       celular,
@@ -47,6 +55,8 @@ export default async function SubmitNewLogin(
       setErrorMessages({ account: 'La cuenta está inactiva.' });
     } else if (actionRequired === 'VALIDATE_CONTACT_INFO') {
       handleActionRequired(actionRequired, validationNeeded || {}, correo, celular, credencial);
+    } else if (actionRequired === 'AUTHENTICATE_CONTACT_INFO') {
+      handleActionRequired(actionRequired, authenticationNeeded || {}, correo, celular, credencial);
     } else {
       setErrorMessages({ general: 'Hubo un error al iniciar sesión. Inténtalo más tarde.' });
     }

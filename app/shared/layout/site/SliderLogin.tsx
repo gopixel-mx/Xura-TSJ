@@ -29,7 +29,7 @@ export default function SliderLogin({ active, onChange }: SliderLoginProps) {
         alignItems: 'center',
         position: 'relative',
         backgroundColor: '#32169b',
-        borderRadius: '12px',
+        borderRadius: '15px',
         overflow: 'hidden',
         width: '100%',
         height: '32px',

@@ -11,7 +11,9 @@ interface TableTemplateProps {
   pageSize?: number;
   loading?: boolean;
   selectionMode?: 'singleRow' | 'multiRow';
+  // eslint-disable-next-line no-unused-vars
   isRowSelectable?: (rowNode: IRowNode<any>) => boolean;
+  // eslint-disable-next-line no-unused-vars
   onSelectionChanged?: (params: any) => void;
 }
 
