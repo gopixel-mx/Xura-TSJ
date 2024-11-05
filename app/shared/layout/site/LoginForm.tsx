@@ -1,35 +1,57 @@
-import { useState } from 'react';
 import {
-  Box, TextField, InputAdornment, IconButton, Button, Typography, Link, Divider,
+  useState, Dispatch, SetStateAction, ChangeEvent,
+} from 'react';
+import {
+  Box, TextField, InputAdornment, IconButton, Button, Typography, Divider,
 } from '@mui/material';
 import { PersonOutline, VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
 import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 import { useAuthContext } from '@/app/context/AuthContext';
-import submitNewLogin from './submitNewLogin';
-
-interface LoginFormProps {
-  onSwitchToRegister: () => void;
-}
+import SubmitNewLogin from './SubmitNewLogin';
 
 interface LoginPayload {
   curp?: string;
   celular?: string;
-  email?: string;
+  correo?: string;
   contrasena: string;
 }
 
-interface ErrorMessages {
-  account?: string;
-  password?: string;
+export interface LoginFormProps {
+  onSwitchToRegister: () => void;
+  userErrors: {
+    account?: string;
+    password?: string;
+  };
+  setUserErrors: Dispatch<SetStateAction<{
+    account?: string;
+    password?: string;
+  }>>;
+  onShowVerifyCode: (
+    // eslint-disable-next-line no-unused-vars
+    validationNeeded: { correo?: boolean; celular?: boolean },
+    // eslint-disable-next-line no-unused-vars
+    correo?: string,
+    // eslint-disable-next-line no-unused-vars
+    celular?: string,
+    // eslint-disable-next-line no-unused-vars
+    credencial?: string,
+    // eslint-disable-next-line no-unused-vars
+    type?: 'Auth' | 'Register'
+  ) => void;
+  onForgotPassword: () => void;
 }
 
-export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
-  const { activateAuth, setLoading } = useAuthContext();
-  const [account, setAccount] = useState('');
-  const [password, setPassword] = useState('');
+export default function LoginForm({
+  onSwitchToRegister,
+  userErrors,
+  setUserErrors,
+  onShowVerifyCode,
+  onForgotPassword,
+}: LoginFormProps) {
+  const { setLoading } = useAuthContext();
+  const [form, setForm] = useState({ account: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessages, setErrorMessages] = useState<ErrorMessages>({});
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -38,49 +60,55 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const isValidAccount = (value: string) => {
     const isEmail = /\S+@\S+\.\S+/.test(value);
     const isCurp = /^[A-Z0-9]{18}$/i.test(value);
-    const isPhone = /^\d{10}$/.test(value);
+    const isPhone = /^\d{10}$/i.test(value);
     return isEmail || isCurp || isPhone;
   };
 
+  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prevForm) => ({ ...prevForm, [name]: value }));
+  };
+
   const handleSubmit = async () => {
-    if (!isValidAccount(account)) {
-      setErrorMessages({ account: 'Ingrese un CURP, email o número de celular válido.' });
-      return;
+    let valid = true;
+    const errors = { account: '', password: '' };
+
+    if (!isValidAccount(form.account)) {
+      errors.account = 'Ingrese un CURP, email o número de celular válido.';
+      valid = false;
     }
 
-    if (password.length === 0) {
-      setErrorMessages({ password: 'La contraseña es obligatoria.' });
-      return;
+    if (form.password.length === 0) {
+      errors.password = 'La contraseña es obligatoria.';
+      valid = false;
     }
 
-    const payload: LoginPayload = { contrasena: password };
+    setUserErrors(errors);
+    if (!valid) return;
 
-    if (/^[A-Z0-9]{18}$/i.test(account)) {
-      payload.curp = account;
-    } else if (/^\d{10}$/.test(account)) {
-      payload.celular = account;
-    } else if (/\S+@\S+\.\S+/.test(account)) {
-      payload.email = account;
+    const payload: LoginPayload = { contrasena: form.password };
+
+    if (/^[A-Z0-9]{18}$/i.test(form.account)) {
+      payload.curp = form.account;
+    } else if (/^\d{10}$/i.test(form.account)) {
+      payload.celular = form.account;
+    } else if (/\S+@\S+\.\S+/.test(form.account)) {
+      payload.correo = form.account;
     }
-
-    const errors = {
-      account: '¡Cuenta equivocada!',
-      password: '¡Contraseña equivocada!',
-    };
 
     setLoading(true);
-
-    const userData = await submitNewLogin(
+    await SubmitNewLogin(
       payload,
-      errors,
-      setErrorMessages,
-      activateAuth,
+      setUserErrors,
       setLoading,
+      (action, validationNeeded, correo, celular, credencial) => {
+        if (action === 'VALIDATE_CONTACT_INFO') {
+          onShowVerifyCode(validationNeeded, correo, celular, credencial, 'Register');
+        } else if (action === 'AUTHENTICATE_CONTACT_INFO') {
+          onShowVerifyCode(validationNeeded, correo, celular, credencial, 'Auth');
+        }
+      },
     );
-
-    if (userData) {
-      activateAuth(userData);
-    }
 
     setLoading(false);
   };
@@ -92,8 +120,9 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         variant='outlined'
         placeholder='CURP, Email o Celular'
         fullWidth
-        value={account}
-        onChange={(e) => setAccount(e.target.value)}
+        name='account'
+        value={form.account}
+        onChange={handleOnChange}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -101,8 +130,8 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             </InputAdornment>
           ),
         }}
-        error={!!errorMessages.account}
-        helperText={errorMessages.account}
+        error={Boolean(userErrors.account)}
+        helperText={userErrors.account}
       />
       <TextField
         label='Contraseña'
@@ -110,8 +139,9 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         type={showPassword ? 'text' : 'password'}
         placeholder='Contraseña'
         fullWidth
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        name='password'
+        value={form.password}
+        onChange={handleOnChange}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -121,8 +151,8 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             </InputAdornment>
           ),
         }}
-        error={!!errorMessages.password}
-        helperText={errorMessages.password}
+        error={Boolean(userErrors.password)}
+        helperText={userErrors.password}
       />
       <Typography
         align='right'
@@ -132,18 +162,9 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
           textDecoration: 'underline',
           fontFamily: 'MadaniArabic-Regular',
         }}
+        onClick={onForgotPassword}
       >
-        <Link
-          href='/forgotPassword'
-          color='inherit'
-          underline='hover'
-          sx={{
-            textDecoration: 'underline',
-            fontFamily: 'MadaniArabic-Regular',
-          }}
-        >
-          ¿Olvidaste tu contraseña?
-        </Link>
+        ¿Olvidaste tu contraseña?
       </Typography>
       <Button
         variant='contained'

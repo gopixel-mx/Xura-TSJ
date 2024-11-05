@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
-import { getGrupos } from '@/app/services/handlers/getMatricula';
+import { getData } from '@/app/shared/utils/apiUtils';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
 
 interface GrupoData {
@@ -19,7 +19,7 @@ export default function TableGrupos() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getGrupos();
+        const { data } = await getData({ endpoint: '/grupos' });
         setRowData(data);
         setLoading(false);
       } catch (error) {
@@ -42,7 +42,6 @@ export default function TableGrupos() {
       sortable: true,
       filter: true,
       flex: 1,
-      checkboxSelection: true,
     },
     {
       field: 'nombre',
@@ -78,9 +77,9 @@ export default function TableGrupos() {
       <TableTemplate
         rowData={rowData}
         colDefs={colDefs}
-        pageSize={10}
+        pageSize={20}
         loading={loading}
-        rowSelection='multiple'
+        selectionMode='multiRow'
         isRowSelectable={isRowSelectable}
         onSelectionChanged={handleRowSelectionChanged}
       />

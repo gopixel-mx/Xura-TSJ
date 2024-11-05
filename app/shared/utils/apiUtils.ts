@@ -20,10 +20,9 @@ const makeCall = async ({
   data,
   query,
 }: MakeCallParams) => {
-  const isLoginCall = endpoint === '/sesiones';
   const tokenData = getToken();
 
-  if (!isLoginCall && (!tokenData || !tokenData.token)) {
+  if (!tokenData || !tokenData.token) {
     return {
       statusCode: 401,
       errorMessage: '¡Usuario no autorizado!',
@@ -31,7 +30,7 @@ const makeCall = async ({
     };
   }
 
-  const token = isLoginCall ? null : tokenData?.token;
+  const { token } = tokenData;
   const apiKey = process.env.NEXT_PUBLIC_API_KEY;
   const domain = process.env.NEXT_PUBLIC_URL;
   const url = `${domain}${endpoint}${query || ''}`;
@@ -41,7 +40,7 @@ const makeCall = async ({
     url,
     headers: {
       api_key: apiKey!,
-      ...(token && { Authorization: `Bearer ${token}` }),
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     data,
@@ -49,17 +48,9 @@ const makeCall = async ({
 
   try {
     const response = await axios(config);
-
-    if (isLoginCall) {
-      return {
-        statusCode: response.status,
-        token: response.data.token,
-      };
-    }
-
     return {
       statusCode: response.status,
-      data: response.data.data,
+      data: response.data,
     };
   } catch (error: any) {
     const statusCode = error.response?.status || 500;

@@ -6,7 +6,7 @@ import {
   LaptopMacOutlined,
 } from '@mui/icons-material';
 import {
-  GraphBarAll, FilterSelect, CardTemplate, LineChartPeriods,
+  GraphBarAll, FilterSelect, CardTemplate,
 } from '@/app/shared/common';
 import { TableGrid } from '@/app/components/dashboard';
 
@@ -34,7 +34,6 @@ const estatusTotal = async () => {
   return data;
 };
 
-// Función para capitalizar la primera letra de cada palabra
 const capitalizeWords = (str: string) => str
   .toLowerCase()
   .replace(/\b\w/g, (char) => char.toUpperCase());
@@ -236,7 +235,7 @@ export default async function DashboardPage() {
           sx={{
             display: 'grid',
             gridTemplateColumns: '2fr 1fr',
-            gap: 2, // Añade un espacio entre ellos
+            gap: 2,
             marginTop: 4,
             width: '100%',
             paddingLeft: 2,

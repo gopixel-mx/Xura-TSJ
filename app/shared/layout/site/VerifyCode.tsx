@@ -6,70 +6,194 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { CardHome } from '@/app/shared/common/Cards';
+import { useAuthContext } from '@/app/context/AuthContext';
+import { parseJwt } from '@/app/shared/utils/getToken';
+import CardSetPassw from './CardSetPassw';
 
 interface VerifyCodeProps {
-  userData?: string;
   type: 'Auth' | 'Register' | 'Forgot';
   email?: string;
   celular?: string;
+  credencial?: string;
+  validation: { correo?: boolean; celular?: boolean };
 }
 
 const generateUniqueId = (index: number) => `input-code-${index}-${Date.now()}`;
+const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+const domain = process.env.NEXT_PUBLIC_URL;
 
 export default function VerifyCode({
-  userData,
   type,
   email = '',
   celular = '',
+  credencial,
+  validation,
 }: VerifyCodeProps) {
   const router = useRouter();
+  const { activateAuth } = useAuthContext();
   const [resendDisabled, setResendDisabled] = useState(true);
-  const [altSendDisabled, setAltSendDisabled] = useState(false);
-  const [permanentlyDisabled, setPermanentlyDisabled] = useState(false);
   const [showAltSend, setShowAltSend] = useState(false);
   const [counter, setCounter] = useState(30);
   const [codeValues, setCodeValues] = useState(['', '', '', '']);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const inputIds = useRef([0, 1, 2, 3].map((index) => generateUniqueId(index)));
-
-  const [isEmailStep, setIsEmailStep] = useState(type === 'Register');
+  const [isEmailStep, setIsEmailStep] = useState(validation.correo);
   const [error, setError] = useState('');
+  const [resendAttempt, setResendAttempt] = useState(0);
+  const [altSendUsed, setAltSendUsed] = useState(false);
+  const [isSetPasswordMode, setIsSetPasswordMode] = useState(false);
 
-  let currentData;
-  if (type === 'Register') {
-    currentData = isEmailStep ? email : celular;
-  } else {
-    currentData = userData;
-  }
-  const isEmail = /\S+@\S+\.\S+/.test(currentData ?? '');
+  const currentData = isEmailStep ? email : celular;
+  const messageTypeMap = {
+    Auth: 'Autenticación',
+    Register: 'Validación',
+    Forgot: 'Recuperación',
+  };
+  const messageType = messageTypeMap[type];
+  const messageMedium = isEmailStep ? 'Correo' : 'Celular';
+  const destinatario = isEmailStep ? email : celular;
+
+  const initiateVerification = async (medio: string, destinatarioActual: string) => {
+    if (!credencial || !destinatarioActual) return;
+    try {
+      await fetch(`${domain}/credenciales/${credencial}/codigos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          api_key: apiKey || '',
+        },
+        body: JSON.stringify({
+          tipo: messageType,
+          medio,
+          destinatario: destinatarioActual,
+        }),
+      });
+    } catch {
+      setError('Hubo un error al enviar el código.');
+    }
+  };
+
+  useEffect(() => {
+    if (type === 'Register' || (type === 'Auth' && !altSendUsed)) {
+      initiateVerification(messageMedium, destinatario);
+    }
+  }, [credencial, type, messageMedium, destinatario]);
 
   useEffect(() => {
     if (counter > 0) {
       const timeout = setTimeout(() => setCounter((prev) => prev - 1), 1000);
       return () => clearTimeout(timeout);
     }
-    setResendDisabled(false);
-    if (permanentlyDisabled) {
+    if (resendAttempt === 0) {
+      setResendDisabled(false);
+    } else if ((resendAttempt === 1 && (type === 'Forgot' || type === 'Auth')) && !altSendUsed) {
       setShowAltSend(true);
+    } else if (resendAttempt === 2 && altSendUsed) {
+      setResendDisabled(false);
     }
     return undefined;
-  }, [counter, permanentlyDisabled]);
+  }, [counter, resendAttempt, type, altSendUsed]);
 
-  const handleResendCode = () => {
-    if (!resendDisabled && !permanentlyDisabled) {
-      setResendDisabled(true);
-      setPermanentlyDisabled(true);
-      setCounter(30);
-      // Aquí se haría la llamada para reenvío del código
+  useEffect(() => {
+    setCounter(30);
+    setResendDisabled(true);
+    setShowAltSend(false);
+  }, [isEmailStep]);
+
+  const resetCode = () => {
+    setCodeValues(['', '', '', '']);
+    inputRefs.current[0]?.focus();
+  };
+
+  const validateSession = async () => {
+    try {
+      const identifierField = email ? { correo: email }
+        : { celular };
+
+      const isValidResponse = await fetch(`${domain}/sesiones/is-valid`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          api_key: apiKey || '',
+        },
+        body: JSON.stringify(identifierField),
+      });
+
+      const isValidData = await isValidResponse.json();
+      if (isValidData.token) {
+        const decodedToken = parseJwt(isValidData.token);
+        const userDataWithToken = { ...decodedToken, token: isValidData.token };
+        activateAuth(userDataWithToken);
+        router.push('/dashboard');
+      } else {
+        setError(isValidData.message || 'Cuenta no está validada.');
+      }
+    } catch {
+      setError('Hubo un error al validar la sesión.');
     }
   };
 
-  const handleAltSend = () => {
-    if (!altSendDisabled) {
+  const verifyCode = async () => {
+    const enteredCode = codeValues.join('');
+    if (!credencial || enteredCode.length !== 4) return;
+
+    try {
+      const response = await fetch(`${domain}/credenciales/${credencial}/codigos/${enteredCode}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          api_key: apiKey || '',
+        },
+        body: JSON.stringify({
+          tipo: messageType,
+          medio: messageMedium,
+        }),
+      });
+
+      if (response.statusText === 'OK') {
+        if (type === 'Forgot') {
+          setIsSetPasswordMode(true);
+        } else if (type === 'Register' && isEmailStep && validation.celular) {
+          setIsEmailStep(false);
+          resetCode();
+        } else {
+          validateSession();
+        }
+      } else {
+        setError('El código ingresado es incorrecto.');
+        resetCode();
+      }
+    } catch {
+      setError('Hubo un error al verificar el código.');
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (resendDisabled || !credencial || !destinatario) return;
+
+    try {
+      await initiateVerification(messageMedium, destinatario);
       setResendDisabled(true);
-      setAltSendDisabled(true);
       setCounter(30);
-      // Aquí se haría la llamada para enviar el código alterno
+      setResendAttempt((prev) => prev + 1);
+    } catch {
+      setError('Hubo un error al reenviar el código.');
+    }
+  };
+
+  const handleAltSend = async () => {
+    const newMedium = isEmailStep ? 'Celular' : 'Correo';
+    const newDestinatario = isEmailStep ? celular : email;
+
+    setIsEmailStep(!isEmailStep);
+    setCounter(30);
+    setResendDisabled(true);
+    setResendAttempt(2);
+    setShowAltSend(false);
+
+    if (!altSendUsed) {
+      setAltSendUsed(true);
+      await initiateVerification(newMedium, newDestinatario);
     }
   };
 
@@ -82,28 +206,6 @@ export default function VerifyCode({
       if (value !== '' && index < inputRefs.current.length - 1) {
         inputRefs.current[index + 1]?.focus();
       }
-    }
-  };
-
-  const handleConfirmCode = () => {
-    const enteredCode = codeValues.join('');
-    if (enteredCode === '1234') {
-      if (type === 'Register' && isEmailStep) {
-        setIsEmailStep(false);
-        setCodeValues(['', '', '', '']);
-        setCounter(30);
-        setResendDisabled(true);
-        setPermanentlyDisabled(false);
-      } else if (type === 'Register') {
-        window.location.href = 'https://admision.tsj.mx:3000';
-      } else {
-        router.push('/');
-      }
-    } else {
-      // Incorrect code entered
-      setError('El código ingresado es incorrecto.');
-      setCodeValues(['', '', '', '']);
-      inputRefs.current[0]?.focus();
     }
   };
 
@@ -123,23 +225,27 @@ export default function VerifyCode({
   const getDescription = () => {
     switch (type) {
       case 'Auth':
-        return isEmail
-          ? `Te enviamos un código de autenticación a tu correo electrónico ${currentData}.`
-          : `Te enviamos un código de autenticación a tu celular ${currentData}.`;
+        return `Te enviamos un código de autenticación a tu
+        ${isEmailStep ? 'correo electrónico' : 'celular'} ${currentData}.`;
       case 'Register':
-        return isEmailStep
-          ? `Te enviamos un código de validación a tu correo electrónico ${email}.`
-          : `Te enviamos un código de validación a tu celular ${celular}.`;
+        return `Te enviamos un código de validación a tu
+        ${isEmailStep ? 'correo electrónico' : 'celular'} ${currentData}.`;
       case 'Forgot':
-        return isEmail
-          ? `Te enviamos un código de recuperación a tu correo electrónico ${currentData}.`
-          : `Te enviamos un código de recuperación a tu celular ${currentData}.`;
+        return `Te enviamos un código de recuperación a tu
+        ${isEmailStep ? 'correo electrónico' : 'celular'} ${currentData}.`;
       default:
         return '';
     }
   };
 
-  return (
+  return isSetPasswordMode ? (
+    <CardSetPassw
+      idCredencial={credencial!}
+      email={email}
+      celular={celular}
+      onSuccess={validateSession}
+    />
+  ) : (
     <CardHome title={getTitle()}>
       <Typography
         sx={{
@@ -214,28 +320,29 @@ export default function VerifyCode({
         <Typography
           sx={{
             fontFamily: 'MadaniArabic-SemiBold',
-            cursor: resendDisabled || permanentlyDisabled ? 'default' : 'pointer',
-            color: resendDisabled || permanentlyDisabled ? '#aaa' : '#000',
-            textDecoration: resendDisabled || permanentlyDisabled ? 'none' : 'underline',
-            pointerEvents: resendDisabled || permanentlyDisabled ? 'none' : 'auto',
+            cursor: resendDisabled ? 'default' : 'pointer',
+            color: resendDisabled ? '#aaa' : '#000',
+            textDecoration: resendDisabled ? 'none' : 'underline',
+            pointerEvents: resendDisabled ? 'none' : 'auto',
           }}
           onClick={handleResendCode}
         >
           Reenviar código
         </Typography>
-        <Typography sx={{ fontFamily: 'MadaniArabic-Regular' }}>
-          {resendDisabled ? `${counter}:00 seg.` : ''}
-        </Typography>
+        {counter > 0 && (
+          <Typography sx={{ fontFamily: 'MadaniArabic-Regular' }}>
+            {`${counter}:00 seg.`}
+          </Typography>
+        )}
       </Box>
-      {type !== 'Register' && showAltSend && (
+      {(type !== 'Register' && showAltSend && !altSendUsed) && (
         <Typography
           component='div'
           sx={{
-            cursor: altSendDisabled ? 'default' : 'pointer',
-            color: altSendDisabled ? '#aaa' : '#0066cc',
+            cursor: 'pointer',
+            color: '#0066cc',
             fontFamily: 'MadaniArabic-Regular',
             textDecoration: 'underline',
-            pointerEvents: altSendDisabled ? 'none' : 'auto',
             marginBottom: '24px',
           }}
           onClick={handleAltSend}
@@ -259,7 +366,7 @@ export default function VerifyCode({
           backgroundColor: '#32169b',
           '&:hover': { backgroundColor: '#14005E' },
         }}
-        onClick={handleConfirmCode}
+        onClick={verifyCode}
       >
         Confirmar código
       </Button>

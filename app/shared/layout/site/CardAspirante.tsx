@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import {
-  Button, TextField, Box, InputAdornment,
+  Button, TextField, Box, InputAdornment, Typography,
 } from '@mui/material';
 import {
   PersonOutline,
@@ -11,6 +11,7 @@ import {
   VisibilityOffOutlined,
 } from '@mui/icons-material';
 import { CardHome } from '@/app/shared/common';
+import estadosRepublica from '@/app/mocks/estadosRepublica';
 import VerifyCode from './VerifyCode';
 
 interface CardAspiranteProps {
@@ -18,17 +19,32 @@ interface CardAspiranteProps {
   celular?: string;
   password?: string;
   curp: string;
-  nombreCompleto: string;
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
+  fechaNacimiento: string;
+  numEntidadReg: string;
 }
+
+const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+const domain = process.env.NEXT_PUBLIC_URL;
 
 export default function CardAspirante({
   email = '',
   celular = '',
   password = '',
   curp = '',
-  nombreCompleto = '',
+  nombre = '',
+  apellidoPaterno = '',
+  apellidoMaterno = '',
+  fechaNacimiento = '',
+  numEntidadReg = '',
 }: CardAspiranteProps) {
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [credencialId, setCredencialId] = useState<string>('');
+  const [error, setError] = useState<string>('');
+
+  const nombreCompleto = `${nombre} ${apellidoPaterno} ${apellidoMaterno}`;
 
   const formatPassword = (passwd: string) => {
     if (passwd.length > 4) {
@@ -38,8 +54,54 @@ export default function CardAspirante({
     return passwd;
   };
 
-  const handleConfirm = () => {
-    setIsConfirmed(true);
+  const formatFechaNacimiento = (fecha: string) => {
+    const [year, month, day] = fecha.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleConfirm = async () => {
+    setError('');
+    const estadoNacimiento = estadosRepublica.find(
+      (estado: any) => estado.code === Number(numEntidadReg),
+    )?.name;
+
+    if (!estadoNacimiento) {
+      setError('Estado de nacimiento no encontrado');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${domain}/credenciales`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          api_key: apiKey || '',
+        },
+        body: JSON.stringify({
+          curp,
+          nombre,
+          primerApellido: apellidoPaterno,
+          segundoApellido: apellidoMaterno,
+          fechaNacimiento: formatFechaNacimiento(fechaNacimiento),
+          estadoNacimiento,
+          correo: email,
+          celular,
+          contrasena: password,
+          tipo: 'JWT',
+        }),
+      });
+
+      if (!response.ok) {
+        setError('Error en la creación de credencial');
+        return;
+      }
+
+      const data = await response.json();
+      setCredencialId(data.idCredencial);
+      setIsConfirmed(true);
+    } catch {
+      setError('Error al confirmar los datos');
+    }
   };
 
   const handleCancel = () => {
@@ -57,7 +119,7 @@ export default function CardAspirante({
           padding: '16px',
           boxSizing: 'border-box',
           height: 'calc(100vh - 64px)',
-          marginTop: '-25px',
+          marginTop: '-35px',
         }}
       >
         <Box
@@ -70,7 +132,13 @@ export default function CardAspirante({
             width: '100%',
           }}
         >
-          <VerifyCode email={email} celular={celular} type='Register' />
+          <VerifyCode
+            email={email}
+            celular={celular}
+            type='Register'
+            credencial={credencialId}
+            validation={{ correo: true, celular: true }}
+          />
         </Box>
       </Box>
     );
@@ -85,6 +153,11 @@ export default function CardAspirante({
         width: '100%',
       }}
       >
+        {error && (
+          <Typography color='error' sx={{ mb: 2, textAlign: 'center' }}>
+            {error}
+          </Typography>
+        )}
         <TextField
           label='Nombre Completo'
           value={nombreCompleto}

@@ -43,6 +43,7 @@ export default function CardHome({ title = '', children, ...props }: CardHomePro
           alt='Logo'
           width={250}
           height={114}
+          priority
         />
       </Box>
 

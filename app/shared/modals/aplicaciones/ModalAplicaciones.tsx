@@ -18,6 +18,7 @@ interface ModalAplicacionesProps {
   open: boolean;
   onClose: () => void;
   fields: Array<{ name: string; label: string; type?: 'select' | 'text'; icon?: React.ReactNode }>;
+  // eslint-disable-next-line no-unused-vars
   onSubmit: (data: Record<string, string>) => Promise<void>;
 }
 

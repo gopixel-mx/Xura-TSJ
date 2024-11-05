@@ -3,9 +3,9 @@
 import { createContext, useContext } from 'react';
 
 interface User {
-  id: string;
+  id?: string;
   token: string;
-  email?: string;
+  correo?: string;
   curp?: string;
   celular?: string;
 }
@@ -18,13 +18,17 @@ interface Noti {
 
 interface AuthContextProps {
   user: User | null;
+  // eslint-disable-next-line no-unused-vars
   setUser: (user: User | null) => void;
   noti: Noti | null;
+  // eslint-disable-next-line no-unused-vars
   setNoti: (noti: Noti | null) => void;
   loading: boolean;
+  // eslint-disable-next-line no-unused-vars
   setLoading: (loading: boolean) => void;
   isAuthenticated: () => boolean;
   removeAuth: () => void;
+  // eslint-disable-next-line no-unused-vars
   activateAuth: (userData: User) => void;
 }
 

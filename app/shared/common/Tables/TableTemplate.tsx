@@ -10,8 +10,10 @@ interface TableTemplateProps {
   colDefs: ColDef[];
   pageSize?: number;
   loading?: boolean;
-  rowSelection?: 'multiple';
+  selectionMode?: 'singleRow' | 'multiRow';
+  // eslint-disable-next-line no-unused-vars
   isRowSelectable?: (rowNode: IRowNode<any>) => boolean;
+  // eslint-disable-next-line no-unused-vars
   onSelectionChanged?: (params: any) => void;
 }
 
@@ -20,7 +22,7 @@ export default function TableTemplate({
   colDefs,
   pageSize = 20,
   loading = false,
-  rowSelection = 'multiple',
+  selectionMode = 'multiRow',
   isRowSelectable,
   onSelectionChanged,
 }: TableTemplateProps) {
@@ -42,8 +44,11 @@ export default function TableTemplate({
         columnDefs={colDefs}
         pagination
         paginationPageSize={pageSize}
-        rowSelection={rowSelection}
-        isRowSelectable={isRowSelectable}
+        selection={{
+          mode: selectionMode,
+          isRowSelectable,
+          checkboxes: true,
+        }}
         onSelectionChanged={onSelectionChanged}
       />
     </div>

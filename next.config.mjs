@@ -7,14 +7,15 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    async rewrites() {
-        return [
-            {
-                source: '/api/:path*',
-                destination: 'http://192.168.8.206:3001/api/:path*' // Proxy del backend
-            }
-        ];
-    }
+  reactStrictMode: false,
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://192.168.8.206:3001/api/:path*', // Proxy del backend
+      },
+    ];
+  },
 };
 
 export default nextConfig;

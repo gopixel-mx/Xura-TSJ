@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
-import { getCredenciales } from '@/app/services/handlers/getMatricula';
+import { getData } from '@/app/shared/utils/apiUtils';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
 
 interface CredencialData {
@@ -20,11 +20,10 @@ export default function TableCredenciales() {
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
 
-  // Obtener datos del endpoint
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getCredenciales(); // Asume que tienes esta función en tu servicio
+        const { data } = await getData({ endpoint: '/credenciales' });
         setRowData(data);
         setLoading(false);
       } catch (error) {
@@ -34,7 +33,6 @@ export default function TableCredenciales() {
     fetchData();
   }, []);
 
-  // Definir las columnas para AG Grid
   const colDefs: ColDef[] = [
     {
       field: 'curp',
@@ -42,7 +40,6 @@ export default function TableCredenciales() {
       sortable: true,
       filter: true,
       flex: 1,
-      checkboxSelection: true,
     },
     {
       field: 'usuario',
@@ -109,9 +106,9 @@ export default function TableCredenciales() {
       <TableTemplate
         rowData={rowData}
         colDefs={colDefs}
-        pageSize={10}
+        pageSize={20}
         loading={loading}
-        rowSelection='multiple'
+        selectionMode='multiRow'
         isRowSelectable={isRowSelectable}
         onSelectionChanged={handleRowSelectionChanged}
       />
