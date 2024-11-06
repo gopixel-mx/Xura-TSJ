@@ -38,7 +38,7 @@ export default function TableTemplate({
   }
 
   return (
-    <div className='ag-theme-quartz' style={{ height: 500, width: '100%' }}>
+    <div className='ag-theme-quartz' style={{ height: 635, width: '100%' }}>
       <AgGridReact
         rowData={rowData}
         columnDefs={colDefs}

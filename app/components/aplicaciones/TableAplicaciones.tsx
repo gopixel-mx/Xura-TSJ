@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
-import { getData } from '@/app/shared/utils/apiUtils';
-import { insertAplicacion } from '@/app/services/handlers/getMatricula';
+import { getData, createRecord } from '@/app/shared/utils/apiUtils';
 import ModalAplicaciones from '@/app/shared/modals/aplicaciones/ModalAplicaciones';
 import { AplicacionFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
@@ -35,12 +34,10 @@ export default function TableAplicaciones() {
   }, []);
 
   const handleInsertAplicacion = async (data: Record<string, string>) => {
-    const { clave, nombre, redireccion } = data;
     try {
-      await insertAplicacion(clave, nombre, redireccion);
-      // eslint-disable-next-line no-shadow
-      const { data } = await getData({ endpoint: '/aplicaciones' });
-      setRowData(data);
+      await createRecord({ endpoint: '/aplicaciones', data });
+      const { data: responseData } = await getData({ endpoint: '/aplicaciones' });
+      setRowData(responseData);
       setOpenModal(false);
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.errors) {

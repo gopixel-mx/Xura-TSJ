@@ -75,17 +75,6 @@ export default function ModalAplicaciones({
     onClose();
   };
 
-  const customButtonStyles = {
-    borderRadius: '20px',
-    color: 'rgb(50, 22, 155)',
-    textTransform: 'capitalize',
-    borderColor: 'rgb(50, 22, 155)',
-    '&:hover': {
-      backgroundColor: 'rgba(50, 22, 155, 0.08)',
-      borderColor: 'rgb(50, 22, 155)',
-    },
-  };
-
   const getGridSize = (index: number, totalFields: number) => {
     if (totalFields === 2) return 6;
     if (totalFields === 3) return 6;
@@ -140,23 +129,45 @@ export default function ModalAplicaciones({
           ))}
 
         </Grid>
-        <Box sx={{
-          display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2,
-        }}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 2,
+            mt: 2,
+          }}
         >
           <Button
-            variant='outlined'
-            sx={customButtonStyles}
+            variant='contained'
             onClick={handleSubmit}
             startIcon={<Add />}
+            sx={{
+              py: 1,
+              px: 3,
+              fontFamily: 'MadaniArabic-SemiBold',
+              textTransform: 'capitalize',
+              borderRadius: '8px',
+              backgroundColor: '#32169b',
+              '&:hover': { backgroundColor: '#14005E' },
+              fontSize: '0.875rem',
+            }}
           >
             Guardar
           </Button>
           <Button
-            variant='outlined'
-            sx={customButtonStyles}
+            variant='contained'
             onClick={handleClose}
             startIcon={<Close />}
+            sx={{
+              py: 1,
+              px: 3,
+              fontFamily: 'MadaniArabic-SemiBold',
+              textTransform: 'capitalize',
+              borderRadius: '8px',
+              backgroundColor: 'rgb(255, 77, 99)',
+              '&:hover': { backgroundColor: 'rgb(200, 50, 70)' },
+              fontSize: '0.875rem',
+            }}
           >
             Cancelar
           </Button>

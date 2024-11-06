@@ -27,60 +27,12 @@ const getMatriculaTotalUnidades = async () => {
   }
 };
 
-const insertAplicacion = async (
-  clave: string,
-  nombre: string,
-  redireccion: string,
-) => {
-  try {
-    const response = await axios.post(
-      'http://localhost:3001/aplicaciones',
-      { clave, nombre, redireccion },
-    );
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      throw error.response.data;
-    } else {
-      throw new Error('Error inesperado en la inserción de la aplicación');
-    }
-  }
-};
-
 const getPeriodos = async () => {
   try {
     const response = await axios.get('/api/matricula/periodo');
     return response.data;
   } catch (error) {
     return [];
-  }
-};
-
-const insertCredencial = async (
-  curp: string,
-  correo: string,
-  celular: string,
-  contrasena: string,
-  tipo: string,
-) => {
-  try {
-    const response = await axios.post(
-      'http://localhost:3001/credenciales',
-      {
-        curp,
-        correo,
-        celular,
-        contrasena,
-        tipo,
-      },
-    );
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      throw error.response.data;
-    } else {
-      throw new Error('Error inesperado en la inserción de la aplicación');
-    }
   }
 };
 
@@ -102,8 +54,6 @@ export {
   getMatricula,
   getMatriculaByNombre,
   getMatriculaTotalUnidades,
-  insertAplicacion,
   getPeriodos,
-  insertCredencial,
   getCurp,
 };
