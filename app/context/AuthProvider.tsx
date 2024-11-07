@@ -41,7 +41,7 @@ export default function AuthProvider({ children }: ProviderProps) {
       celular: userData.celular,
     });
     localStorage.setItem('authToken', userData.token);
-    router.push('/dashboard');
+    router.push('/aplicaciones');
   }, [router]);
 
   useEffect(() => {

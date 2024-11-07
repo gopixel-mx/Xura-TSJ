@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 
 import {
   LinkOutlined,
@@ -11,8 +11,10 @@ import {
 interface Field {
   name: string;
   label: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   type?: 'select' | 'text';
+  disabled?: boolean;
+  multiple?: boolean;
 }
 
 export const AplicacionFields: Field[] = [
@@ -27,17 +29,40 @@ export const ModuloFields: Field[] = [
   { name: 'nombre', label: 'Nombre', icon: <EditOutlined /> },
 ];
 
-export const RolGrupoFields: Field[] = [
+export const RolFields: Field[] = [
   { name: 'clave', label: 'Clave', icon: <EditOutlined /> },
   { name: 'nombre', label: 'Nombre', icon: <EditOutlined /> },
 ];
 
+export const GrupoFields: Field[] = [
+  { name: 'clave', label: 'Clave', icon: <EditOutlined /> },
+  { name: 'nombre', label: 'Nombre', icon: <EditOutlined /> },
+  {
+    name: 'etiquetas', label: 'Etiquetas', type: 'select', multiple: true,
+  },
+];
+
 export const CredencialFields: Field[] = [
   { name: 'curp', label: 'CURP', icon: <PersonOutline /> },
-  { name: 'usuario', label: 'Usuario', icon: <PersonOutline /> },
+  {
+    name: 'nombre',
+    label: 'Nombre',
+    icon: <PersonOutline />,
+    disabled: true,
+  },
   { name: 'celular', label: 'Celular', icon: <SmartphoneOutlined /> },
   { name: 'correo', label: 'Correo', icon: <MailOutlined /> },
-  { name: 'grupo', label: 'Grupo', type: 'select' },
-  { name: 'etiquetas', label: 'Etiquetas', type: 'select' },
-  { name: 'perfil', label: 'Perfil', type: 'select' },
+  { name: 'contrasena', label: 'Contraseña', icon: <PersonOutline /> },
+  {
+    name: 'perfil',
+    label: 'Perfil',
+    type: 'select',
+    multiple: true,
+  },
+  {
+    name: 'grupo',
+    label: 'Grupo',
+    type: 'select',
+    multiple: true,
+  },
 ];

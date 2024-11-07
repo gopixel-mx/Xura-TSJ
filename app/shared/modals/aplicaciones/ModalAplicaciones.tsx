@@ -12,14 +12,21 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import { Add, Close, EditOutlined } from '@mui/icons-material';
-import DefaultModal from '../DefaulModal';
+import DefaultModal from '../DefaultModal';
 
 interface ModalAplicacionesProps {
   open: boolean;
   onClose: () => void;
-  fields: Array<{ name: string; label: string; type?: 'select' | 'text'; icon?: React.ReactNode }>;
-  // eslint-disable-next-line no-unused-vars
-  onSubmit: (data: Record<string, string>) => Promise<void>;
+  fields: Array<{
+    name: string;
+    label: string;
+    type?: 'select' | 'text';
+    icon?: React.ReactNode;
+    disabled?: boolean;
+    multiple?: boolean;
+  }>;
+  onSubmit: (data: Record<string, string | string[]>) => Promise<void>;
+  formErrors: Record<string, string>;
 }
 
 export default function ModalAplicaciones({
@@ -27,48 +34,26 @@ export default function ModalAplicaciones({
   onClose,
   fields,
   onSubmit,
+  formErrors,
 }: ModalAplicacionesProps) {
-  const [formValues, setFormValues] = useState<Record<string, string>>({});
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [formValues, setFormValues] = useState<Record<string, string | string[]>>({});
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>
-    | React.ChangeEvent<{ value: unknown }>) => {
-    const { name, value } = e.target as HTMLInputElement;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
   };
 
-  const handleSelectChange = (e: SelectChangeEvent<string>) => {
+  const handleSelectChange = (e: SelectChangeEvent<string | string[]>, field: any) => {
     const { name, value } = e.target;
     setFormValues({
       ...formValues,
-      [name]: value,
+      [name]: field.multiple
+        ? (value as string[]) : (value as string),
     });
   };
 
   const handleSubmit = async () => {
-    try {
-      await onSubmit(formValues); // Llama a onSubmit, que maneja la petición al backend
-      setFormErrors({}); // Limpia los errores si la operación es exitosa
-      onClose(); // Cierra el modal solo si todo sale bien (sin errores)
-    } catch (error: any) {
-      // Si hay errores de validación desde el backend, los manejamos aquí
-      if (error.response && error.response.data && error.response.data.errors) {
-        const backendErrors = error.response.data.errors;
-
-        // Mapea los errores correctamente a los campos
-        const allErrors = Object.keys(backendErrors).reduce((acc: Record<string, string>, key) => {
-          acc[key] = backendErrors[key]; // Asigna cada mensaje de error al campo correspondiente
-          return acc;
-        }, {});
-
-        setFormErrors(allErrors); // Asigna todos los errores al estado formErrors
-      } else {
-        console.error('Error inesperado:', error);
-      }
-    }
+    await onSubmit(formValues);
   };
 
   const handleClose = () => {
@@ -78,32 +63,43 @@ export default function ModalAplicaciones({
   const getGridSize = (index: number, totalFields: number) => {
     if (totalFields === 2) return 6;
     if (totalFields === 3) return 6;
-    if (totalFields === 7) return index === 6 ? 8 : 4;
+    if (totalFields === 7) return index === 1 ? 8 : 4;
     return 12;
   };
 
   return (
-    <DefaultModal open={open} onClose={onClose} title='Agregar Aplicación'>
+    <DefaultModal open={open} onClose={handleClose} title='Agregar Aplicación'>
       <Box component='form' sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Grid container spacing={2}>
           {fields.map((field, index) => (
             <Grid item xs={getGridSize(index, fields.length)} key={field.name}>
               {field.type === 'select' ? (
-                <FormControl fullWidth>
+                <FormControl fullWidth error={!!formErrors[field.name]}>
                   <InputLabel>{field.label}</InputLabel>
                   <Select
                     name={field.name}
-                    value={formValues[field.name] || ''}
-                    onChange={handleSelectChange}
+                    value={formValues[field.name] || (field.multiple ? [] : '')}
+                    onChange={(e) => handleSelectChange(e, field)}
                     label={field.label}
-                    error={!!formErrors[field.name]} // Mostrar error si existe
+                    variant='outlined'
+                    disabled={field.disabled}
+                    multiple={field.multiple}
+                    renderValue={(selected) => (Array.isArray(selected)
+                      ? selected.join(', ') : selected)}
                   >
-                    <MenuItem value=''><em>None</em></MenuItem>
+                    <MenuItem value=''>
+                      <em>None</em>
+                    </MenuItem>
                     <MenuItem value='option1'>Option 1</MenuItem>
                     <MenuItem value='option2'>Option 2</MenuItem>
+                    <MenuItem value='option3'>Option 3</MenuItem>
+                    <MenuItem value='option4'>Option 4</MenuItem>
+                    <MenuItem value='option5'>Option 5</MenuItem>
                   </Select>
                   {formErrors[field.name] && (
-                    <span style={{ color: 'red' }}>{formErrors[field.name]}</span>
+                    <Box sx={{ color: 'red', fontSize: '0.75rem', mt: 0.5 }}>
+                      {formErrors[field.name]}
+                    </Box>
                   )}
                 </FormControl>
               ) : (
@@ -114,8 +110,9 @@ export default function ModalAplicaciones({
                   value={formValues[field.name] || ''}
                   onChange={handleInputChange}
                   fullWidth
-                  error={!!formErrors[field.name]} // Muestra error si existe
-                  helperText={formErrors[field.name]} // Muestra el mensaje de error
+                  error={!!formErrors[field.name]}
+                  helperText={formErrors[field.name]}
+                  disabled={field.disabled}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position='end'>
@@ -127,7 +124,6 @@ export default function ModalAplicaciones({
               )}
             </Grid>
           ))}
-
         </Grid>
         <Box
           sx={{

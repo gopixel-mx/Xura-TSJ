@@ -54,12 +54,12 @@ const makeCall = async ({
     };
   } catch (error: any) {
     const statusCode = error.response?.status || 500;
-    const errorData = ERROR_MAPPING[statusCode] || {
-      statusCode,
-      errorMessage: '¡Error Interno del Servidor!',
-    };
+    const errorMessage = error.response?.data?.message
+      || ERROR_MAPPING[statusCode]?.errorMessage || '¡Error Interno del Servidor!';
+
     return {
-      ...errorData,
+      statusCode,
+      errorMessage,
       data: [],
     };
   }
