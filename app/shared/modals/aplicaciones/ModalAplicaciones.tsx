@@ -15,6 +15,7 @@ import { Add, Close, EditOutlined } from '@mui/icons-material';
 import DefaultModal from '../DefaultModal';
 
 interface ModalAplicacionesProps {
+  title: string;
   open: boolean;
   onClose: () => void;
   fields: Array<{
@@ -24,40 +25,94 @@ interface ModalAplicacionesProps {
     icon?: React.ReactNode;
     disabled?: boolean;
     multiple?: boolean;
+    validation?: {
+      required?: boolean;
+      minLength?: number;
+      maxLength?: number;
+      pattern?: RegExp;
+      errorMessage?: string;
+    };
   }>;
+  // eslint-disable-next-line no-unused-vars
   onSubmit: (data: Record<string, string | string[]>) => Promise<void>;
-  formErrors: Record<string, string>;
 }
 
 export default function ModalAplicaciones({
+  title,
   open,
   onClose,
   fields,
   onSubmit,
-  formErrors,
 }: ModalAplicacionesProps) {
   const [formValues, setFormValues] = useState<Record<string, string | string[]>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateField = (field: any, value: string | string[]): string => {
+    const {
+      required,
+      minLength,
+      maxLength,
+      pattern,
+      errorMessage,
+    } = field.validation || {};
+    let error = '';
+
+    if (required && !value) {
+      error = 'Este campo es obligatorio';
+    } else if (minLength && typeof value === 'string' && value.length < minLength) {
+      error = `Debe tener al menos ${minLength} caracteres`;
+    } else if (maxLength && typeof value === 'string' && value.length > maxLength) {
+      error = `Debe tener como máximo ${maxLength} caracteres`;
+    } else if (pattern && typeof value === 'string' && !pattern.test(value)) {
+      error = errorMessage || 'Formato no válido';
+    }
+
+    return error;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    const field = fields.find((f) => f.name === name);
+    if (field) {
+      const error = validateField(field, value);
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
+    }
     setFormValues({ ...formValues, [name]: value });
   };
 
   const handleSelectChange = (e: SelectChangeEvent<string | string[]>, field: any) => {
     const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: field.multiple
-        ? (value as string[]) : (value as string),
-    });
+    const newValue = field.multiple ? (value as string[]) : (value as string);
+    const error = validateField(field, newValue);
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
+    setFormValues({ ...formValues, [name]: newValue });
   };
 
   const handleSubmit = async () => {
-    await onSubmit(formValues);
+    let formIsValid = true;
+    const newErrors: Record<string, string> = {};
+
+    fields.forEach((field) => {
+      const value = formValues[field.name] || '';
+      const error = validateField(field, value);
+      if (error) formIsValid = false;
+      newErrors[field.name] = error;
+    });
+
+    setErrors(newErrors);
+
+    if (formIsValid) {
+      await onSubmit(formValues);
+      setFormValues({});
+      setErrors({});
+      onClose();
+    }
   };
 
   const handleClose = () => {
     onClose();
+    setFormValues({});
+    setErrors({});
   };
 
   const getGridSize = (index: number, totalFields: number) => {
@@ -68,13 +123,13 @@ export default function ModalAplicaciones({
   };
 
   return (
-    <DefaultModal open={open} onClose={handleClose} title='Agregar Aplicación'>
+    <DefaultModal open={open} onClose={handleClose} title={`Agregar ${title}`}>
       <Box component='form' sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Grid container spacing={2}>
           {fields.map((field, index) => (
             <Grid item xs={getGridSize(index, fields.length)} key={field.name}>
               {field.type === 'select' ? (
-                <FormControl fullWidth error={!!formErrors[field.name]}>
+                <FormControl fullWidth error={!!errors[field.name]}>
                   <InputLabel>{field.label}</InputLabel>
                   <Select
                     name={field.name}
@@ -92,13 +147,10 @@ export default function ModalAplicaciones({
                     </MenuItem>
                     <MenuItem value='option1'>Option 1</MenuItem>
                     <MenuItem value='option2'>Option 2</MenuItem>
-                    <MenuItem value='option3'>Option 3</MenuItem>
-                    <MenuItem value='option4'>Option 4</MenuItem>
-                    <MenuItem value='option5'>Option 5</MenuItem>
                   </Select>
-                  {formErrors[field.name] && (
+                  {errors[field.name] && (
                     <Box sx={{ color: 'red', fontSize: '0.75rem', mt: 0.5 }}>
-                      {formErrors[field.name]}
+                      {errors[field.name]}
                     </Box>
                   )}
                 </FormControl>
@@ -110,8 +162,8 @@ export default function ModalAplicaciones({
                   value={formValues[field.name] || ''}
                   onChange={handleInputChange}
                   fullWidth
-                  error={!!formErrors[field.name]}
-                  helperText={formErrors[field.name]}
+                  error={!!errors[field.name]}
+                  helperText={errors[field.name]}
                   disabled={field.disabled}
                   InputProps={{
                     endAdornment: (
