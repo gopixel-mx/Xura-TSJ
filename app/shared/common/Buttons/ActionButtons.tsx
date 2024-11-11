@@ -10,39 +10,20 @@ import {
   GroupsOutlined,
   BookmarkBorder,
   FileUploadOutlined,
-  FileDownloadOutlined,
-  Delete,
 } from '@mui/icons-material';
 
-interface ActionButtonProps {
-  agregar?: boolean;
-  consultar?: boolean;
-  editar?: boolean;
-  cancelar?: boolean;
-  perfil?: boolean;
-  grupos?: boolean;
-  etiquetas?: boolean;
-  subir?: boolean;
-  descargar?: boolean;
-  eliminar?: boolean;
+interface ActionButtonsProps {
+  tableType: 'aplicaciones' | 'credenciales';
   selectedRowsCount: number;
-  onAgregar?: () => void;
+  // eslint-disable-next-line no-unused-vars
+  onButtonClick: (actionType: string) => void;
 }
 
 export default function ActionButtons({
-  agregar,
-  consultar,
-  editar,
-  cancelar,
-  perfil,
-  grupos,
-  etiquetas,
-  subir,
-  descargar,
-  eliminar,
+  tableType,
   selectedRowsCount,
-  onAgregar,
-}: ActionButtonProps) {
+  onButtonClick,
+}: ActionButtonsProps) {
   const customButtonStyles = {
     borderRadius: '20px',
     color: 'rgb(50, 22, 155)',
@@ -54,146 +35,86 @@ export default function ActionButtons({
     },
   };
 
-  // const isSingleSelection = selectedRowsCount === 1;
   const isMultipleSelection = selectedRowsCount > 1;
+  const isSingleSelection = selectedRowsCount === 1;
 
-  const handleAction = (action: string) => {
-    console.log(`${action} clickeado`);
-  };
+  const buttonsConfig = [
+    {
+      id: 'agregar',
+      label: 'Agregar',
+      icon: <Add />,
+      disabled: isMultipleSelection || isSingleSelection,
+      show: true,
+    },
+    {
+      id: 'consultar',
+      label: 'Consultar',
+      icon: <Search />,
+      disabled: isMultipleSelection,
+      show: true,
+    },
+    {
+      id: 'editar',
+      label: 'Editar',
+      icon: <EditOutlined />,
+      disabled: isMultipleSelection,
+      show: true,
+    },
+    {
+      id: 'cancelar',
+      label: 'Cancelar',
+      icon: <Close />,
+      show: true,
+    },
+    {
+      id: 'perfil',
+      label: 'Perfil',
+      icon: <PersonOutline />,
+      disabled: isMultipleSelection,
+      show: tableType === 'credenciales',
+    },
+    {
+      id: 'grupos',
+      label: 'Grupos',
+      icon: <GroupsOutlined />,
+      disabled: isMultipleSelection,
+      show: tableType === 'credenciales',
+    },
+    {
+      id: 'etiquetas',
+      label: 'Etiquetas',
+      icon: <BookmarkBorder />,
+      disabled: isMultipleSelection,
+      show: tableType === 'credenciales',
+    },
+    {
+      id: 'subir',
+      label: 'Subir',
+      icon: <FileUploadOutlined />,
+      disabled: isMultipleSelection,
+      show: tableType === 'credenciales',
+    },
+  ];
 
   return (
     <Box sx={{
       display: 'flex', justifyContent: 'flex-end', gap: 2, marginBottom: 2,
     }}
     >
-      {
-        agregar && (
+      {buttonsConfig.map(
+        (button) => button.show && (
           <Button
+            key={button.id}
             variant='outlined'
-            startIcon={<Add />}
+            startIcon={button.icon}
             sx={customButtonStyles}
-            onClick={onAgregar}
+            onClick={() => onButtonClick(button.label)}
+            disabled={button.disabled}
           >
-            Agregar
+            {button.label}
           </Button>
-        )
-      }
-      {
-        consultar && (
-          <Button
-            variant='outlined'
-            startIcon={<Search />}
-            sx={customButtonStyles}
-            onClick={() => handleAction('Consultar')}
-            disabled={isMultipleSelection}
-          >
-            Consultar
-          </Button>
-        )
-      }
-      {
-        editar && (
-          <Button
-            variant='outlined'
-            startIcon={<EditOutlined />}
-            sx={customButtonStyles}
-            onClick={() => handleAction('Editar')}
-            disabled={isMultipleSelection}
-          >
-            Editar
-          </Button>
-        )
-      }
-      {
-        cancelar && (
-          <Button
-            variant='outlined'
-            startIcon={<Close />}
-            sx={customButtonStyles}
-            onClick={() => handleAction('Cancelar')}
-          >
-            Cancelar
-          </Button>
-        )
-      }
-      {
-        perfil && (
-          <Button
-            variant='outlined'
-            startIcon={<PersonOutline />}
-            sx={customButtonStyles}
-            onClick={() => handleAction('Perfil')}
-            disabled={isMultipleSelection}
-          >
-            Perfil
-          </Button>
-        )
-      }
-      {
-        grupos && (
-          <Button
-            variant='outlined'
-            startIcon={<GroupsOutlined />}
-            sx={customButtonStyles}
-            onClick={() => handleAction('Grupos')}
-            disabled={isMultipleSelection}
-          >
-            Grupos
-          </Button>
-        )
-      }
-      {
-        etiquetas && (
-          <Button
-            variant='outlined'
-            startIcon={<BookmarkBorder />}
-            sx={customButtonStyles}
-            onClick={() => handleAction('Etiquetas')}
-            disabled={isMultipleSelection}
-          >
-            Etiquetas
-          </Button>
-        )
-      }
-      {
-        subir && (
-          <Button
-            variant='outlined'
-            startIcon={<FileUploadOutlined />}
-            sx={customButtonStyles}
-            onClick={() => handleAction('Subir')}
-            disabled={isMultipleSelection}
-          >
-            Subir
-          </Button>
-        )
-      }
-      {
-        descargar && (
-          <Button
-            variant='outlined'
-            startIcon={<FileDownloadOutlined />}
-            sx={customButtonStyles}
-            onClick={() => handleAction('Descargar')}
-            disabled={isMultipleSelection}
-          >
-            Descargar
-          </Button>
-        )
-      }
-      {
-        eliminar && (
-          <Button
-            variant='outlined'
-            startIcon={<Delete />}
-            sx={customButtonStyles}
-            onClick={() => handleAction('Eliminar')}
-            disabled={isMultipleSelection}
-          >
-            Eliminar
-          </Button>
-        )
-      }
+        ),
+      )}
     </Box>
   );
 }

@@ -32,7 +32,7 @@ export const AplicacionFields: Field[] = [
       required: true,
       minLength: 3,
       maxLength: 10,
-      errorMessage: 'La clave debe tener entre 3 y 10 caracteres',
+      errorMessage: 'La clave debe tener entre 3 y 10 caracteres.',
     },
   },
   {
@@ -43,7 +43,7 @@ export const AplicacionFields: Field[] = [
       required: true,
       minLength: 3,
       maxLength: 200,
-      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres',
+      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres.',
     },
   },
   {
@@ -53,7 +53,7 @@ export const AplicacionFields: Field[] = [
     validation: {
       maxLength: 500,
       pattern: /^(http|https):\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}(\/\S*)?$/,
-      errorMessage: 'La redirección debe ser una URL válida y tener máximo 500 caracteres',
+      errorMessage: 'La redirección debe ser una URL válida y tener máximo 500 caracteres.',
     },
   },
 ];
@@ -67,7 +67,7 @@ export const ModuloFields: Field[] = [
       required: true,
       minLength: 3,
       maxLength: 15,
-      errorMessage: 'La clave debe tener entre 3 y 15 caracteres',
+      errorMessage: 'La clave debe tener entre 3 y 15 caracteres.',
     },
   },
   {
@@ -76,7 +76,7 @@ export const ModuloFields: Field[] = [
     type: 'select',
     validation: {
       required: true,
-      errorMessage: 'Debe seleccionar al menos una aplicación',
+      errorMessage: 'Debe seleccionar al menos una aplicación.',
     },
   },
   {
@@ -87,7 +87,7 @@ export const ModuloFields: Field[] = [
       required: true,
       minLength: 3,
       maxLength: 200,
-      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres',
+      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres.',
     },
   },
 ];
@@ -101,7 +101,7 @@ export const RolFields: Field[] = [
       required: true,
       minLength: 3,
       maxLength: 10,
-      errorMessage: 'La clave debe tener entre 3 y 10 caracteres',
+      errorMessage: 'La clave debe tener entre 3 y 10 caracteres.',
     },
   },
   {
@@ -112,7 +112,7 @@ export const RolFields: Field[] = [
       required: true,
       minLength: 3,
       maxLength: 200,
-      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres',
+      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres.',
     },
   },
 ];
@@ -126,7 +126,7 @@ export const GrupoFields: Field[] = [
       required: true,
       minLength: 3,
       maxLength: 15,
-      errorMessage: 'La clave debe tener entre 3 y 15 caracteres',
+      errorMessage: 'La clave debe tener entre 3 y 15 caracteres.',
     },
   },
   {
@@ -137,7 +137,7 @@ export const GrupoFields: Field[] = [
       required: true,
       minLength: 3,
       maxLength: 200,
-      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres',
+      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres.',
     },
   },
   {
@@ -147,7 +147,7 @@ export const GrupoFields: Field[] = [
     multiple: true,
     validation: {
       required: true,
-      errorMessage: 'Debe seleccionar al menos una etiqueta',
+      errorMessage: 'Debe seleccionar al menos una etiqueta.',
     },
   },
 ];
@@ -161,7 +161,7 @@ export const CredencialFields: Field[] = [
       required: true,
       minLength: 18,
       maxLength: 18,
-      errorMessage: 'La CURP debe ser de 18 caracteres',
+      errorMessage: 'La CURP debe ser de 18 caracteres.',
     },
   },
   {
@@ -172,7 +172,7 @@ export const CredencialFields: Field[] = [
     validation: {
       minLength: 3,
       maxLength: 200,
-      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres',
+      errorMessage: 'El nombre debe tener entre 3 y 200 caracteres.',
     },
   },
   {
@@ -183,7 +183,7 @@ export const CredencialFields: Field[] = [
       required: true,
       minLength: 10,
       maxLength: 10,
-      errorMessage: 'El celular debe ser de 10 caracteres',
+      errorMessage: 'El celular debe ser de 10 caracteres.',
     },
   },
   {
@@ -192,7 +192,7 @@ export const CredencialFields: Field[] = [
     icon: <MailOutlined />,
     validation: {
       pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      errorMessage: 'Debe ser un correo electrónico válido',
+      errorMessage: 'Debe ser un correo electrónico válido.',
     },
   },
   {
@@ -202,7 +202,7 @@ export const CredencialFields: Field[] = [
     validation: {
       required: true,
       minLength: 8,
-      errorMessage: 'La contraseña debe tener al menos 8 caracteres y contener una letra mayúscula, un número y un carácter especial',
+      errorMessage: 'La contraseña debe tener al menos 8 caracteres y contener una letra mayúscula, un número y un carácter especial.',
       pattern: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/,
     },
   },
@@ -213,7 +213,7 @@ export const CredencialFields: Field[] = [
     multiple: true,
     validation: {
       required: true,
-      errorMessage: 'Debe seleccionar al menos un perfil',
+      errorMessage: 'Debe seleccionar al menos un perfil.',
     },
   },
   {
@@ -223,7 +223,7 @@ export const CredencialFields: Field[] = [
     multiple: true,
     validation: {
       required: true,
-      errorMessage: 'Debe seleccionar al menos un grupo',
+      errorMessage: 'Debe seleccionar al menos un grupo.',
     },
   },
 ];

@@ -20,7 +20,9 @@ export default function TableAplicaciones() {
   const [rowData, setRowData] = useState<AplicacionData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
+  const [selectedRowData, setSelectedRowData] = useState<AplicacionData | null>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [modalMode, setModalMode] = useState<'agregar' | 'consultar' | 'editar'>('agregar');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,6 +54,24 @@ export default function TableAplicaciones() {
         type: 'success',
         message: '¡Aplicación insertada con éxito!',
       });
+    }
+  };
+
+  const handleOpenModal = (actionType: string) => {
+    if (selectedRowsCount === 1 && selectedRowData) {
+      setSelectedRowData({ ...selectedRowData });
+    }
+
+    if (actionType === 'Agregar') {
+      setModalMode('agregar');
+      setSelectedRowData(null);
+      setOpenModal(true);
+    } else if (actionType === 'Consultar' && selectedRowsCount === 1) {
+      setModalMode('consultar');
+      setOpenModal(true);
+    } else if (actionType === 'Editar' && selectedRowsCount === 1) {
+      setModalMode('editar');
+      setOpenModal(true);
     }
   };
 
@@ -89,18 +109,17 @@ export default function TableAplicaciones() {
   const isRowSelectable = (rowNode: any) => rowNode.data.clave !== 'sso';
 
   const handleRowSelectionChanged = (params: any) => {
-    setSelectedRowsCount(params.api.getSelectedRows().length);
+    const selectedRows = params.api.getSelectedRows();
+    setSelectedRowsCount(selectedRows.length);
+    setSelectedRowData(selectedRows.length === 1 ? selectedRows[0] : null);
   };
 
   return (
     <>
       <ActionButtons
-        agregar
-        consultar
-        editar
-        cancelar
+        tableType='aplicaciones'
         selectedRowsCount={selectedRowsCount}
-        onAgregar={() => setOpenModal(true)}
+        onButtonClick={handleOpenModal}
       />
       <TableTemplate
         rowData={rowData}
@@ -117,6 +136,8 @@ export default function TableAplicaciones() {
         onClose={() => setOpenModal(false)}
         fields={AplicacionFields}
         onSubmit={handleInsertAplicacion}
+        mode={modalMode}
+        selectedData={selectedRowData}
       />
     </>
   );

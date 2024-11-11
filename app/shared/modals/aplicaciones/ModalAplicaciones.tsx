@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TextField,
   Button,
@@ -13,6 +13,13 @@ import {
 } from '@mui/material';
 import { Add, Close, EditOutlined } from '@mui/icons-material';
 import DefaultModal from '../DefaultModal';
+
+interface AplicacionData {
+  clave: string;
+  nombre: string;
+  redireccion: string;
+  estado: string;
+}
 
 interface ModalAplicacionesProps {
   title: string;
@@ -33,6 +40,8 @@ interface ModalAplicacionesProps {
       errorMessage?: string;
     };
   }>;
+  mode: 'agregar' | 'consultar' | 'editar';
+  selectedData?: AplicacionData | null;
   // eslint-disable-next-line no-unused-vars
   onSubmit: (data: Record<string, string | string[]>) => Promise<void>;
 }
@@ -42,10 +51,23 @@ export default function ModalAplicaciones({
   open,
   onClose,
   fields,
+  mode,
+  selectedData = null,
   onSubmit,
 }: ModalAplicacionesProps) {
   const [formValues, setFormValues] = useState<Record<string, string | string[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (open && selectedData && mode !== 'agregar') {
+      const transformedData = Object.fromEntries(
+        Object.entries(selectedData).map(([key, value]) => [key, value]),
+      ) as Record<string, string | string[]>;
+      setFormValues(transformedData);
+    } else if (mode === 'agregar') {
+      setFormValues({});
+    }
+  }, [selectedData, mode, open]);
 
   const validateField = (field: any, value: string | string[]): string => {
     const {
@@ -58,13 +80,13 @@ export default function ModalAplicaciones({
     let error = '';
 
     if (required && !value) {
-      error = 'Este campo es obligatorio';
+      error = 'Este campo es obligatorio.';
     } else if (minLength && typeof value === 'string' && value.length < minLength) {
-      error = `Debe tener al menos ${minLength} caracteres`;
+      error = `Debe tener al menos ${minLength} caracteres.`;
     } else if (maxLength && typeof value === 'string' && value.length > maxLength) {
-      error = `Debe tener como máximo ${maxLength} caracteres`;
+      error = `Debe tener como máximo ${maxLength} caracteres.`;
     } else if (pattern && typeof value === 'string' && !pattern.test(value)) {
-      error = errorMessage || 'Formato no válido';
+      error = errorMessage || 'Formato no válido.';
     }
 
     return error;
@@ -89,6 +111,8 @@ export default function ModalAplicaciones({
   };
 
   const handleSubmit = async () => {
+    if (mode === 'consultar') return;
+
     let formIsValid = true;
     const newErrors: Record<string, string> = {};
 
@@ -103,8 +127,6 @@ export default function ModalAplicaciones({
 
     if (formIsValid) {
       await onSubmit(formValues);
-      setFormValues({});
-      setErrors({});
       onClose();
     }
   };
@@ -115,6 +137,8 @@ export default function ModalAplicaciones({
     setErrors({});
   };
 
+  const isReadOnly = mode === 'consultar';
+
   const getGridSize = (index: number, totalFields: number) => {
     if (totalFields === 2) return 6;
     if (totalFields === 3) return 6;
@@ -123,7 +147,7 @@ export default function ModalAplicaciones({
   };
 
   return (
-    <DefaultModal open={open} onClose={handleClose} title={`Agregar ${title}`}>
+    <DefaultModal open={open} onClose={handleClose} title={`${mode} ${title}`}>
       <Box component='form' sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Grid container spacing={2}>
           {fields.map((field, index) => (
@@ -137,7 +161,7 @@ export default function ModalAplicaciones({
                     onChange={(e) => handleSelectChange(e, field)}
                     label={field.label}
                     variant='outlined'
-                    disabled={field.disabled}
+                    disabled={isReadOnly || field.disabled}
                     multiple={field.multiple}
                     renderValue={(selected) => (Array.isArray(selected)
                       ? selected.join(', ') : selected)}
@@ -164,7 +188,7 @@ export default function ModalAplicaciones({
                   fullWidth
                   error={!!errors[field.name]}
                   helperText={errors[field.name]}
-                  disabled={field.disabled}
+                  disabled={isReadOnly || field.disabled}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position='end'>
@@ -187,23 +211,6 @@ export default function ModalAplicaciones({
         >
           <Button
             variant='contained'
-            onClick={handleSubmit}
-            startIcon={<Add />}
-            sx={{
-              py: 1,
-              px: 3,
-              fontFamily: 'MadaniArabic-SemiBold',
-              textTransform: 'capitalize',
-              borderRadius: '8px',
-              backgroundColor: '#32169b',
-              '&:hover': { backgroundColor: '#14005E' },
-              fontSize: '0.875rem',
-            }}
-          >
-            Guardar
-          </Button>
-          <Button
-            variant='contained'
             onClick={handleClose}
             startIcon={<Close />}
             sx={{
@@ -217,8 +224,27 @@ export default function ModalAplicaciones({
               fontSize: '0.875rem',
             }}
           >
-            Cancelar
+            {mode === 'consultar' ? 'Cerrar' : 'Cancelar'}
           </Button>
+          {mode !== 'consultar' && (
+            <Button
+              variant='contained'
+              onClick={handleSubmit}
+              startIcon={<Add />}
+              sx={{
+                py: 1,
+                px: 3,
+                fontFamily: 'MadaniArabic-SemiBold',
+                textTransform: 'capitalize',
+                borderRadius: '8px',
+                backgroundColor: '#32169b',
+                '&:hover': { backgroundColor: '#14005E' },
+                fontSize: '0.875rem',
+              }}
+            >
+              Guardar
+            </Button>
+          )}
         </Box>
       </Box>
     </DefaultModal>
