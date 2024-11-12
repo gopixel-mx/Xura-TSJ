@@ -146,8 +146,10 @@ export default function ModalAplicaciones({
     return 12;
   };
 
+  const upperMode = mode.charAt(0).toUpperCase() + mode.slice(1);
+
   return (
-    <DefaultModal open={open} onClose={handleClose} title={`${mode} ${title}`}>
+    <DefaultModal open={open} onClose={handleClose} title={`${upperMode} ${title}`}>
       <Box component='form' sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Grid container spacing={2}>
           {fields.map((field, index) => (
