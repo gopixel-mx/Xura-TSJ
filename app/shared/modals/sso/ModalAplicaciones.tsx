@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import {
+  ChangeEvent, ReactNode, useState, useEffect,
+} from 'react';
 import {
   TextField,
   Button,
@@ -29,7 +31,7 @@ interface ModalAplicacionesProps {
     name: string;
     label: string;
     type?: 'select' | 'text';
-    icon?: React.ReactNode;
+    icon?: ReactNode;
     disabled?: boolean;
     multiple?: boolean;
     validation?: {
@@ -92,7 +94,7 @@ export default function ModalAplicaciones({
     return error;
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const field = fields.find((f) => f.name === name);
     if (field) {

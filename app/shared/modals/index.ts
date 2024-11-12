@@ -1,1 +1,1 @@
-export * from './aplicaciones';
+export * from './sso';

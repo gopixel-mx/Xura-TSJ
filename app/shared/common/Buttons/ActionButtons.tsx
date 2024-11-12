@@ -9,7 +9,6 @@ import {
   PersonOutline,
   GroupsOutlined,
   BookmarkBorder,
-  FileUploadOutlined,
 } from '@mui/icons-material';
 
 interface ActionButtonsProps {
@@ -37,6 +36,7 @@ export default function ActionButtons({
 
   const isMultipleSelection = selectedRowsCount > 1;
   const isSingleSelection = selectedRowsCount === 1;
+  const notSelection = selectedRowsCount === 0;
 
   const buttonsConfig = [
     {
@@ -50,48 +50,42 @@ export default function ActionButtons({
       id: 'consultar',
       label: 'Consultar',
       icon: <Search />,
-      disabled: isMultipleSelection,
+      disabled: isMultipleSelection || notSelection,
       show: true,
     },
     {
       id: 'editar',
       label: 'Editar',
       icon: <EditOutlined />,
-      disabled: isMultipleSelection,
+      disabled: isMultipleSelection || notSelection,
       show: true,
     },
     {
       id: 'cancelar',
       label: 'Cancelar',
       icon: <Close />,
+      disabled: notSelection,
       show: true,
     },
     {
       id: 'perfil',
       label: 'Perfil',
       icon: <PersonOutline />,
-      disabled: isMultipleSelection,
+      disabled: isMultipleSelection || notSelection,
       show: tableType === 'credenciales',
     },
     {
       id: 'grupos',
       label: 'Grupos',
       icon: <GroupsOutlined />,
-      disabled: isMultipleSelection,
+      disabled: isMultipleSelection || notSelection,
       show: tableType === 'credenciales',
     },
     {
       id: 'etiquetas',
       label: 'Etiquetas',
       icon: <BookmarkBorder />,
-      disabled: isMultipleSelection,
-      show: tableType === 'credenciales',
-    },
-    {
-      id: 'subir',
-      label: 'Subir',
-      icon: <FileUploadOutlined />,
-      disabled: isMultipleSelection,
+      disabled: isMultipleSelection || notSelection,
       show: tableType === 'credenciales',
     },
   ];
