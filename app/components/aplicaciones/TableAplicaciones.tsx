@@ -178,6 +178,7 @@ export default function TableAplicaciones() {
         selectionMode='multiRow'
         isRowSelectable={isRowSelectable}
         onSelectionChanged={handleRowSelectionChanged}
+        enableSelection
       />
       <ModalAplicaciones
         title='Aplicación'
@@ -191,7 +192,8 @@ export default function TableAplicaciones() {
       <ModalCancelar
         open={openCancelModal}
         onClose={() => setOpenCancelModal(false)}
-        selectedKeys={selectedRowsData.map((row) => row.clave)}
+        selectedRows={selectedRowsData}
+        colDefs={colDefs}
         onConfirmCancel={handleConfirmCancel}
       />
     </>

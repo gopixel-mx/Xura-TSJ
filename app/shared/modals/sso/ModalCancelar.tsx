@@ -2,15 +2,17 @@ import {
   Button,
   Box,
   Typography,
-  Grid,
 } from '@mui/material';
 import { Close, DoNotDisturbAltOutlined } from '@mui/icons-material';
+import { TableTemplate } from '@/app/shared/common';
+import { ColDef } from 'ag-grid-community';
 import DefaultModal from '../DefaultModal';
 
 interface ModalCancelarProps {
   open: boolean;
   onClose: () => void;
-  selectedKeys: string[];
+  selectedRows: any[];
+  colDefs: ColDef[];
   onConfirmCancel: () => void;
 }
 
@@ -26,26 +28,21 @@ const buttonStyles = {
 export default function ModalCancelar({
   open,
   onClose,
-  selectedKeys,
+  selectedRows,
+  colDefs,
   onConfirmCancel,
 }: ModalCancelarProps) {
-  const maxDisplayCount = 5;
-
   return (
     <DefaultModal open={open} onClose={onClose} title='¿Deseas cancelarlos?'>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {selectedKeys.length <= maxDisplayCount ? (
-          <Grid container spacing={2}>
-            {selectedKeys.map((key) => (
-              <Grid item xs={12} key={key}>
-                <Typography variant='body1'>
-                  Clave:
-                  {' '}
-                  {key}
-                </Typography>
-              </Grid>
-            ))}
-          </Grid>
+        {selectedRows.length > 0 ? (
+          <Box sx={{ height: 308.5, display: 'flex', flexDirection: 'column' }}>
+            <TableTemplate
+              rowData={selectedRows}
+              colDefs={colDefs}
+              pageSize={20}
+            />
+          </Box>
         ) : (
           <Typography variant='body1'>
             Se cancelarán varias aplicaciones seleccionadas.
@@ -56,7 +53,7 @@ export default function ModalCancelar({
             display: 'flex',
             justifyContent: 'flex-end',
             gap: 2,
-            mt: 2,
+            mt: 3,
           }}
         >
           <Button
