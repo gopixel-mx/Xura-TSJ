@@ -1,7 +1,6 @@
 import {
   Button,
   Box,
-  Typography,
 } from '@mui/material';
 import { Close, DoNotDisturbAltOutlined } from '@mui/icons-material';
 import { TableTemplate } from '@/app/shared/common';
@@ -35,19 +34,13 @@ export default function ModalCancelar({
   return (
     <DefaultModal open={open} onClose={onClose} title='¿Deseas cancelarlos?'>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {selectedRows.length > 0 ? (
-          <Box sx={{ height: 308.5, display: 'flex', flexDirection: 'column' }}>
-            <TableTemplate
-              rowData={selectedRows}
-              colDefs={colDefs}
-              pageSize={20}
-            />
-          </Box>
-        ) : (
-          <Typography variant='body1'>
-            Se cancelarán varias aplicaciones seleccionadas.
-          </Typography>
-        )}
+        <Box sx={{ height: 308.8, display: 'flex', flexDirection: 'column' }}>
+          <TableTemplate
+            rowData={selectedRows}
+            colDefs={colDefs}
+            pageSize={20}
+          />
+        </Box>
         <Box
           sx={{
             display: 'flex',

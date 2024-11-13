@@ -23,7 +23,7 @@ interface AplicacionData {
   estado: string;
 }
 
-interface ModalAplicacionesProps {
+interface ModalAddCnlProps {
   title: string;
   open: boolean;
   onClose: () => void;
@@ -48,7 +48,7 @@ interface ModalAplicacionesProps {
   onSubmit: (data: Record<string, string | string[]>) => Promise<void>;
 }
 
-export default function ModalAplicaciones({
+export default function ModalAddCnl({
   title,
   open,
   onClose,
@@ -56,7 +56,7 @@ export default function ModalAplicaciones({
   mode,
   selectedData = null,
   onSubmit,
-}: ModalAplicacionesProps) {
+}: ModalAddCnlProps) {
   const [formValues, setFormValues] = useState<Record<string, string | string[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 

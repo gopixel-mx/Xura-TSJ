@@ -5,7 +5,7 @@ import { ColDef } from 'ag-grid-community';
 import {
   getData, createRecord, updateRecord, deleteRecord,
 } from '@/app/shared/utils/apiUtils';
-import { ModalAplicaciones, ModalCancelar } from '@/app/shared/modals/sso';
+import { ModalAddCnl, ModalCancelar } from '@/app/shared/modals/sso';
 import { AplicacionFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
 import { useAuthContext } from '@/app/context/AuthContext';
@@ -180,7 +180,7 @@ export default function TableAplicaciones() {
         onSelectionChanged={handleRowSelectionChanged}
         enableSelection
       />
-      <ModalAplicaciones
+      <ModalAddCnl
         title='Aplicación'
         open={openModal}
         onClose={() => setOpenModal(false)}
