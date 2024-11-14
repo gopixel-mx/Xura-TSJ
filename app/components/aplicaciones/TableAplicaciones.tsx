@@ -2,24 +2,32 @@
 
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
-import { getData } from '@/app/shared/utils/apiUtils';
-import { insertAplicacion } from '@/app/services/handlers/getMatricula';
-import ModalAplicaciones from '@/app/shared/modals/aplicaciones/ModalAplicaciones';
+import {
+  getData, createRecord, updateRecord, deleteRecord,
+} from '@/app/shared/utils/apiUtils';
+import { ModalAddCnl, ModalCancelar } from '@/app/shared/modals/sso';
 import { AplicacionFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
+import { useAuthContext } from '@/app/context/AuthContext';
 
 interface AplicacionData {
   clave: string;
   nombre: string;
   redireccion: string;
   estado: string;
+  idAplicacion?: number;
 }
 
 export default function TableAplicaciones() {
+  const { setNoti } = useAuthContext();
   const [rowData, setRowData] = useState<AplicacionData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
+  const [selectedRowsData, setSelectedRowsData] = useState<AplicacionData[]>([]);
+  const [selectedRowData, setSelectedRowData] = useState<AplicacionData | null>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
+  const [modalMode, setModalMode] = useState<'agregar' | 'consultar' | 'editar'>('agregar');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,20 +42,84 @@ export default function TableAplicaciones() {
     fetchData();
   }, []);
 
-  const handleInsertAplicacion = async (data: Record<string, string>) => {
-    const { clave, nombre, redireccion } = data;
-    try {
-      await insertAplicacion(clave, nombre, redireccion);
-      // eslint-disable-next-line no-shadow
-      const { data } = await getData({ endpoint: '/aplicaciones' });
-      setRowData(data);
-      setOpenModal(false);
-    } catch (error: any) {
-      if (error.response && error.response.data && error.response.data.errors) {
-        throw error;
+  const handleSaveAplicacion = async (data: Record<string, string | string[]>) => {
+    if (modalMode === 'editar' && selectedRowData) {
+      const endpoint = `/aplicaciones/${selectedRowData.idAplicacion}`;
+      const response = await updateRecord({ endpoint, data });
+
+      if (response.errorMessage) {
+        setNoti({
+          open: true,
+          type: 'error',
+          message: response.errorMessage,
+        });
       } else {
-        throw new Error('Error inesperado en la inserción de la aplicación');
+        const { data: responseData } = await getData({ endpoint: '/aplicaciones' });
+        setRowData(responseData);
+        setOpenModal(false);
+        setNoti({
+          open: true,
+          type: 'success',
+          message: '¡Aplicación actualizada con éxito!',
+        });
       }
+    } else {
+      const response = await createRecord({ endpoint: '/aplicaciones', data });
+      if (response.errorMessage) {
+        setNoti({
+          open: true,
+          type: 'error',
+          message: response.errorMessage,
+        });
+      } else {
+        const { data: responseData } = await getData({ endpoint: '/aplicaciones' });
+        setRowData(responseData);
+        setOpenModal(false);
+        setNoti({
+          open: true,
+          type: 'success',
+          message: '¡Aplicación creada con éxito!',
+        });
+      }
+    }
+  };
+
+  const handleOpenModal = (actionType: string) => {
+    if (actionType === 'Agregar') {
+      setModalMode('agregar');
+      setSelectedRowData(null);
+      setOpenModal(true);
+    } else if (actionType === 'Consultar' && selectedRowsCount === 1) {
+      setModalMode('consultar');
+      setOpenModal(true);
+    } else if (actionType === 'Editar' && selectedRowsCount === 1) {
+      setModalMode('editar');
+      setOpenModal(true);
+    } else if (actionType === 'Cancelar' && selectedRowsCount >= 1) {
+      setOpenCancelModal(true);
+    }
+  };
+
+  const handleConfirmCancel = async () => {
+    const idsToDelete = selectedRowsData.map((row) => row.idAplicacion);
+    const endpoint = `/aplicaciones/${idsToDelete.join(',')}`;
+
+    const response = await deleteRecord({ endpoint });
+    if (response.errorMessage) {
+      setNoti({
+        open: true,
+        type: 'error',
+        message: response.errorMessage,
+      });
+    } else {
+      setNoti({
+        open: true,
+        type: 'success',
+        message: '¡Aplicaciones canceladas con éxito!',
+      });
+      setOpenCancelModal(false);
+      const { data: responseData } = await getData({ endpoint: '/aplicaciones' });
+      setRowData(responseData);
     }
   };
 
@@ -85,18 +157,18 @@ export default function TableAplicaciones() {
   const isRowSelectable = (rowNode: any) => rowNode.data.clave !== 'sso';
 
   const handleRowSelectionChanged = (params: any) => {
-    setSelectedRowsCount(params.api.getSelectedRows().length);
+    const selectedRows = params.api.getSelectedRows();
+    setSelectedRowsCount(selectedRows.length);
+    setSelectedRowData(selectedRows.length === 1 ? selectedRows[0] : null);
+    setSelectedRowsData(selectedRows);
   };
 
   return (
     <>
       <ActionButtons
-        agregar
-        consultar
-        editar
-        cancelar
+        tableType='aplicaciones'
         selectedRowsCount={selectedRowsCount}
-        onAgregar={() => setOpenModal(true)}
+        onButtonClick={handleOpenModal}
       />
       <TableTemplate
         rowData={rowData}
@@ -106,12 +178,23 @@ export default function TableAplicaciones() {
         selectionMode='multiRow'
         isRowSelectable={isRowSelectable}
         onSelectionChanged={handleRowSelectionChanged}
+        enableSelection
       />
-      <ModalAplicaciones
+      <ModalAddCnl
+        title='Aplicación'
         open={openModal}
         onClose={() => setOpenModal(false)}
         fields={AplicacionFields}
-        onSubmit={handleInsertAplicacion}
+        onSubmit={handleSaveAplicacion}
+        mode={modalMode}
+        selectedData={selectedRowData}
+      />
+      <ModalCancelar
+        open={openCancelModal}
+        onClose={() => setOpenCancelModal(false)}
+        selectedRows={selectedRowsData}
+        colDefs={colDefs}
+        onConfirmCancel={handleConfirmCancel}
       />
     </>
   );

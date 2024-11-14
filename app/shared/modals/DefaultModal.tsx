@@ -38,13 +38,23 @@ export default function DefaultModal({
           variant='h4'
           component='h2'
           sx={{
-            fontFamily: 'MadaniArabic-Light',
+            fontFamily: 'MadaniArabic-Regular',
+            color: '#32169b',
           }}
         >
           {title}
         </Typography>
+        <Box
+          sx={{
+            mt: 0.5,
+            mb: 3,
+            width: '100%',
+            height: '2px',
+            backgroundColor: 'rgb(50, 22, 155)',
+            borderRadius: '1px',
+          }}
+        />
         <Box sx={{ mt: 6 }}>
-          {' '}
           {children}
         </Box>
       </Box>

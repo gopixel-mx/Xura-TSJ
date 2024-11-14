@@ -10,6 +10,7 @@ interface TableTemplateProps {
   colDefs: ColDef[];
   pageSize?: number;
   loading?: boolean;
+  enableSelection?: boolean;
   selectionMode?: 'singleRow' | 'multiRow';
   // eslint-disable-next-line no-unused-vars
   isRowSelectable?: (rowNode: IRowNode<any>) => boolean;
@@ -22,6 +23,7 @@ export default function TableTemplate({
   colDefs,
   pageSize = 20,
   loading = false,
+  enableSelection = false,
   selectionMode = 'multiRow',
   isRowSelectable,
   onSelectionChanged,
@@ -38,27 +40,19 @@ export default function TableTemplate({
   }
 
   return (
-    <div className='ag-theme-quartz' style={{ height: 500, width: '100%' }}>
+    <div className='ag-theme-quartz' style={{ height: 635, width: '100%' }}>
       <AgGridReact
         rowData={rowData}
         columnDefs={colDefs}
         pagination
         paginationPageSize={pageSize}
-        selection={{
+        selection={enableSelection ? {
           mode: selectionMode,
           isRowSelectable,
           checkboxes: true,
-        }}
-        onSelectionChanged={onSelectionChanged}
+        } : undefined}
+        onSelectionChanged={enableSelection ? onSelectionChanged : undefined}
       />
     </div>
   );
 }
-//
-// TableTemplate.defaultProps = {
-//   pageSize: 10,
-//   loading: true,
-//   rowSelection: 'multiple',
-//   isRowSelectable: undefined,
-//   onSelectionChanged: undefined,
-// };
