@@ -6,28 +6,24 @@ import {
   getData, createRecord, updateRecord, deleteRecord,
 } from '@/app/shared/utils/apiUtils';
 import { ModalAddCnl, ModalCancelar } from '@/app/shared/modals/sso';
-import { CredencialFields } from '@/app/services/handlers/formFields';
+import { RolFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
 import { useAuthContext } from '@/app/context/AuthContext';
 
-interface CredencialData {
-  curp: string;
-  usuario: string;
-  grupo: string;
-  etiquetas: string;
-  perfil: string;
-  tipo: string;
+interface AplicacionData {
+  clave: string;
+  nombre: string;
   estado: string;
-  idCredencial?: number;
+  idRol?: number;
 }
 
-export default function TableCredenciales() {
+export default function TableRoles() {
   const { setNoti } = useAuthContext();
-  const [rowData, setRowData] = useState<CredencialData[]>([]);
+  const [rowData, setRowData] = useState<AplicacionData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
-  const [selectedRowsData, setSelectedRowsData] = useState<CredencialData[]>([]);
-  const [selectedRowData, setSelectedRowData] = useState<CredencialData | null>(null);
+  const [selectedRowsData, setSelectedRowsData] = useState<AplicacionData[]>([]);
+  const [selectedRowData, setSelectedRowData] = useState<AplicacionData | null>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<'agregar' | 'consultar' | 'editar'>('agregar');
@@ -35,7 +31,7 @@ export default function TableCredenciales() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await getData({ endpoint: '/credenciales' });
+        const { data } = await getData({ endpoint: '/roles' });
         setRowData(data);
         setLoading(false);
       } catch (error) {
@@ -45,9 +41,9 @@ export default function TableCredenciales() {
     fetchData();
   }, []);
 
-  const handleSaveCredencial = async (data: Record<string, string | string[]>) => {
+  const handleSaveAplicacion = async (data: Record<string, string | string[]>) => {
     if (modalMode === 'editar' && selectedRowData) {
-      const endpoint = `/credenciales/${selectedRowData.idCredencial}`;
+      const endpoint = `/roles/${selectedRowData.idRol}`;
       const response = await updateRecord({ endpoint, data });
 
       if (response.errorMessage) {
@@ -57,17 +53,17 @@ export default function TableCredenciales() {
           message: response.errorMessage,
         });
       } else {
-        const { data: responseData } = await getData({ endpoint: '/credenciales' });
+        const { data: responseData } = await getData({ endpoint: '/roles' });
         setRowData(responseData);
         setOpenModal(false);
         setNoti({
           open: true,
           type: 'success',
-          message: '¡Credencial actualizada con éxito!',
+          message: '¡Rol actualizado con éxito!',
         });
       }
     } else {
-      const response = await createRecord({ endpoint: '/credenciales', data });
+      const response = await createRecord({ endpoint: '/roles', data });
       if (response.errorMessage) {
         setNoti({
           open: true,
@@ -75,13 +71,13 @@ export default function TableCredenciales() {
           message: response.errorMessage,
         });
       } else {
-        const { data: responseData } = await getData({ endpoint: '/credenciales' });
+        const { data: responseData } = await getData({ endpoint: '/roles' });
         setRowData(responseData);
         setOpenModal(false);
         setNoti({
           open: true,
           type: 'success',
-          message: '¡Credencial creada con éxito!',
+          message: '¡Rol creado con éxito!',
         });
       }
     }
@@ -104,8 +100,8 @@ export default function TableCredenciales() {
   };
 
   const handleConfirmCancel = async () => {
-    const idsToDelete = selectedRowsData.map((row) => row.idCredencial);
-    const endpoint = `/credenciales/${idsToDelete.join(',')}`;
+    const idsToDelete = selectedRowsData.map((row) => row.idRol);
+    const endpoint = `/roles/${idsToDelete.join(',')}`;
 
     const response = await deleteRecord({ endpoint });
     if (response.errorMessage) {
@@ -118,56 +114,28 @@ export default function TableCredenciales() {
       setNoti({
         open: true,
         type: 'success',
-        message: '¡Credenciales canceladas con éxito!',
+        message: '¡Roles cancelados con éxito!',
       });
       setOpenCancelModal(false);
-      const { data: responseData } = await getData({ endpoint: '/credenciales' });
+      const { data: responseData } = await getData({ endpoint: '/roles' });
       setRowData(responseData);
     }
   };
 
   const colDefs: ColDef[] = [
     {
-      field: 'curp',
-      headerName: 'CURP',
+      field: 'clave',
+      headerName: 'Clave',
       sortable: true,
       filter: true,
       flex: 1,
     },
     {
-      field: 'usuario',
-      headerName: 'Usuario',
+      field: 'nombre',
+      headerName: 'Nombre',
       sortable: true,
       filter: true,
       flex: 2,
-    },
-    {
-      field: 'grupo',
-      headerName: 'Grupo',
-      sortable: true,
-      filter: true,
-      flex: 1,
-    },
-    {
-      field: 'etiquetas',
-      headerName: 'Etiquetas',
-      sortable: true,
-      filter: true,
-      flex: 2,
-    },
-    {
-      field: 'perfil',
-      headerName: 'Perfil',
-      sortable: true,
-      filter: true,
-      flex: 1,
-    },
-    {
-      field: 'tipo',
-      headerName: 'Tipo',
-      sortable: true,
-      filter: true,
-      flex: 1,
     },
     {
       field: 'estado',
@@ -178,7 +146,10 @@ export default function TableCredenciales() {
     },
   ];
 
-  const isRowSelectable = (rowNode: any) => rowNode.data.grupo !== 'administrador';
+  const isRowSelectable = (rowNode: any) => {
+    const nonSelectableRoles = ['admin', 'aspirante', 'alumno', 'docente'];
+    return !nonSelectableRoles.includes(rowNode.data.clave);
+  };
 
   const handleRowSelectionChanged = (params: any) => {
     const selectedRows = params.api.getSelectedRows();
@@ -190,7 +161,7 @@ export default function TableCredenciales() {
   return (
     <>
       <ActionButtons
-        tableType='credenciales'
+        tableType='roles'
         selectedRowsCount={selectedRowsCount}
         onButtonClick={handleOpenModal}
       />
@@ -205,11 +176,11 @@ export default function TableCredenciales() {
         enableSelection
       />
       <ModalAddCnl
-        title='Credencial'
+        title='Roles'
         open={openModal}
         onClose={() => setOpenModal(false)}
-        fields={CredencialFields}
-        onSubmit={handleSaveCredencial}
+        fields={RolFields}
+        onSubmit={handleSaveAplicacion}
         mode={modalMode}
         selectedData={selectedRowData}
       />

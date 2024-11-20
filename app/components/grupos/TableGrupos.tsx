@@ -2,19 +2,32 @@
 
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
-import { getData } from '@/app/shared/utils/apiUtils';
+import {
+  getData, createRecord, updateRecord, deleteRecord,
+} from '@/app/shared/utils/apiUtils';
+import { ModalAddCnl, ModalCancelar, ModalEtiquetas } from '@/app/shared/modals/sso';
+import { GrupoFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
+import { useAuthContext } from '@/app/context/AuthContext';
 
 interface GrupoData {
   clave: string;
   nombre: string;
   estado: string;
+  idGrupo: number;
 }
 
 export default function TableGrupos() {
+  const { setNoti } = useAuthContext();
   const [rowData, setRowData] = useState<GrupoData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
+  const [selectedRowsData, setSelectedRowsData] = useState<GrupoData[]>([]);
+  const [selectedRowData, setSelectedRowData] = useState<GrupoData | null>(null);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
+  const [openEtiquetasModal, setOpenEtiquetasModal] = useState<boolean>(false);
+  const [modalMode, setModalMode] = useState<'agregar' | 'consultar' | 'editar'>('agregar');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,13 +42,90 @@ export default function TableGrupos() {
     fetchData();
   }, []);
 
+  const handleSaveGrupo = async (data: Record<string, string | string[]>) => {
+    if (modalMode === 'editar' && selectedRowData) {
+      const endpoint = `/grupos/${selectedRowData.idGrupo}`;
+      const response = await updateRecord({ endpoint, data });
+
+      if (response.errorMessage) {
+        setNoti({
+          open: true,
+          type: 'error',
+          message: response.errorMessage,
+        });
+      } else {
+        const { data: responseData } = await getData({ endpoint: '/grupos' });
+        setRowData(responseData);
+        setOpenModal(false);
+        setNoti({
+          open: true,
+          type: 'success',
+          message: '¡Grupo actualizado con éxito!',
+        });
+      }
+    } else {
+      const response = await createRecord({ endpoint: '/grupos', data });
+      if (response.errorMessage) {
+        setNoti({
+          open: true,
+          type: 'error',
+          message: response.errorMessage,
+        });
+      } else {
+        const { data: responseData } = await getData({ endpoint: '/grupos' });
+        setRowData(responseData);
+        setOpenModal(false);
+        setNoti({
+          open: true,
+          type: 'success',
+          message: '¡Grupo creado con éxito!',
+        });
+      }
+    }
+  };
+
+  const handleOpenModal = (actionType: string) => {
+    if (actionType === 'Agregar') {
+      setModalMode('agregar');
+      setSelectedRowData(null);
+      setOpenModal(true);
+    } else if (actionType === 'Consultar' && selectedRowsCount === 1) {
+      setModalMode('consultar');
+      setOpenModal(true);
+    } else if (actionType === 'Editar' && selectedRowsCount === 1) {
+      setModalMode('editar');
+      setOpenModal(true);
+    } else if (actionType === 'Cancelar' && selectedRowsCount >= 1) {
+      setOpenCancelModal(true);
+    } else if (actionType === 'Etiquetas' && selectedRowsCount === 1) {
+      setOpenEtiquetasModal(true);
+    }
+  };
+
+  const handleConfirmCancel = async () => {
+    const idsToDelete = selectedRowsData.map((row) => row.idGrupo);
+    const endpoint = `/grupos/${idsToDelete.join(',')}`;
+
+    const response = await deleteRecord({ endpoint });
+    if (response.errorMessage) {
+      setNoti({
+        open: true,
+        type: 'error',
+        message: response.errorMessage,
+      });
+    } else {
+      setNoti({
+        open: true,
+        type: 'success',
+        message: '¡Grupos cancelados con éxito!',
+      });
+      setOpenCancelModal(false);
+      const { data: responseData } = await getData({ endpoint: '/grupos' });
+      setRowData(responseData);
+    }
+  };
+
   const colDefs: ColDef[] = [
-    // {
-    //   headerName: '#',
-    //   valueGetter: 'node.rowIndex + 1', // Calcula el índice de la fila + 1
-    //   width: 70,
-    //   pinned: 'left', // Fija la columna a la izquierda
-    // },
     {
       field: 'clave',
       headerName: 'Clave',
@@ -62,17 +152,24 @@ export default function TableGrupos() {
   const isRowSelectable = (rowNode: any) => rowNode.data.clave !== 'General';
 
   const handleRowSelectionChanged = (params: any) => {
-    setSelectedRowsCount(params.api.getSelectedRows().length);
+    const selectedRows = params.api.getSelectedRows();
+    setSelectedRowsCount(selectedRows.length);
+    setSelectedRowData(selectedRows.length === 1 ? selectedRows[0] : null);
+    setSelectedRowsData(selectedRows);
+  };
+
+  const handleSaveEtiquetas = async () => {
+    setOpenEtiquetasModal(false);
+    const { data } = await getData({ endpoint: '/grupos' });
+    setRowData(data);
   };
 
   return (
     <>
       <ActionButtons
-        agregar
-        consultar
-        editar
-        cancelar
+        tableType='grupos'
         selectedRowsCount={selectedRowsCount}
+        onButtonClick={handleOpenModal}
       />
       <TableTemplate
         rowData={rowData}
@@ -82,6 +179,29 @@ export default function TableGrupos() {
         selectionMode='multiRow'
         isRowSelectable={isRowSelectable}
         onSelectionChanged={handleRowSelectionChanged}
+        enableSelection
+      />
+      <ModalAddCnl
+        title='Grupo'
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        fields={GrupoFields}
+        onSubmit={handleSaveGrupo}
+        mode={modalMode}
+        selectedData={selectedRowData}
+      />
+      <ModalCancelar
+        open={openCancelModal}
+        onClose={() => setOpenCancelModal(false)}
+        selectedRows={selectedRowsData}
+        colDefs={colDefs}
+        onConfirmCancel={handleConfirmCancel}
+      />
+      <ModalEtiquetas
+        open={openEtiquetasModal}
+        onClose={() => setOpenEtiquetasModal(false)}
+        selectedGroup={selectedRowData}
+        onSave={handleSaveEtiquetas}
       />
     </>
   );
