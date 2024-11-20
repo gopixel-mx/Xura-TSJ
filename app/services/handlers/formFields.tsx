@@ -140,16 +140,6 @@ export const GrupoFields: Field[] = [
       errorMessage: 'El nombre debe tener entre 3 y 200 caracteres.',
     },
   },
-  {
-    name: 'etiquetas',
-    label: 'Etiquetas',
-    type: 'select',
-    multiple: true,
-    validation: {
-      required: true,
-      errorMessage: 'Debe seleccionar al menos una etiqueta.',
-    },
-  },
 ];
 
 export const CredencialFields: Field[] = [
@@ -202,7 +192,8 @@ export const CredencialFields: Field[] = [
     validation: {
       required: true,
       minLength: 8,
-      errorMessage: 'La contraseña debe tener al menos 8 caracteres y contener una letra mayúscula, un número y un carácter especial.',
+      errorMessage: `La contraseña debe tener al menos 8
+      caracteres y contener una letra mayúscula, un número y un carácter especial.`,
       pattern: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/,
     },
   },

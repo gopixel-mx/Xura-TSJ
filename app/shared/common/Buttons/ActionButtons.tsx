@@ -12,7 +12,7 @@ import {
 } from '@mui/icons-material';
 
 interface ActionButtonsProps {
-  tableType: 'aplicaciones' | 'credenciales';
+  tableType: 'aplicaciones' | 'credenciales' | 'grupos' | 'modulos' | 'roles';
   selectedRowsCount: number;
   // eslint-disable-next-line no-unused-vars
   onButtonClick: (actionType: string) => void;
@@ -86,7 +86,14 @@ export default function ActionButtons({
       label: 'Etiquetas',
       icon: <BookmarkBorder />,
       disabled: isMultipleSelection || notSelection,
-      show: tableType === 'credenciales',
+      show: tableType === 'grupos',
+    },
+    {
+      id: 'permisos',
+      label: 'Permisos',
+      icon: <BookmarkBorder />,
+      disabled: isMultipleSelection || notSelection,
+      show: tableType === 'roles',
     },
   ];
 

@@ -19,8 +19,19 @@ import DefaultModal from '../DefaultModal';
 interface AplicacionData {
   clave: string;
   nombre: string;
-  redireccion: string;
+  redireccion?: string;
   estado: string;
+}
+
+interface CredencialData {
+  curp: string;
+  usuario: string;
+  grupo: string;
+  etiquetas: string;
+  perfil: string;
+  tipo: string;
+  estado: string;
+  idCredencial?: number;
 }
 
 interface ModalAddCnlProps {
@@ -43,7 +54,7 @@ interface ModalAddCnlProps {
     };
   }>;
   mode: 'agregar' | 'consultar' | 'editar';
-  selectedData?: AplicacionData | null;
+  selectedData?: AplicacionData | CredencialData | null;
   // eslint-disable-next-line no-unused-vars
   onSubmit: (data: Record<string, string | string[]>) => Promise<void>;
 }
