@@ -12,6 +12,7 @@ import {
 import { Close, Add } from '@mui/icons-material';
 import { getData, updateRecord } from '@/app/shared/utils/apiUtils';
 import { TableTemplate } from '@/app/shared/common';
+import { useAuthContext } from '@/app/context/AuthContext';
 import DefaultModal from '../DefaultModal';
 
 interface ModalPermisosProps {
@@ -54,6 +55,7 @@ export default function ModalPermisos({
     [key: number]: { [action: string]: number };
   }>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const { setNoti } = useAuthContext();
 
   useEffect(() => {
     const fetchPermisos = async () => {
@@ -88,37 +90,34 @@ export default function ModalPermisos({
     }
   }, [selectedApp, permisos]);
 
-  const handleToggleAction = (
-    idModulo: number,
-    action: keyof PermisoData,
-    currentValue: number,
-  ) => {
-    const newValue = currentValue === 1 ? 0 : 1;
-    setUpdatedPermisos((prev) => ({
-      ...prev,
-      [idModulo]: {
-        ...(prev[idModulo] || {}),
-        [action]: newValue,
-      },
-    }));
-  };
-
   const handleSave = async () => {
     try {
       setLoading(true);
-      const updates = Object.entries(updatedPermisos).map(([idModulo, actions]) => ({
-        idModulo: Number(idModulo),
-        ...actions,
+      const updates = filteredModules.map((module) => ({
+        idModulo: module.idModulo,
+        idRol: selectedRole?.idRol || 0,
+        Crear: updatedPermisos[module.idModulo]?.Crear ?? module.Crear,
+        Consultar: updatedPermisos[module.idModulo]?.Consultar ?? module.Consultar,
+        Actualizar: updatedPermisos[module.idModulo]?.Actualizar ?? module.Actualizar,
+        Eliminar: updatedPermisos[module.idModulo]?.Eliminar ?? module.Eliminar,
+        Subir: updatedPermisos[module.idModulo]?.Subir ?? module.Subir,
       }));
-
-      await Promise.all(
-        updates.map((update) => updateRecord({
-          endpoint: `/roles/${selectedRole?.idRol}/accesos`,
-          data: update,
-        })),
-      );
-
+      await updateRecord({
+        endpoint: `/roles/${selectedRole?.idRol}/accesos`,
+        data: updates,
+      });
       onClose();
+      setNoti({
+        open: true,
+        type: 'success',
+        message: '¡Permisos actualizados correctamente!',
+      });
+    } catch (error) {
+      setNoti({
+        open: true,
+        type: 'error',
+        message: 'Error al actualizar los permisos.',
+      });
     } finally {
       setLoading(false);
     }
@@ -140,8 +139,16 @@ export default function ModalPermisos({
       cellRenderer: 'agCheckboxCellRenderer',
       valueGetter: (params: any) => params.data[action] === 1,
       valueSetter: (params: any) => {
+        const newValue = params.newValue ? 1 : 0;
+        setUpdatedPermisos((prev) => ({
+          ...prev,
+          [params.data.idModulo]: {
+            ...(prev[params.data.idModulo] || {}),
+            [action]: newValue,
+          },
+        }));
         // eslint-disable-next-line no-param-reassign
-        params.data[action] = params.newValue ? 1 : 0;
+        params.data[action] = newValue;
         return true;
       },
     })),
