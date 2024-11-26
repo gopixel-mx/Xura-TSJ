@@ -2,7 +2,7 @@ import {
   Button,
   Box,
 } from '@mui/material';
-import { Close, DoNotDisturbAltOutlined } from '@mui/icons-material';
+import { Close, Add } from '@mui/icons-material';
 import { TableTemplate } from '@/app/shared/common';
 import { ColDef } from 'ag-grid-community';
 import DefaultModal from '../DefaultModal';
@@ -55,27 +55,27 @@ export default function ModalCancelar({
             startIcon={<Close />}
             sx={{
               ...buttonStyles,
-              backgroundColor: '#32169b',
+              backgroundColor: 'rgb(255, 77, 99)',
               color: '#fff',
-              '&:hover': {
-                backgroundColor: '#14005E',
-              },
+              '&:hover': { backgroundColor: 'rgb(200, 50, 70)' },
             }}
           >
-            Cerrar
+            Cancelar
           </Button>
           <Button
             variant='contained'
             color='error'
             onClick={onConfirmCancel}
-            startIcon={<DoNotDisturbAltOutlined />}
+            startIcon={<Add />}
             sx={{
               ...buttonStyles,
-              backgroundColor: '#d32f2f',
-              '&:hover': { backgroundColor: '#b71c1c' },
+              backgroundColor: '#32169b',
+              '&:hover': {
+                backgroundColor: '#14005E',
+              },
             }}
           >
-            Cancelar
+            Guardar
           </Button>
         </Box>
       </Box>

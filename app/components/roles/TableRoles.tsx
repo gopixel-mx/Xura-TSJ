@@ -5,7 +5,7 @@ import { ColDef } from 'ag-grid-community';
 import {
   getData, createRecord, updateRecord, deleteRecord,
 } from '@/app/shared/utils/apiUtils';
-import { ModalAddCnl, ModalCancelar } from '@/app/shared/modals/sso';
+import { ModalAddCnl, ModalCancelar, ModalPermisos } from '@/app/shared/modals/sso';
 import { RolFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
 import { useAuthContext } from '@/app/context/AuthContext';
@@ -26,6 +26,7 @@ export default function TableRoles() {
   const [selectedRowData, setSelectedRowData] = useState<AplicacionData | null>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
+  const [openPermisosModal, setOpenPermisosModal] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<'agregar' | 'consultar' | 'editar'>('agregar');
 
   useEffect(() => {
@@ -96,6 +97,8 @@ export default function TableRoles() {
       setOpenModal(true);
     } else if (actionType === 'Cancelar' && selectedRowsCount >= 1) {
       setOpenCancelModal(true);
+    } else if (actionType === 'Permisos' && selectedRowsCount === 1) {
+      setOpenPermisosModal(true);
     }
   };
 
@@ -190,6 +193,15 @@ export default function TableRoles() {
         selectedRows={selectedRowsData}
         colDefs={colDefs}
         onConfirmCancel={handleConfirmCancel}
+      />
+      <ModalPermisos
+        open={openPermisosModal}
+        onClose={() => setOpenPermisosModal(false)}
+        selectedRole={
+          selectedRowData
+            ? { idRol: selectedRowData.idRol!, nombre: selectedRowData.nombre }
+            : null
+        }
       />
     </>
   );

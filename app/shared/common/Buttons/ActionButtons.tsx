@@ -9,6 +9,7 @@ import {
   PersonOutline,
   GroupsOutlined,
   BookmarkBorder,
+  SellOutlined,
 } from '@mui/icons-material';
 
 interface ActionButtonsProps {
@@ -84,7 +85,7 @@ export default function ActionButtons({
     {
       id: 'etiquetas',
       label: 'Etiquetas',
-      icon: <BookmarkBorder />,
+      icon: <SellOutlined />,
       disabled: isMultipleSelection || notSelection,
       show: tableType === 'grupos',
     },

@@ -16,6 +16,7 @@ interface TableTemplateProps {
   isRowSelectable?: (rowNode: IRowNode<any>) => boolean;
   // eslint-disable-next-line no-unused-vars
   onSelectionChanged?: (params: any) => void;
+  height?: number;
 }
 
 export default function TableTemplate({
@@ -27,6 +28,7 @@ export default function TableTemplate({
   selectionMode = 'multiRow',
   isRowSelectable,
   onSelectionChanged,
+  height = 635,
 }: TableTemplateProps) {
   if (loading) {
     return (
@@ -40,7 +42,7 @@ export default function TableTemplate({
   }
 
   return (
-    <div className='ag-theme-quartz' style={{ height: 635, width: '100%' }}>
+    <div className='ag-theme-quartz' style={{ height: height || 635, width: '100%' }}>
       <AgGridReact
         rowData={rowData}
         columnDefs={colDefs}
