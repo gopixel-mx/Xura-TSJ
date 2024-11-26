@@ -239,7 +239,7 @@ export default function ModalAddCnl({
               fontSize: '0.875rem',
             }}
           >
-            {mode === 'consultar' ? 'Cerrar' : 'Cancelar'}
+            {mode === 'consultar' ? 'Cancelar' : 'Cancelar'}
           </Button>
           {mode !== 'consultar' && (
             <Button
