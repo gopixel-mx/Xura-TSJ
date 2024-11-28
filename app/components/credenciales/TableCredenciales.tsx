@@ -5,7 +5,7 @@ import { ColDef } from 'ag-grid-community';
 import {
   getData, createRecord, updateRecord, deleteRecord,
 } from '@/app/shared/utils/apiUtils';
-import { ModalAddCnl, ModalCancelar } from '@/app/shared/modals/sso';
+import { ModalAddCnl, ModalCancelar, ModalPerfilGrupos } from '@/app/shared/modals/sso';
 import { CredencialFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
 import { useAuthContext } from '@/app/context/AuthContext';
@@ -18,7 +18,7 @@ interface CredencialData {
   perfil: string;
   tipo: string;
   estado: string;
-  idCredencial?: number;
+  idCredencial: number;
 }
 
 export default function TableCredenciales() {
@@ -31,12 +31,18 @@ export default function TableCredenciales() {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<'agregar' | 'consultar' | 'editar'>('agregar');
+  const [openPerfilGruposModal, setOpenPerfilGruposModal] = useState<boolean>(false);
+  const [perfilGrupoMode, setPerfilGrupoMode] = useState<'Perfil' | 'Grupos'>('Perfil');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const { data } = await getData({ endpoint: '/credenciales' });
-        setRowData(data);
+        const transformedData = data.map((item: any) => ({
+          ...item,
+          usuario: `${item.nombre} ${item.primerApellido} ${item.segundoApellido || ''}`.trim(),
+        }));
+        setRowData(transformedData);
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -100,6 +106,9 @@ export default function TableCredenciales() {
       setOpenModal(true);
     } else if (actionType === 'Cancelar' && selectedRowsCount >= 1) {
       setOpenCancelModal(true);
+    } else if (actionType === 'Perfil' || actionType === 'Grupos') {
+      setPerfilGrupoMode(actionType);
+      setOpenPerfilGruposModal(true);
     }
   };
 
@@ -178,7 +187,7 @@ export default function TableCredenciales() {
     },
   ];
 
-  const isRowSelectable = (rowNode: any) => rowNode.data.grupo !== 'administrador';
+  const isRowSelectable = (rowNode: any) => rowNode.data.correo !== 'admin@tecmm.edu.mx';
 
   const handleRowSelectionChanged = (params: any) => {
     const selectedRows = params.api.getSelectedRows();
@@ -219,6 +228,12 @@ export default function TableCredenciales() {
         selectedRows={selectedRowsData}
         colDefs={colDefs}
         onConfirmCancel={handleConfirmCancel}
+      />
+      <ModalPerfilGrupos
+        open={openPerfilGruposModal}
+        onClose={() => setOpenPerfilGruposModal(false)}
+        selectedRow={selectedRowData}
+        mode={perfilGrupoMode}
       />
     </>
   );

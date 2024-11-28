@@ -155,7 +155,7 @@ export const CredencialFields: Field[] = [
     },
   },
   {
-    name: 'nombre',
+    name: 'usuario',
     label: 'Nombre',
     icon: <PersonOutline />,
     disabled: true,
@@ -195,26 +195,6 @@ export const CredencialFields: Field[] = [
       errorMessage: `La contraseña debe tener al menos 8
       caracteres y contener una letra mayúscula, un número y un carácter especial.`,
       pattern: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/,
-    },
-  },
-  {
-    name: 'perfil',
-    label: 'Perfil',
-    type: 'select',
-    multiple: true,
-    validation: {
-      required: true,
-      errorMessage: 'Debe seleccionar al menos un perfil.',
-    },
-  },
-  {
-    name: 'grupo',
-    label: 'Grupo',
-    type: 'select',
-    multiple: true,
-    validation: {
-      required: true,
-      errorMessage: 'Debe seleccionar al menos un grupo.',
     },
   },
 ];

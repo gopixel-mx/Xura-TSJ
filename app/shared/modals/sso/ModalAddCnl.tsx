@@ -155,7 +155,7 @@ export default function ModalAddCnl({
   const getGridSize = (index: number, totalFields: number) => {
     if (totalFields === 2) return 6;
     if (totalFields === 3) return 6;
-    if (totalFields === 7) return index === 1 ? 8 : 4;
+    if (totalFields === 5) return index === 1 ? 8 : 4;
     return 12;
   };
 
