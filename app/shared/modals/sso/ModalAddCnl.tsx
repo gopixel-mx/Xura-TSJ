@@ -14,9 +14,11 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import { Add, Close, EditOutlined } from '@mui/icons-material';
+import { getData } from '@/app/shared/utils/apiUtils';
 import DefaultModal from '../DefaultModal';
 
 interface AplicacionData {
+  idAplicacion?: number;
   clave: string;
   nombre: string;
   redireccion?: string;
@@ -32,6 +34,7 @@ interface CredencialData {
   tipo: string;
   estado: string;
   idCredencial?: number;
+  idAplicacion?: number;
 }
 
 interface ModalAddCnlProps {
@@ -57,6 +60,7 @@ interface ModalAddCnlProps {
   selectedData?: AplicacionData | CredencialData | null;
   // eslint-disable-next-line no-unused-vars
   onSubmit: (data: Record<string, string | string[]>) => Promise<void>;
+  type?: 'modulos' | 'aplicaciones';
 }
 
 export default function ModalAddCnl({
@@ -67,12 +71,42 @@ export default function ModalAddCnl({
   mode,
   selectedData = null,
   onSubmit,
+  type,
 }: ModalAddCnlProps) {
   const [formValues, setFormValues] = useState<Record<string, string | string[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [dynamicOptions, setDynamicOptions] = useState<{ value: string; label: string }[]>([]);
 
   useEffect(() => {
-    if (open && selectedData && mode !== 'agregar') {
+    const fetchDynamicOptions = async () => {
+      if (!open) return;
+      try {
+        if (mode === 'agregar' && type === 'modulos') {
+          const { data } = await getData({ endpoint: '/aplicaciones' });
+          const options = data.map((app: { idAplicacion: number; nombre: string }) => ({
+            value: app.idAplicacion.toString(),
+            label: app.nombre,
+          }));
+          setDynamicOptions(options);
+        } else if (selectedData?.idAplicacion) {
+          const { data } = await getData({
+            endpoint: `/aplicaciones/${selectedData.idAplicacion}`,
+          });
+          const option = { value: data.idAplicacion.toString(), label: data.nombre };
+          setDynamicOptions([option]);
+          setFormValues((prevValues) => ({
+            ...prevValues,
+            aplicacion: option.value,
+          }));
+        }
+      } catch {
+        setDynamicOptions([]);
+      }
+    };
+
+    fetchDynamicOptions();
+
+    if (selectedData && mode !== 'agregar') {
       const transformedData = Object.fromEntries(
         Object.entries(selectedData).map(([key, value]) => [key, value]),
       ) as Record<string, string | string[]>;
@@ -80,7 +114,7 @@ export default function ModalAddCnl({
     } else if (mode === 'agregar') {
       setFormValues({});
     }
-  }, [selectedData, mode, open]);
+  }, [selectedData, mode, open, type]);
 
   const validateField = (field: any, value: string | string[]): string => {
     const {
@@ -120,7 +154,10 @@ export default function ModalAddCnl({
     const newValue = field.multiple ? (value as string[]) : (value as string);
     const error = validateField(field, newValue);
     setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
-    setFormValues({ ...formValues, [name]: newValue });
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: newValue,
+    }));
   };
 
   const handleSubmit = async () => {
@@ -172,20 +209,17 @@ export default function ModalAddCnl({
                   <InputLabel>{field.label}</InputLabel>
                   <Select
                     name={field.name}
-                    value={formValues[field.name] || (field.multiple ? [] : '')}
+                    value={formValues[field.name] || ''}
                     onChange={(e) => handleSelectChange(e, field)}
                     label={field.label}
                     variant='outlined'
-                    disabled={isReadOnly || field.disabled}
-                    multiple={field.multiple}
-                    renderValue={(selected) => (Array.isArray(selected)
-                      ? selected.join(', ') : selected)}
+                    disabled={isReadOnly || field.disabled || type === 'modulos'}
                   >
-                    <MenuItem value=''>
-                      <em>None</em>
-                    </MenuItem>
-                    <MenuItem value='option1'>Option 1</MenuItem>
-                    <MenuItem value='option2'>Option 2</MenuItem>
+                    {dynamicOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
                   </Select>
                   {errors[field.name] && (
                     <Box sx={{ color: 'red', fontSize: '0.75rem', mt: 0.5 }}>
@@ -239,7 +273,7 @@ export default function ModalAddCnl({
               fontSize: '0.875rem',
             }}
           >
-            {mode === 'consultar' ? 'Cancelar' : 'Cancelar'}
+            {mode === 'consultar' ? 'Cerrar' : 'Cancelar'}
           </Button>
           {mode !== 'consultar' && (
             <Button
