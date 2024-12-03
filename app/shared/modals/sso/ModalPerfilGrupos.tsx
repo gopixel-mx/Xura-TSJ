@@ -18,7 +18,7 @@ interface ModalPerfilGruposProps {
 }
 
 interface PerfilGrupoData {
-  id: number;
+  idRol: number;
   nombre: string;
   descripcion: string;
   activo: boolean;
@@ -40,7 +40,7 @@ export default function ModalPerfilGrupos({
   mode,
 }: ModalPerfilGruposProps) {
   const [rowData, setRowData] = useState<PerfilGrupoData[]>([]);
-  const [updatedData, setUpdatedData] = useState<PerfilGrupoData[]>([]);
+  const [selectedRows, setSelectedRows] = useState<PerfilGrupoData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { setNoti } = useAuthContext();
 
@@ -49,7 +49,7 @@ export default function ModalPerfilGrupos({
       const fetchData = async () => {
         try {
           setLoading(true);
-          const endpoint = mode === 'Perfil' ? `/roles/perfiles` : `/grupos`;
+          const endpoint = mode === 'Perfil' ? `/roles` : `/grupos`;
           const { data } = await getData({ endpoint });
           setRowData(data || []);
         } catch (error) {
@@ -68,15 +68,17 @@ export default function ModalPerfilGrupos({
   }, [open, selectedRow, mode, setNoti]);
 
   const handleSave = async () => {
+    if (!selectedRow) return;
+
+    const payload = rowData.map((row) => ({
+      idRol: row.idRol,
+      estatus: selectedRows.includes(row) ? 'Activo' : 'Inactivo',
+    }));
+
     try {
       setLoading(true);
-      const endpoint = mode === 'Perfil'
-        ? `/roles/${selectedRow?.idRol}/perfiles`
-        : `/grupos`;
-      await updateRecord({
-        endpoint,
-        data: updatedData,
-      });
+      const endpoint = `/roles/${selectedRow.idCredencial}/perfiles`;
+      await updateRecord({ endpoint, data: payload });
 
       setNoti({
         open: true,
@@ -114,6 +116,11 @@ export default function ModalPerfilGrupos({
     },
   ];
 
+  const handleRowSelectionChanged = (params: any) => {
+    const selected = params.api.getSelectedRows();
+    setSelectedRows(selected);
+  };
+
   return (
     <DefaultModal
       open={open}
@@ -141,6 +148,7 @@ export default function ModalPerfilGrupos({
               loading={loading}
               height={350}
               enableSelection
+              onSelectionChanged={handleRowSelectionChanged}
             />
           </Box>
           <Box
