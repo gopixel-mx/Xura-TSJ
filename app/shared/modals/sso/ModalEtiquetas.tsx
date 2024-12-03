@@ -7,7 +7,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 import {
-  Close, Add, EditOutlined, BookmarkBorder,
+  Close, Add, BookmarkBorder,
 } from '@mui/icons-material';
 import { updateRecord, getData } from '@/app/shared/utils/apiUtils';
 import DefaultModal from '../DefaultModal';
@@ -15,7 +15,7 @@ import DefaultModal from '../DefaultModal';
 interface ModalEtiquetasProps {
   open: boolean;
   onClose: () => void;
-  selectedGroup: { idGrupo: number; clave: string } | null;
+  selectedCredencial: { idCredencial: number; } | null;
   onSave: () => void;
 }
 
@@ -29,21 +29,20 @@ interface EtiquetaData {
 export default function ModalEtiquetas({
   open,
   onClose,
-  selectedGroup,
+  selectedCredencial,
   onSave,
 }: ModalEtiquetasProps) {
   const [etiqueta, setEtiqueta] = useState('');
   const [etiquetas, setEtiquetas] = useState<EtiquetaData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Fetch etiquetas when the modal opens
   useEffect(() => {
     const fetchEtiquetas = async () => {
-      if (selectedGroup && open) {
+      if (selectedCredencial && open) {
         try {
           setLoading(true);
           const { data } = await getData({
-            endpoint: `/grupos/${selectedGroup.idGrupo}/etiquetas`,
+            endpoint: `/credenciales/${selectedCredencial.idCredencial}/etiquetas`,
           });
 
           if (data && Array.isArray(data)) {
@@ -61,7 +60,7 @@ export default function ModalEtiquetas({
     };
 
     fetchEtiquetas();
-  }, [open, selectedGroup]);
+  }, [open, selectedCredencial]);
 
   const handleAddEtiqueta = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && etiqueta.trim()) {
@@ -78,8 +77,8 @@ export default function ModalEtiquetas({
   };
 
   const handleSave = async () => {
-    if (selectedGroup) {
-      const endpoint = `/grupos/${selectedGroup.idGrupo}/etiquetas`;
+    if (selectedCredencial) {
+      const endpoint = `/credenciales/${selectedCredencial.idCredencial}/etiquetas`;
       const etiquetasData = etiquetas.map((etq) => etq.nombre).join(',');
 
       try {
@@ -99,19 +98,6 @@ export default function ModalEtiquetas({
     <DefaultModal open={open} onClose={onClose} title='Administrar Etiquetas'>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <TextField
-            label='Clave'
-            value={selectedGroup?.clave || ''}
-            disabled
-            fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position='end'>
-                  <EditOutlined />
-                </InputAdornment>
-              ),
-            }}
-          />
           <TextField
             label='Etiqueta'
             value={etiqueta}

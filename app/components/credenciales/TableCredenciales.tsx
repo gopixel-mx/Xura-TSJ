@@ -5,7 +5,12 @@ import { ColDef } from 'ag-grid-community';
 import {
   getData, updateRecord, deleteRecord,
 } from '@/app/shared/utils/apiUtils';
-import { ModalAddCnl, ModalCancelar, ModalPerfilGrupos } from '@/app/shared/modals/sso';
+import {
+  ModalAddCnl,
+  ModalCancelar,
+  ModalPerfilGrupos,
+  ModalEtiquetas,
+} from '@/app/shared/modals/sso';
 import estadosRepublica from '@/app/mocks/estadosRepublica';
 import { CredencialFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
@@ -35,6 +40,7 @@ export default function TableCredenciales() {
   const [modalMode, setModalMode] = useState<'agregar' | 'consultar' | 'editar'>('agregar');
   const [openPerfilGruposModal, setOpenPerfilGruposModal] = useState<boolean>(false);
   const [perfilGrupoMode, setPerfilGrupoMode] = useState<'Perfil' | 'Grupos'>('Perfil');
+  const [openEtiquetasModal, setOpenEtiquetasModal] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -183,6 +189,8 @@ export default function TableCredenciales() {
     } else if (actionType === 'Perfil' || actionType === 'Grupos') {
       setPerfilGrupoMode(actionType);
       setOpenPerfilGruposModal(true);
+    } else if (actionType === 'Etiquetas' && selectedRowsCount === 1) {
+      setOpenEtiquetasModal(true);
     }
   };
 
@@ -207,6 +215,12 @@ export default function TableCredenciales() {
       const { data: responseData } = await getData({ endpoint: '/credenciales' });
       setRowData(responseData);
     }
+  };
+
+  const handleSaveEtiquetas = async () => {
+    setOpenEtiquetasModal(false);
+    const { data } = await getData({ endpoint: '/credenciales' });
+    setRowData(data);
   };
 
   const colDefs: ColDef[] = [
@@ -309,6 +323,12 @@ export default function TableCredenciales() {
         onClose={() => setOpenPerfilGruposModal(false)}
         selectedRow={selectedRowData}
         mode={perfilGrupoMode}
+      />
+      <ModalEtiquetas
+        open={openEtiquetasModal}
+        onClose={() => setOpenEtiquetasModal(false)}
+        selectedCredencial={selectedRowData && { idCredencial: selectedRowData.idCredencial }}
+        onSave={handleSaveEtiquetas}
       />
     </>
   );
