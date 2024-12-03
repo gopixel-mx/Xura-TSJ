@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { ColDef } from 'ag-grid-community';
 import {
-  getData, createRecord, updateRecord, deleteRecord,
+  getData, updateRecord, deleteRecord,
 } from '@/app/shared/utils/apiUtils';
 import { ModalAddCnl, ModalCancelar, ModalPerfilGrupos } from '@/app/shared/modals/sso';
+import estadosRepublica from '@/app/mocks/estadosRepublica';
 import { CredencialFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
 import { useAuthContext } from '@/app/context/AuthContext';
@@ -19,6 +20,7 @@ interface CredencialData {
   tipo: string;
   estado: string;
   idCredencial: number;
+  idRol: number;
 }
 
 export default function TableCredenciales() {
@@ -73,21 +75,93 @@ export default function TableCredenciales() {
         });
       }
     } else {
-      const response = await createRecord({ endpoint: '/credenciales', data });
-      if (response.errorMessage) {
+      const {
+        curp,
+        nombre,
+        primerApellido,
+        segundoApellido,
+        fechaNacimiento,
+        numEntidadReg,
+        correo,
+        celular,
+        contrasena,
+      } = data;
+
+      if (!curp || !nombre || !primerApellido || !fechaNacimiento || !numEntidadReg) {
         setNoti({
           open: true,
           type: 'error',
-          message: response.errorMessage,
+          message: 'Todos los campos obligatorios deben ser completados.',
         });
-      } else {
-        const { data: responseData } = await getData({ endpoint: '/credenciales' });
-        setRowData(responseData);
+        return;
+      }
+
+      const estadoNacimiento = estadosRepublica.find(
+        (estado) => estado.code === Number(numEntidadReg),
+      )?.name;
+
+      if (!estadoNacimiento) {
+        setNoti({
+          open: true,
+          type: 'error',
+          message: 'Estado de nacimiento no encontrado.',
+        });
+        return;
+      }
+
+      const fechaNac = Array.isArray(data.fechaNacimiento)
+        ? data.fechaNacimiento[0]
+        : data.fechaNacimiento as string;
+
+      const formatFechaNacimiento = (fecha: string) => {
+        const [year, month, day] = fecha.split('-');
+        return `${day}/${month}/${year}`;
+      };
+
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/credenciales`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            api_key: process.env.NEXT_PUBLIC_API_KEY || '',
+          },
+          body: JSON.stringify({
+            curp,
+            nombre,
+            primerApellido,
+            segundoApellido,
+            fechaNacimiento: formatFechaNacimiento(fechaNac),
+            estadoNacimiento,
+            correo,
+            celular,
+            contrasena,
+            tipo: 'JWT',
+          }),
+        });
+
+        if (!response.ok) {
+          setNoti({
+            open: true,
+            type: 'error',
+            message: 'Error al crear la credencial. Por favor, intenta nuevamente.',
+          });
+          return;
+        }
+
+        const { data: updatedData } = await getData({ endpoint: '/credenciales' });
+        setRowData(updatedData);
+
         setOpenModal(false);
         setNoti({
           open: true,
           type: 'success',
           message: '¡Credencial creada con éxito!',
+        });
+      } catch (error) {
+        setNoti({
+          open: true,
+          type: 'error',
+          message: 'Error al realizar la operación. Verifica tu conexión y vuelve a intentarlo.',
         });
       }
     }
@@ -151,7 +225,7 @@ export default function TableCredenciales() {
       flex: 2,
     },
     {
-      field: 'grupo',
+      field: 'grupos',
       headerName: 'Grupo',
       sortable: true,
       filter: true,
@@ -165,7 +239,7 @@ export default function TableCredenciales() {
       flex: 2,
     },
     {
-      field: 'perfil',
+      field: 'roles',
       headerName: 'Perfil',
       sortable: true,
       filter: true,
@@ -221,6 +295,7 @@ export default function TableCredenciales() {
         onSubmit={handleSaveCredencial}
         mode={modalMode}
         selectedData={selectedRowData}
+        onCurpVerified={(data) => console.log('Datos CURP verificados:', data)}
       />
       <ModalCancelar
         open={openCancelModal}

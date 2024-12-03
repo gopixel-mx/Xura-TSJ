@@ -13,7 +13,7 @@ import DefaultModal from '../DefaultModal';
 interface ModalPerfilGruposProps {
   open: boolean;
   onClose: () => void;
-  selectedRow: { idCredencial: number; perfil: string; grupo: string } | null;
+  selectedRow: { idCredencial: number; idRol: number; perfil: string; grupo: string } | null;
   mode: 'Perfil' | 'Grupos';
 }
 
@@ -71,7 +71,7 @@ export default function ModalPerfilGrupos({
     try {
       setLoading(true);
       const endpoint = mode === 'Perfil'
-        ? `/roles/${selectedRow?.idCredencial}/perfiles`
+        ? `/roles/${selectedRow?.idRol}/perfiles`
         : `/grupos`;
       await updateRecord({
         endpoint,

@@ -1,5 +1,7 @@
+'use client';
+
 import {
-  ChangeEvent, ReactNode, useState, useEffect,
+  ChangeEvent, ReactNode, useState, useEffect, MouseEvent,
 } from 'react';
 import {
   TextField,
@@ -7,14 +9,17 @@ import {
   Box,
   Grid,
   InputAdornment,
-  Select,
   MenuItem,
-  FormControl,
-  InputLabel,
-  SelectChangeEvent,
+  CircularProgress,
+  Typography,
+  Menu,
 } from '@mui/material';
-import { Add, Close, EditOutlined } from '@mui/icons-material';
+import {
+  Add, Close, EditOutlined, Check, PersonAddAltOutlined, SmartphoneOutlined,
+} from '@mui/icons-material';
 import { getData } from '@/app/shared/utils/apiUtils';
+import { getCurp } from '@/app/services/handlers/getMatricula';
+import countryCodes from '@/app/mocks/countryCodes';
 import DefaultModal from '../DefaultModal';
 
 interface AplicacionData {
@@ -60,6 +65,8 @@ interface ModalAddCnlProps {
   selectedData?: AplicacionData | CredencialData | null;
   // eslint-disable-next-line no-unused-vars
   onSubmit: (data: Record<string, string | string[]>) => Promise<void>;
+  // eslint-disable-next-line no-unused-vars
+  onCurpVerified?: (data: Record<string, string>) => void;
   type?: 'modulos' | 'aplicaciones';
 }
 
@@ -72,10 +79,17 @@ export default function ModalAddCnl({
   selectedData = null,
   onSubmit,
   type,
+  onCurpVerified,
 }: ModalAddCnlProps) {
   const [formValues, setFormValues] = useState<Record<string, string | string[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dynamicOptions, setDynamicOptions] = useState<{ value: string; label: string }[]>([]);
+  const [loadingCurp, setLoadingCurp] = useState(false);
+  const [curpVerified, setCurpVerified] = useState(false);
+  const [countryCode, setCountryCode] = useState<{ code: string; label: string }>({ code: '52', label: '🇲🇽 +52' });
+  const [rawPhoneNumber, setRawPhoneNumber] = useState('');
+  const [celularError, setCelularError] = useState('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
     const fetchDynamicOptions = async () => {
@@ -139,25 +153,104 @@ export default function ModalAddCnl({
     return error;
   };
 
+  const handleVerifyCurp = async () => {
+    const curp = formValues.curp as string;
+    if (!curp || curp.length !== 18) {
+      setErrors((prev) => ({ ...prev, curp: 'La CURP debe tener 18 caracteres.' }));
+      return;
+    }
+
+    setLoadingCurp(true);
+    setCurpVerified(false);
+    try {
+      const response = await getCurp(curp);
+      const {
+        Nombre,
+        ApellidoPaterno,
+        ApellidoMaterno,
+        FechaNacimiento,
+        NumEntidadReg,
+      } = response.datos;
+      const usuario = `${Nombre} ${ApellidoPaterno} ${ApellidoMaterno}`.trim();
+      setFormValues((prev) => ({
+        ...prev,
+        usuario,
+        nombre: Nombre,
+        primerApellido: ApellidoPaterno,
+        segundoApellido: ApellidoMaterno,
+        fechaNacimiento: FechaNacimiento,
+        numEntidadReg: NumEntidadReg,
+      }));
+      setErrors((prev) => ({ ...prev, curp: '' }));
+      setCurpVerified(true);
+
+      onCurpVerified?.({
+        curp,
+        nombre: Nombre,
+        primerApellido: ApellidoPaterno,
+        segundoApellido: ApellidoMaterno,
+        fechaNacimiento: FechaNacimiento,
+        numEntidadReg: NumEntidadReg,
+      });
+    } catch {
+      setErrors((prev) => ({ ...prev, curp: 'Error al verificar la CURP.' }));
+    } finally {
+      setLoadingCurp(false);
+    }
+  };
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const field = fields.find((f) => f.name === name);
+
+    if (name === 'curp' && mode === 'agregar') {
+      setCurpVerified(false);
+      setFormValues((prevValues) => ({ ...prevValues, usuario: '' }));
+    }
+
     if (field) {
       const error = validateField(field, value);
       setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
     }
-    setFormValues({ ...formValues, [name]: value });
+
+    setFormValues((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
-  const handleSelectChange = (e: SelectChangeEvent<string | string[]>, field: any) => {
-    const { name, value } = e.target;
-    const newValue = field.multiple ? (value as string[]) : (value as string);
-    const error = validateField(field, newValue);
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      [name]: newValue,
-    }));
+  const handleCelularChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const rawNumber = e.target.value.replace(/[^0-9]/g, '');
+    setRawPhoneNumber(rawNumber);
+  };
+
+  const handleCelularBlur = () => {
+    const formattedCelular = `${countryCode.code}-${rawPhoneNumber}`;
+    if (!/^\d{2,3}-\d{10}$/.test(formattedCelular)) {
+      setCelularError('El número de celular debe tener 10 dígitos.');
+    } else {
+      setCelularError('');
+      setFormValues((prevData) => ({
+        ...prevData,
+        celular: formattedCelular,
+      }));
+    }
+  };
+
+  const handleCountryMenuClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCountrySelect = (country: { code: string; label: string }) => {
+    setCountryCode(country);
+    setAnchorEl(null);
+  };
+
+  const handleClose = () => {
+    onClose();
+    setFormValues({});
+    setErrors({});
+    setCurpVerified(false);
+    setLoadingCurp(false);
+    setRawPhoneNumber('');
+    setCelularError('');
   };
 
   const handleSubmit = async () => {
@@ -177,14 +270,8 @@ export default function ModalAddCnl({
 
     if (formIsValid) {
       await onSubmit(formValues);
-      onClose();
+      handleClose();
     }
-  };
-
-  const handleClose = () => {
-    onClose();
-    setFormValues({});
-    setErrors({});
   };
 
   const isReadOnly = mode === 'consultar';
@@ -204,29 +291,54 @@ export default function ModalAddCnl({
         <Grid container spacing={2}>
           {fields.map((field, index) => (
             <Grid item xs={getGridSize(index, fields.length)} key={field.name}>
-              {field.type === 'select' ? (
-                <FormControl fullWidth error={!!errors[field.name]}>
-                  <InputLabel>{field.label}</InputLabel>
-                  <Select
-                    name={field.name}
-                    value={formValues[field.name] || ''}
-                    onChange={(e) => handleSelectChange(e, field)}
+              {field.name === 'celular' ? (
+                <>
+                  <TextField
                     label={field.label}
                     variant='outlined'
-                    disabled={isReadOnly || field.disabled || type === 'modulos'}
+                    fullWidth
+                    placeholder='Celular'
+                    value={rawPhoneNumber}
+                    onChange={handleCelularChange}
+                    onBlur={handleCelularBlur}
+                    error={Boolean(celularError || errors[field.name])}
+                    helperText={celularError || errors[field.name]}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <Box
+                            onClick={handleCountryMenuClick}
+                            sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                          >
+                            <Typography>{countryCode.label}</Typography>
+                          </Box>
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          {field.icon || <SmartphoneOutlined />}
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={() => setAnchorEl(null)}
+                    MenuListProps={{
+                      style: {
+                        maxHeight: 200,
+                        width: '20ch',
+                      },
+                    }}
                   >
-                    {dynamicOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
+                    {countryCodes.map((country) => (
+                      <MenuItem key={country.code} onClick={() => handleCountrySelect(country)}>
+                        {country.label}
                       </MenuItem>
                     ))}
-                  </Select>
-                  {errors[field.name] && (
-                    <Box sx={{ color: 'red', fontSize: '0.75rem', mt: 0.5 }}>
-                      {errors[field.name]}
-                    </Box>
-                  )}
-                </FormControl>
+                  </Menu>
+                </>
               ) : (
                 <TextField
                   label={field.label}
@@ -237,13 +349,35 @@ export default function ModalAddCnl({
                   fullWidth
                   error={!!errors[field.name]}
                   helperText={errors[field.name]}
-                  disabled={isReadOnly || field.disabled}
+                  disabled={isReadOnly || field.disabled
+                    || (field.name === 'curp' && mode === 'editar')}
                   InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        {field.icon || <EditOutlined />}
-                      </InputAdornment>
-                    ),
+                    endAdornment:
+                      field.name === 'curp' && mode === 'agregar' ? (
+                        <InputAdornment position='end'>
+                          {/* eslint-disable-next-line no-nested-ternary */}
+                          {loadingCurp ? (
+                            <CircularProgress size={24} />
+                          ) : curpVerified ? (
+                            <Check color='success' />
+                          ) : (
+                            <PersonAddAltOutlined
+                              onClick={formValues.curp?.length === 18
+                                ? handleVerifyCurp : undefined}
+                              sx={{
+                                cursor: formValues.curp?.length === 18
+                                  ? 'pointer' : 'default',
+                                color: formValues.curp?.length === 18
+                                  ? 'primary.main' : 'text.disabled',
+                              }}
+                            />
+                          )}
+                        </InputAdornment>
+                      ) : (
+                        <InputAdornment position='end'>
+                          {field.icon || <EditOutlined />}
+                        </InputAdornment>
+                      ),
                   }}
                 />
               )}

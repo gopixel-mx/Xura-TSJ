@@ -172,7 +172,7 @@ export const CredencialFields: Field[] = [
     validation: {
       required: true,
       minLength: 10,
-      maxLength: 10,
+      maxLength: 15,
       errorMessage: 'El celular debe ser de 10 caracteres.',
     },
   },

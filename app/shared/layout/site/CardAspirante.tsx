@@ -159,7 +159,7 @@ export default function CardAspirante({
           </Typography>
         )}
         <TextField
-          label='Nombre Completo'
+          label='Nombre'
           value={nombreCompleto}
           fullWidth
           disabled

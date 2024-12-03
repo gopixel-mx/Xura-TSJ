@@ -87,7 +87,7 @@ export default function ActionButtons({
       label: 'Etiquetas',
       icon: <SellOutlined />,
       disabled: isMultipleSelection || notSelection,
-      show: tableType === 'grupos',
+      show: tableType === 'credenciales',
     },
     {
       id: 'permisos',
