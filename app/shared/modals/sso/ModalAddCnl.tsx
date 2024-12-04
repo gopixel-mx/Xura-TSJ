@@ -38,7 +38,7 @@ interface CredencialData {
   perfil: string;
   tipo: string;
   estado: string;
-  idCredencial?: number;
+  idCredencial?: string;
   idAplicacion?: number;
 }
 

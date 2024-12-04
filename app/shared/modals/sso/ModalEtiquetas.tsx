@@ -15,7 +15,7 @@ import DefaultModal from '../DefaultModal';
 interface ModalEtiquetasProps {
   open: boolean;
   onClose: () => void;
-  selectedCredencial: { idCredencial: number; } | null;
+  selectedCredencial: { idCredencial: string; } | null;
   onSave: () => void;
 }
 
