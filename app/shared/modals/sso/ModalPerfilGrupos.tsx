@@ -13,8 +13,10 @@ import DefaultModal from '../DefaultModal';
 interface ModalPerfilGruposProps {
   open: boolean;
   onClose: () => void;
-  selectedRow: { idCredencial: string; } | null;
+  selectedRow: { idCredencial: string } | null;
   mode: 'Perfil' | 'Grupos';
+  // eslint-disable-next-line no-unused-vars
+  setShouldReload: (value: boolean) => void;
 }
 
 interface PerfilGrupoData {
@@ -38,6 +40,7 @@ export default function ModalPerfilGrupos({
   onClose,
   selectedRow,
   mode,
+  setShouldReload,
 }: ModalPerfilGruposProps) {
   const [rowData, setRowData] = useState<PerfilGrupoData[]>([]);
   const [updatedRoles, setUpdatedRoles] = useState<{
@@ -82,6 +85,7 @@ export default function ModalPerfilGrupos({
         type: 'success',
         message: '¡Roles actualizados correctamente!',
       });
+      setShouldReload(true);
       onClose();
     } catch (error) {
       setNoti({

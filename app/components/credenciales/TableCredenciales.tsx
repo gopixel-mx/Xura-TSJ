@@ -41,23 +41,34 @@ export default function TableCredenciales() {
   const [openPerfilGruposModal, setOpenPerfilGruposModal] = useState<boolean>(false);
   const [perfilGrupoMode, setPerfilGrupoMode] = useState<'Perfil' | 'Grupos'>('Perfil');
   const [openEtiquetasModal, setOpenEtiquetasModal] = useState<boolean>(false);
+  const [shouldReload, setShouldReload] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const { data } = await getData({ endpoint: '/credenciales' });
         const transformedData = data.map((item: any) => ({
           ...item,
           usuario: `${item.nombre} ${item.primerApellido} ${item.segundoApellido || ''}`.trim(),
         }));
         setRowData(transformedData);
-        setLoading(false);
       } catch (error) {
+        setNoti({
+          open: true,
+          type: 'error',
+          message: 'Error al cargar los datos.',
+        });
+      } finally {
         setLoading(false);
+        setShouldReload(false);
       }
     };
-    fetchData();
-  }, []);
+
+    if (shouldReload || rowData.length === 0) {
+      fetchData();
+    }
+  }, [shouldReload, rowData.length, setNoti]);
 
   const handleSaveCredencial = async (data: Record<string, string | string[]>) => {
     if (modalMode === 'editar' && selectedRowData) {
@@ -323,6 +334,7 @@ export default function TableCredenciales() {
         onClose={() => setOpenPerfilGruposModal(false)}
         selectedRow={selectedRowData}
         mode={perfilGrupoMode}
+        setShouldReload={setShouldReload}
       />
       <ModalEtiquetas
         open={openEtiquetasModal}
