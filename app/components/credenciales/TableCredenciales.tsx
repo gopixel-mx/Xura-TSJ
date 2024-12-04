@@ -230,8 +230,17 @@ export default function TableCredenciales() {
 
   const handleSaveEtiquetas = async () => {
     setOpenEtiquetasModal(false);
+    setNoti({
+      open: true,
+      type: 'success',
+      message: '¡Credencial actualizada con éxito!',
+    });
     const { data } = await getData({ endpoint: '/credenciales' });
-    setRowData(data);
+    const transformedData = data.map((item: any) => ({
+      ...item,
+      usuario: `${item.nombre} ${item.primerApellido} ${item.segundoApellido || ''}`.trim(),
+    }));
+    setRowData(transformedData);
   };
 
   const colDefs: ColDef[] = [
