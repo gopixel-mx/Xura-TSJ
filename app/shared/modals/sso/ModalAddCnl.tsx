@@ -13,9 +13,17 @@ import {
   CircularProgress,
   Typography,
   Menu,
+  IconButton,
 } from '@mui/material';
 import {
-  Add, Close, EditOutlined, Check, PersonAddAltOutlined, SmartphoneOutlined,
+  Add,
+  Close,
+  EditOutlined,
+  Check,
+  PersonAddAltOutlined,
+  SmartphoneOutlined,
+  VisibilityOutlined,
+  VisibilityOffOutlined,
 } from '@mui/icons-material';
 import { getData } from '@/app/shared/utils/apiUtils';
 import { getCurp } from '@/app/services/handlers/getMatricula';
@@ -91,6 +99,7 @@ export default function ModalAddCnl({
   const [rawPhoneNumber, setRawPhoneNumber] = useState('');
   const [celularError, setCelularError] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const fetchDynamicOptions = async () => {
@@ -126,18 +135,22 @@ export default function ModalAddCnl({
         Object.entries(selectedData).map(([key, value]) => [key, value]),
       ) as Record<string, string | string[]>;
       setFormValues(transformedData);
+      if (selectedData.celular) {
+        const [code, number] = selectedData.celular.split('-');
+        setCountryCode(
+          countryCodes.find((country) => country.code === code) || { code: '52', label: '🇲🇽 +52' },
+        );
+        setRawPhoneNumber(number || '');
+      }
     } else if (mode === 'agregar') {
       setFormValues({});
+      setRawPhoneNumber('');
     }
   }, [selectedData, mode, open, type]);
 
   const validateField = (field: any, value: string | string[]): string => {
     const {
-      required,
-      minLength,
-      maxLength,
-      pattern,
-      errorMessage,
+      required, minLength, maxLength, pattern, errorMessage,
     } = field.validation || {};
     let error = '';
 
@@ -166,11 +179,7 @@ export default function ModalAddCnl({
     try {
       const response = await getCurp(curp);
       const {
-        Nombre,
-        ApellidoPaterno,
-        ApellidoMaterno,
-        FechaNacimiento,
-        NumEntidadReg,
+        Nombre, ApellidoPaterno, ApellidoMaterno, FechaNacimiento, NumEntidadReg,
       } = response.datos;
       const usuario = `${Nombre} ${ApellidoPaterno} ${ApellidoMaterno}`.trim();
       setFormValues((prev) => ({
@@ -215,6 +224,10 @@ export default function ModalAddCnl({
     }
 
     setFormValues((prevValues) => ({ ...prevValues, [name]: value }));
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
   const handleCelularChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -344,6 +357,7 @@ export default function ModalAddCnl({
                 <TextField
                   label={field.label}
                   name={field.name}
+                  type={field.name === 'contrasena' && !showPassword ? 'password' : 'text'}
                   variant='outlined'
                   value={formValues[field.name] || ''}
                   onChange={handleInputChange}
@@ -353,32 +367,38 @@ export default function ModalAddCnl({
                   disabled={isReadOnly || field.disabled
                     || (field.name === 'curp' && mode === 'editar')}
                   InputProps={{
-                    endAdornment:
-                      field.name === 'curp' && mode === 'agregar' ? (
-                        <InputAdornment position='end'>
-                          {/* eslint-disable-next-line no-nested-ternary */}
-                          {loadingCurp ? (
-                            <CircularProgress size={24} />
-                          ) : curpVerified ? (
-                            <Check color='success' />
-                          ) : (
-                            <PersonAddAltOutlined
-                              onClick={formValues.curp?.length === 18
-                                ? handleVerifyCurp : undefined}
-                              sx={{
-                                cursor: formValues.curp?.length === 18
-                                  ? 'pointer' : 'default',
-                                color: formValues.curp?.length === 18
-                                  ? 'primary.main' : 'text.disabled',
-                              }}
-                            />
-                          )}
-                        </InputAdornment>
-                      ) : (
-                        <InputAdornment position='end'>
-                          {field.icon || <EditOutlined />}
-                        </InputAdornment>
-                      ),
+                    // eslint-disable-next-line no-nested-ternary
+                    endAdornment: field.name === 'contrasena' ? (
+                      <InputAdornment position='end'>
+                        <IconButton onClick={handleTogglePasswordVisibility}>
+                          {showPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
+                        </IconButton>
+                      </InputAdornment>
+                    ) : field.name === 'curp' && mode === 'agregar' ? (
+                      <InputAdornment position='end'>
+                        {/* eslint-disable-next-line no-nested-ternary */}
+                        {loadingCurp ? (
+                          <CircularProgress size={24} />
+                        ) : curpVerified ? (
+                          <Check color='success' />
+                        ) : (
+                          <PersonAddAltOutlined
+                            onClick={formValues.curp?.length === 18
+                              ? handleVerifyCurp : undefined}
+                            sx={{
+                              cursor: formValues.curp?.length === 18
+                                ? 'pointer' : 'default',
+                              color: formValues.curp?.length === 18
+                                ? 'primary.main' : 'text.disabled',
+                            }}
+                          />
+                        )}
+                      </InputAdornment>
+                    ) : (
+                      <InputAdornment position='end'>
+                        {field.icon || <EditOutlined />}
+                      </InputAdornment>
+                    ),
                   }}
                 />
               )}
