@@ -53,6 +53,9 @@ export default function TableCredenciales() {
           usuario: `${item.nombre} ${item.primerApellido} ${item.segundoApellido || ''}`.trim(),
         }));
         setRowData(transformedData);
+        setSelectedRowsCount(0);
+        setSelectedRowsData([]);
+        setSelectedRowData(null);
       } catch (error) {
         setNoti({
           open: true,
@@ -170,7 +173,11 @@ export default function TableCredenciales() {
         }
 
         const { data: updatedData } = await getData({ endpoint: '/credenciales' });
-        setRowData(updatedData);
+        const transformedData = updatedData.map((item: any) => ({
+          ...item,
+          usuario: `${item.nombre} ${item.primerApellido} ${item.segundoApellido || ''}`.trim(),
+        }));
+        setRowData(transformedData);
 
         setOpenModal(false);
         setNoti({
