@@ -86,7 +86,8 @@ export default function ModalAddCnl({
   const [dynamicOptions, setDynamicOptions] = useState<{ value: string; label: string }[]>([]);
   const [loadingCurp, setLoadingCurp] = useState(false);
   const [curpVerified, setCurpVerified] = useState(false);
-  const [countryCode, setCountryCode] = useState<{ code: string; label: string }>({ code: '52', label: '🇲🇽 +52' });
+  const [countryCode, setCountryCode] = useState<{
+    code: string; label: string }>({ code: '52', label: '🇲🇽 +52' });
   const [rawPhoneNumber, setRawPhoneNumber] = useState('');
   const [celularError, setCelularError] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

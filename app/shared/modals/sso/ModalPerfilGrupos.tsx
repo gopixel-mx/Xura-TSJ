@@ -21,6 +21,7 @@ interface ModalPerfilGruposProps {
 
 interface PerfilGrupoData {
   idRol: number;
+  idGrupo: number;
   nombre: string;
   estado: string;
   seleccionado: number;
@@ -55,7 +56,8 @@ export default function ModalPerfilGrupos({
         try {
           setLoading(true);
           const endpoint = mode === 'Perfil'
-            ? `/roles/${selectedRow.idCredencial}/select` : `/grupos`;
+            ? `/roles/${selectedRow.idCredencial}/select`
+            : `/grupos/${selectedRow.idCredencial}/select`;
           const { data } = await getData({ endpoint });
           setRowData(data || []);
         } finally {
@@ -70,20 +72,25 @@ export default function ModalPerfilGrupos({
   const handleSave = async () => {
     try {
       setLoading(true);
-      const updates = rowData.map((role) => ({
-        idRol: role.idRol,
-        seleccionado: updatedRoles[role.idRol] ?? role.seleccionado,
-      }));
+      const updates = rowData.map((item) => (mode !== 'Perfil' ? {
+        idGrupo: item.idGrupo,
+        seleccionado: updatedRoles[item.idGrupo]
+            ?? item.seleccionado,
+      } : { idRol: item.idRol, seleccionado: updatedRoles[item.idRol] ?? item.seleccionado }));
+
+      const endpoint = mode === 'Perfil'
+        ? `/roles/${selectedRow?.idCredencial}/perfiles`
+        : `/grupos/${selectedRow?.idCredencial}/miembros`;
 
       await updateRecord({
-        endpoint: `/roles/${selectedRow?.idCredencial}/perfiles`,
+        endpoint,
         data: updates,
       });
 
       setNoti({
         open: true,
         type: 'success',
-        message: '¡Roles actualizados correctamente!',
+        message: `${mode === 'Perfil' ? 'Roles' : 'Grupos'} actualizados correctamente!`,
       });
       setShouldReload(true);
       onClose();
@@ -91,7 +98,7 @@ export default function ModalPerfilGrupos({
       setNoti({
         open: true,
         type: 'error',
-        message: 'Error al actualizar los roles.',
+        message: `Error al actualizar los ${mode === 'Perfil' ? 'roles' : 'grupos'}.`,
       });
     } finally {
       setLoading(false);

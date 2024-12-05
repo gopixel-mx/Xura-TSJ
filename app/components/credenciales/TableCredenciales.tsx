@@ -83,7 +83,11 @@ export default function TableCredenciales() {
         });
       } else {
         const { data: responseData } = await getData({ endpoint: '/credenciales' });
-        setRowData(responseData);
+        const transformedData = responseData.map((item: any) => ({
+          ...item,
+          usuario: `${item.nombre} ${item.primerApellido} ${item.segundoApellido || ''}`.trim(),
+        }));
+        setRowData(transformedData);
         setOpenModal(false);
         setNoti({
           open: true,
