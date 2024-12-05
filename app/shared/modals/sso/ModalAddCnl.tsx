@@ -36,6 +36,7 @@ interface AplicacionData {
   nombre: string;
   redireccion?: string;
   estado: string;
+  celular?: string;
 }
 
 interface CredencialData {
@@ -48,6 +49,7 @@ interface CredencialData {
   estado: string;
   idCredencial?: string;
   idAplicacion?: number;
+  celular?: string;
 }
 
 interface ModalAddCnlProps {
@@ -275,6 +277,9 @@ export default function ModalAddCnl({
 
     fields.forEach((field) => {
       const value = formValues[field.name] || '';
+      if (field.name === 'contrasena' && mode === 'editar' && !value) {
+        return;
+      }
       const error = validateField(field, value);
       if (error) formIsValid = false;
       newErrors[field.name] = error;
@@ -283,7 +288,11 @@ export default function ModalAddCnl({
     setErrors(newErrors);
 
     if (formIsValid) {
-      await onSubmit(formValues);
+      const dataToSubmit = { ...formValues };
+      if (mode === 'editar' && !formValues.contrasena) {
+        dataToSubmit.contrasena = 'N1nguna';
+      }
+      await onSubmit(dataToSubmit);
       handleClose();
     }
   };

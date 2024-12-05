@@ -235,7 +235,11 @@ export default function TableCredenciales() {
       });
       setOpenCancelModal(false);
       const { data: responseData } = await getData({ endpoint: '/credenciales' });
-      setRowData(responseData);
+      const transformedData = responseData.map((item: any) => ({
+        ...item,
+        usuario: `${item.nombre} ${item.primerApellido} ${item.segundoApellido || ''}`.trim(),
+      }));
+      setRowData(transformedData);
     }
   };
 
