@@ -15,6 +15,7 @@ interface ModuloData {
   nombre: string;
   estado: string;
   idModulo?: number;
+  idAplicacion: number;
 }
 
 export default function TableModulos() {

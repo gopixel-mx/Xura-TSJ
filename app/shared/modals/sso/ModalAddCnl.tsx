@@ -35,7 +35,7 @@ import countryCodes from '@/app/mocks/countryCodes';
 import DefaultModal from '../DefaultModal';
 
 interface AplicacionData {
-  idAplicacion?: number;
+  idAplicacion: number;
   clave: string;
   nombre: string;
   redireccion?: string;
@@ -52,7 +52,7 @@ interface CredencialData {
   tipo: string;
   estado: string;
   idCredencial?: string;
-  idAplicacion?: number;
+  idAplicacion: number;
   celular?: string;
 }
 
@@ -118,7 +118,7 @@ export default function ModalAddCnl({
             label: app.nombre,
           }));
           setDynamicOptions(options);
-        } else if (selectedData?.idAplicacion) {
+        } else if (mode === 'consultar' && selectedData?.idAplicacion) {
           const { data } = await getData({
             endpoint: `/aplicaciones/${selectedData.idAplicacion}`,
           });
@@ -128,6 +128,19 @@ export default function ModalAddCnl({
             ...prevValues,
             aplicacion: option.value,
           }));
+        } else if (mode === 'editar' && type === 'modulos') {
+          const { data } = await getData({ endpoint: '/aplicaciones' });
+          const options = data.map((app: { idAplicacion: number; nombre: string }) => ({
+            value: app.idAplicacion.toString(),
+            label: app.nombre,
+          }));
+          setDynamicOptions(options);
+          if (selectedData?.idAplicacion !== undefined) {
+            setFormValues((prevValues) => ({
+              ...prevValues,
+              aplicacion: selectedData.idAplicacion.toString(),
+            }));
+          }
         }
       } catch {
         setDynamicOptions([]);
