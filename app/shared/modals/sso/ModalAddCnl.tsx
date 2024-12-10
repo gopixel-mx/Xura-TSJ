@@ -14,6 +14,10 @@ import {
   Typography,
   Menu,
   IconButton,
+  Select,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   Add,
@@ -211,8 +215,10 @@ export default function ModalAddCnl({
     }
   };
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>,
+  ) => {
+    const { name, value } = e.target as HTMLInputElement | { name: string; value: string };
     const field = fields.find((f) => f.name === name);
 
     if (name === 'curp' && mode === 'agregar') {
@@ -314,7 +320,29 @@ export default function ModalAddCnl({
         <Grid container spacing={2}>
           {fields.map((field, index) => (
             <Grid item xs={getGridSize(index, fields.length)} key={field.name}>
-              {field.name === 'celular' ? (
+              {/* eslint-disable-next-line no-nested-ternary */}
+              {type === 'modulos' && field.name === 'aplicacion' ? (
+                <FormControl fullWidth>
+                  <InputLabel>{field.label}</InputLabel>
+                  <Select
+                    variant='outlined'
+                    name={field.name}
+                    value={
+                      Array.isArray(formValues[field.name])
+                        ? formValues[field.name][0] || ''
+                        : (formValues[field.name] as string) || ''
+                    }
+                    onChange={handleInputChange}
+                    error={!!errors[field.name]}
+                  >
+                    {dynamicOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : field.name === 'celular' ? (
                 <>
                   <TextField
                     label={field.label}
@@ -326,6 +354,8 @@ export default function ModalAddCnl({
                     onBlur={handleCelularBlur}
                     error={Boolean(celularError || errors[field.name])}
                     helperText={celularError || errors[field.name]}
+                    disabled={isReadOnly || field.disabled
+                      || (field.name === 'celular' && mode === 'editar')}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position='start'>
