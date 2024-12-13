@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Terminos y Condiciones Xura',
 };
 
-export default function TerminosLayout({ children }: { children: React.ReactNode }) {
+export default function TerminosLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <h1>Términos y condiciones</h1>

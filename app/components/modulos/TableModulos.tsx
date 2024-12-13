@@ -5,35 +5,34 @@ import { ColDef } from 'ag-grid-community';
 import {
   getData, createRecord, updateRecord, deleteRecord,
 } from '@/app/shared/utils/apiUtils';
-import { ModalAddCnl, ModalCancelar, ModalPermisos } from '@/app/shared/modals/sso';
-import { RolFields } from '@/app/services/handlers/formFields';
+import { ModalAddCnl, ModalCancelar } from '@/app/shared/modals/sso';
+import { ModuloFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
 import { useAuthContext } from '@/app/context/AuthContext';
 
-interface AplicacionData {
+interface ModuloData {
   clave: string;
   nombre: string;
   estado: string;
-  idRol?: number;
+  idModulo?: number;
   idAplicacion: number;
 }
 
-export default function TableRoles() {
+export default function TableModulos() {
   const { setNoti } = useAuthContext();
-  const [rowData, setRowData] = useState<AplicacionData[]>([]);
+  const [rowData, setRowData] = useState<ModuloData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
-  const [selectedRowsData, setSelectedRowsData] = useState<AplicacionData[]>([]);
-  const [selectedRowData, setSelectedRowData] = useState<AplicacionData | null>(null);
+  const [selectedRowsData, setSelectedRowsData] = useState<ModuloData[]>([]);
+  const [selectedRowData, setSelectedRowData] = useState<ModuloData | null>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
-  const [openPermisosModal, setOpenPermisosModal] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<'agregar' | 'consultar' | 'editar'>('agregar');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await getData({ endpoint: '/roles' });
+        const { data } = await getData({ endpoint: '/aplicaciones/modulos' });
         setRowData(data);
         setLoading(false);
       } catch (error) {
@@ -43,9 +42,9 @@ export default function TableRoles() {
     fetchData();
   }, []);
 
-  const handleSaveAplicacion = async (data: Record<string, string | string[]>) => {
+  const handleSaveModulo = async (data: Record<string, string | string[]>) => {
     if (modalMode === 'editar' && selectedRowData) {
-      const endpoint = `/roles/${selectedRowData.idRol}`;
+      const endpoint = `/aplicaciones/modulos/${selectedRowData.idModulo}`;
       const response = await updateRecord({ endpoint, data });
 
       if (response.errorMessage) {
@@ -55,17 +54,21 @@ export default function TableRoles() {
           message: response.errorMessage,
         });
       } else {
-        const { data: responseData } = await getData({ endpoint: '/roles' });
+        const { data: responseData } = await getData({ endpoint: `/aplicaciones/modulos` });
         setRowData(responseData);
         setOpenModal(false);
         setNoti({
           open: true,
           type: 'success',
-          message: '¡Rol actualizado con éxito!',
+          message: '¡Módulo actualizado con éxito!',
         });
       }
-    } else {
-      const response = await createRecord({ endpoint: '/roles', data });
+    } else if (modalMode === 'agregar') {
+      const response = await createRecord({
+        endpoint: `/aplicaciones/${data.idAplicacion}/modulos`,
+        data,
+      });
+
       if (response.errorMessage) {
         setNoti({
           open: true,
@@ -73,13 +76,13 @@ export default function TableRoles() {
           message: response.errorMessage,
         });
       } else {
-        const { data: responseData } = await getData({ endpoint: '/roles' });
+        const { data: responseData } = await getData({ endpoint: '/aplicaciones/modulos' });
         setRowData(responseData);
         setOpenModal(false);
         setNoti({
           open: true,
           type: 'success',
-          message: '¡Rol creado con éxito!',
+          message: '¡Módulo creado con éxito!',
         });
       }
     }
@@ -98,14 +101,12 @@ export default function TableRoles() {
       setOpenModal(true);
     } else if (actionType === 'Cancelar' && selectedRowsCount >= 1) {
       setOpenCancelModal(true);
-    } else if (actionType === 'Permisos' && selectedRowsCount === 1) {
-      setOpenPermisosModal(true);
     }
   };
 
   const handleConfirmCancel = async () => {
-    const idsToDelete = selectedRowsData.map((row) => row.idRol);
-    const endpoint = `/roles/${idsToDelete.join(',')}`;
+    const idsToDelete = selectedRowsData.map((row) => row.idModulo);
+    const endpoint = `/aplicaciones/modulos/${idsToDelete.join(',')}`;
 
     const response = await deleteRecord({ endpoint });
     if (response.errorMessage) {
@@ -118,10 +119,10 @@ export default function TableRoles() {
       setNoti({
         open: true,
         type: 'success',
-        message: '¡Roles cancelados con éxito!',
+        message: '¡Módulos cancelados con éxito!',
       });
       setOpenCancelModal(false);
-      const { data: responseData } = await getData({ endpoint: '/roles' });
+      const { data: responseData } = await getData({ endpoint: '/aplicaciones/modulos' });
       setRowData(responseData);
     }
   };
@@ -150,10 +151,7 @@ export default function TableRoles() {
     },
   ];
 
-  const isRowSelectable = (rowNode: any) => {
-    const nonSelectableRoles = ['admin', 'aspirante', 'alumno', 'docente'];
-    return !nonSelectableRoles.includes(rowNode.data.clave);
-  };
+  const isRowSelectable = (rowNode: any) => rowNode.data.idAplicacion !== 1;
 
   const handleRowSelectionChanged = (params: any) => {
     const selectedRows = params.api.getSelectedRows();
@@ -165,7 +163,7 @@ export default function TableRoles() {
   return (
     <>
       <ActionButtons
-        tableType='roles'
+        tableType='modulos'
         selectedRowsCount={selectedRowsCount}
         onButtonClick={handleOpenModal}
       />
@@ -180,12 +178,13 @@ export default function TableRoles() {
         enableSelection
       />
       <ModalAddCnl
-        title='Roles'
+        title='Módulo'
         open={openModal}
         onClose={() => setOpenModal(false)}
-        fields={RolFields}
-        onSubmit={handleSaveAplicacion}
+        fields={ModuloFields}
+        onSubmit={handleSaveModulo}
         mode={modalMode}
+        type='modulos'
         selectedData={selectedRowData}
       />
       <ModalCancelar
@@ -194,15 +193,6 @@ export default function TableRoles() {
         selectedRows={selectedRowsData}
         colDefs={colDefs}
         onConfirmCancel={handleConfirmCancel}
-      />
-      <ModalPermisos
-        open={openPermisosModal}
-        onClose={() => setOpenPermisosModal(false)}
-        selectedRole={
-          selectedRowData
-            ? { idRol: selectedRowData.idRol!, nombre: selectedRowData.nombre }
-            : null
-        }
       />
     </>
   );

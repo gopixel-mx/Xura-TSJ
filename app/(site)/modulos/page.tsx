@@ -1,8 +1,8 @@
 import { Box, Paper, Typography } from '@mui/material';
-import { TableGrupos } from '@/app/components/grupos';
+import { TableModulos } from '@/app/components/modulos';
 import { BottomActionButtons } from '@/app/shared/common/Buttons';
 
-export default function GruposPage() {
+export default function ModulosPage() {
   return (
     <Box
       sx={{
@@ -23,9 +23,9 @@ export default function GruposPage() {
             fontFamily: 'MadaniArabic-Regular',
           }}
         >
-          Grupos
+          Modulos
         </Typography>
-        <TableGrupos />
+        <TableModulos />
         <BottomActionButtons />
       </Paper>
     </Box>

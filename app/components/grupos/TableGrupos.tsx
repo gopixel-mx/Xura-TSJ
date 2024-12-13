@@ -5,7 +5,7 @@ import { ColDef } from 'ag-grid-community';
 import {
   getData, createRecord, updateRecord, deleteRecord,
 } from '@/app/shared/utils/apiUtils';
-import { ModalAddCnl, ModalCancelar, ModalEtiquetas } from '@/app/shared/modals/sso';
+import { ModalAddCnl, ModalCancelar } from '@/app/shared/modals/sso';
 import { GrupoFields } from '@/app/services/handlers/formFields';
 import { TableTemplate, ActionButtons } from '@/app/shared/common';
 import { useAuthContext } from '@/app/context/AuthContext';
@@ -15,6 +15,7 @@ interface GrupoData {
   nombre: string;
   estado: string;
   idGrupo: number;
+  idAplicacion: number;
 }
 
 export default function TableGrupos() {
@@ -26,7 +27,6 @@ export default function TableGrupos() {
   const [selectedRowData, setSelectedRowData] = useState<GrupoData | null>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
-  const [openEtiquetasModal, setOpenEtiquetasModal] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<'agregar' | 'consultar' | 'editar'>('agregar');
 
   useEffect(() => {
@@ -97,8 +97,6 @@ export default function TableGrupos() {
       setOpenModal(true);
     } else if (actionType === 'Cancelar' && selectedRowsCount >= 1) {
       setOpenCancelModal(true);
-    } else if (actionType === 'Etiquetas' && selectedRowsCount === 1) {
-      setOpenEtiquetasModal(true);
     }
   };
 
@@ -158,12 +156,6 @@ export default function TableGrupos() {
     setSelectedRowsData(selectedRows);
   };
 
-  const handleSaveEtiquetas = async () => {
-    setOpenEtiquetasModal(false);
-    const { data } = await getData({ endpoint: '/grupos' });
-    setRowData(data);
-  };
-
   return (
     <>
       <ActionButtons
@@ -196,12 +188,6 @@ export default function TableGrupos() {
         selectedRows={selectedRowsData}
         colDefs={colDefs}
         onConfirmCancel={handleConfirmCancel}
-      />
-      <ModalEtiquetas
-        open={openEtiquetasModal}
-        onClose={() => setOpenEtiquetasModal(false)}
-        selectedGroup={selectedRowData}
-        onSave={handleSaveEtiquetas}
       />
     </>
   );
