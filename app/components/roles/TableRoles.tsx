@@ -15,6 +15,7 @@ interface AplicacionData {
   nombre: string;
   estado: string;
   idRol?: number;
+  idAplicacion: number;
 }
 
 export default function TableRoles() {

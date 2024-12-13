@@ -26,6 +26,7 @@ interface CredencialData {
   estado: string;
   idCredencial: string;
   idRol: number;
+  idAplicacion: number;
 }
 
 export default function TableCredenciales() {

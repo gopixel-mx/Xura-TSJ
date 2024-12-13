@@ -1,6 +1,6 @@
 import { Box, Paper, Typography } from '@mui/material';
 import { TableModulos } from '@/app/components/modulos';
-import BottomActionButtons from '@/app/shared/common/Buttons/BottomActionButtons';
+import { BottomActionButtons } from '@/app/shared/common/Buttons';
 
 export default function ModulosPage() {
   return (
@@ -13,7 +13,7 @@ export default function ModulosPage() {
         padding: 4,
       }}
     >
-      <Paper elevation={3} sx={{ width: '80%', padding: 4 }}>
+      <Paper elevation={3} sx={{ width: '90%', padding: 4 }}>
         <Typography
           variant='h4'
           component='h1'

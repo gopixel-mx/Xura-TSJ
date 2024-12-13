@@ -15,7 +15,7 @@ interface AplicacionData {
   nombre: string;
   redireccion: string;
   estado: string;
-  idAplicacion?: number;
+  idAplicacion: number;
 }
 
 export default function TableAplicaciones() {

@@ -15,6 +15,7 @@ interface GrupoData {
   nombre: string;
   estado: string;
   idGrupo: number;
+  idAplicacion: number;
 }
 
 export default function TableGrupos() {

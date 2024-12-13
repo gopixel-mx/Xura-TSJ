@@ -42,7 +42,7 @@ export default function TableModulos() {
     fetchData();
   }, []);
 
-  const handleSaveAplicacion = async (data: Record<string, string | string[]>) => {
+  const handleSaveModulo = async (data: Record<string, string | string[]>) => {
     if (modalMode === 'editar' && selectedRowData) {
       const endpoint = `/aplicaciones/modulos/${selectedRowData.idModulo}`;
       const response = await updateRecord({ endpoint, data });
@@ -60,14 +60,12 @@ export default function TableModulos() {
         setNoti({
           open: true,
           type: 'success',
-          message: '¡Aplicación actualizada con éxito!',
+          message: '¡Módulo actualizado con éxito!',
         });
       }
     } else if (modalMode === 'agregar') {
-      const idAplicacion = data.aplicacion as string;
-
       const response = await createRecord({
-        endpoint: `/aplicaciones/${idAplicacion}/modulos`,
+        endpoint: `/aplicaciones/${data.idAplicacion}/modulos`,
         data,
       });
 
@@ -108,7 +106,7 @@ export default function TableModulos() {
 
   const handleConfirmCancel = async () => {
     const idsToDelete = selectedRowsData.map((row) => row.idModulo);
-    const endpoint = `/aplicaciones/${idsToDelete.join(',')}`;
+    const endpoint = `/aplicaciones/modulos/${idsToDelete.join(',')}`;
 
     const response = await deleteRecord({ endpoint });
     if (response.errorMessage) {
@@ -121,7 +119,7 @@ export default function TableModulos() {
       setNoti({
         open: true,
         type: 'success',
-        message: '¡Aplicaciones canceladas con éxito!',
+        message: '¡Módulos cancelados con éxito!',
       });
       setOpenCancelModal(false);
       const { data: responseData } = await getData({ endpoint: '/aplicaciones/modulos' });
@@ -184,7 +182,7 @@ export default function TableModulos() {
         open={openModal}
         onClose={() => setOpenModal(false)}
         fields={ModuloFields}
-        onSubmit={handleSaveAplicacion}
+        onSubmit={handleSaveModulo}
         mode={modalMode}
         type='modulos'
         selectedData={selectedRowData}

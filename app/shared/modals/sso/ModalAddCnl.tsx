@@ -81,7 +81,7 @@ interface ModalAddCnlProps {
   onSubmit: (data: Record<string, string | string[]>) => Promise<void>;
   // eslint-disable-next-line no-unused-vars
   onCurpVerified?: (data: Record<string, string>) => void;
-  type?: 'modulos' | 'aplicaciones';
+  type?: 'modulos' | 'aplicaciones' | 'credenciales';
 }
 
 export default function ModalAddCnl({
@@ -111,35 +111,37 @@ export default function ModalAddCnl({
     const fetchDynamicOptions = async () => {
       if (!open) return;
       try {
-        if (mode === 'agregar' && type === 'modulos') {
-          const { data } = await getData({ endpoint: '/aplicaciones' });
-          const options = data.map((app: { idAplicacion: number; nombre: string }) => ({
-            value: app.idAplicacion.toString(),
-            label: app.nombre,
-          }));
-          setDynamicOptions(options);
-        } else if (mode === 'consultar' && selectedData?.idAplicacion) {
-          const { data } = await getData({
-            endpoint: `/aplicaciones/${selectedData.idAplicacion}`,
-          });
-          const option = { value: data.idAplicacion.toString(), label: data.nombre };
-          setDynamicOptions([option]);
-          setFormValues((prevValues) => ({
-            ...prevValues,
-            aplicacion: option.value,
-          }));
-        } else if (mode === 'editar' && type === 'modulos') {
-          const { data } = await getData({ endpoint: '/aplicaciones' });
-          const options = data.map((app: { idAplicacion: number; nombre: string }) => ({
-            value: app.idAplicacion.toString(),
-            label: app.nombre,
-          }));
-          setDynamicOptions(options);
-          if (selectedData?.idAplicacion !== undefined) {
+        if (type === 'modulos') {
+          if (mode === 'agregar') {
+            const { data } = await getData({ endpoint: '/aplicaciones' });
+            const options = data.map((app: { idAplicacion: number; nombre: string }) => ({
+              value: app.idAplicacion.toString(),
+              label: app.nombre,
+            }));
+            setDynamicOptions(options);
+          } else if (mode === 'consultar' && selectedData?.idAplicacion) {
+            const { data } = await getData({
+              endpoint: `/aplicaciones/${selectedData.idAplicacion}`,
+            });
+            const option = { value: data.idAplicacion.toString(), label: data.nombre };
+            setDynamicOptions([option]);
             setFormValues((prevValues) => ({
               ...prevValues,
-              aplicacion: selectedData.idAplicacion.toString(),
+              aplicacion: option.value,
             }));
+          } else if (mode === 'editar') {
+            const { data } = await getData({ endpoint: '/aplicaciones' });
+            const options = data.map((app: { idAplicacion: number; nombre: string }) => ({
+              value: app.idAplicacion.toString(),
+              label: app.nombre,
+            }));
+            setDynamicOptions(options);
+            if (selectedData?.idAplicacion) {
+              setFormValues((prevValues) => ({
+                ...prevValues,
+                aplicacion: selectedData.idAplicacion.toString(),
+              }));
+            }
           }
         }
       } catch {
@@ -311,6 +313,12 @@ export default function ModalAddCnl({
       if (mode === 'editar' && !formValues.contrasena) {
         dataToSubmit.contrasena = 'N1nguna';
       }
+
+      if (dataToSubmit.aplicacion && type === 'modulos') {
+        dataToSubmit.idAplicacion = dataToSubmit.aplicacion;
+        delete dataToSubmit.aplicacion;
+        delete dataToSubmit.idModulo;
+      }
       await onSubmit(dataToSubmit);
       handleClose();
     }
@@ -339,7 +347,9 @@ export default function ModalAddCnl({
                   <InputLabel>{field.label}</InputLabel>
                   <Select
                     variant='outlined'
+                    label={field.label}
                     name={field.name}
+                    disabled={isReadOnly}
                     value={
                       Array.isArray(formValues[field.name])
                         ? formValues[field.name][0] || ''
