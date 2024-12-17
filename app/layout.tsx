@@ -1,8 +1,9 @@
+// app/layout.tsx
 import { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import { Navbar } from '@/app/shared/layout';
-import { CssBaseline, Toolbar } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 import AuthProvider from '@/app/context/AuthProvider';
+import { MainLay } from '@/app/shared/layout';
 
 export const metadata: Metadata = {
   title: 'Xura',
@@ -10,10 +11,8 @@ export const metadata: Metadata = {
   keywords: ['login, tsj'],
 };
 
-export default function RootLayout({ children }: {
-  children: ReactNode
-}) {
-  const isAuthenticated = true;
+export default function RootLayout({ children }: { children: ReactNode }) {
+  const isAuthenticated = true; // Simulación de autenticación
   const userRole = 1;
 
   return (
@@ -21,11 +20,9 @@ export default function RootLayout({ children }: {
       <body>
         <AuthProvider>
           <CssBaseline />
-          <Navbar isAuthenticated={isAuthenticated} rol={userRole} />
-          <Toolbar />
-          <div>
+          <MainLay isAuthenticated={isAuthenticated} userRole={userRole}>
             {children}
-          </div>
+          </MainLay>
         </AuthProvider>
       </body>
     </html>

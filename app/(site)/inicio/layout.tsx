@@ -2,11 +2,11 @@ import { ReactNode } from 'react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Credenciales',
-  description: 'Credenciales Xura',
+  title: 'Inicio',
+  description: 'Inicio Xura',
 };
 
-export default function CredencialesLayout({ children }: { children: ReactNode }) {
+export default function InicioLayout({ children }: { children: ReactNode }) {
   return (
     <div>
       {children}
