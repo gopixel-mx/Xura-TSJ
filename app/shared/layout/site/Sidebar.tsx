@@ -9,23 +9,40 @@ import ContactMailOutlinedIcon from '@mui/icons-material/ContactMailOutlined';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useRouter } from 'next/navigation';
+import { deleteRecord } from '@/app/shared/utils/apiUtils';
 import Link from 'next/link';
+import { useAuthContext } from '@/app/context/AuthContext';
 
 const menuItems = [
-  { icon: <HomeIcon />, label: 'Inicio', link: '/dashboard' },
+  { icon: <HomeIcon />, label: 'Inicio', link: '/inicio' },
   { icon: <AppsOutlinedIcon />, label: 'Aplicaciones', link: '/aplicaciones' },
   { icon: <WysiwygOutlinedIcon />, label: 'Módulos', link: '/modulos' },
   { icon: <ContactMailOutlinedIcon />, label: 'Credenciales', link: '/credenciales' },
   { icon: <GroupsOutlinedIcon />, label: 'Grupos', link: '/grupos' },
   { icon: <VpnKeyOutlinedIcon />, label: 'Roles', link: '/roles' },
-  { icon: <LogoutIcon />, label: 'Salir', link: '/' },
+  {
+    icon: <LogoutIcon />,
+    label: 'Salir',
+    action: 'logout',
+    link: '/',
+  },
 ];
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, setUser } = useAuthContext();
+  const router = useRouter();
 
   const handleMouseEnter = () => setIsOpen(true);
   const handleMouseLeave = () => setIsOpen(false);
+
+  const handleLogout = async () => {
+    await deleteRecord({ endpoint: `/sesiones/${user?.id}` });
+    setUser(null);
+    localStorage.removeItem('authToken');
+    router.push('/');
+  };
 
   return (
     <Box
@@ -46,7 +63,46 @@ export default function Sidebar() {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {menuItems.map((item) => (
+      {menuItems.map((item) => (item.action === 'logout' ? (
+        <Box
+          key={item.label}
+          onClick={handleLogout}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            width: '100%',
+            px: 2,
+            py: 2,
+            cursor: 'pointer',
+            transition: 'background-color 0.3s ease',
+            '&:hover': { bgcolor: '#e0e0e0' },
+          }}
+        >
+          <Box
+            sx={{
+              minWidth: 40,
+              color: '#444',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            {item.icon}
+          </Box>
+          {isOpen && (
+            <Typography
+              sx={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#444',
+                ml: 2,
+                fontFamily: 'MadaniArabic-Regular',
+              }}
+            >
+              {item.label}
+            </Typography>
+          )}
+        </Box>
+      ) : (
         <Link href={item.link} key={item.label} passHref>
           <Box
             sx={{
@@ -60,12 +116,13 @@ export default function Sidebar() {
               '&:hover': { bgcolor: '#e0e0e0' },
             }}
           >
-            <Box sx={{
-              minWidth: 40,
-              color: '#444',
-              display: 'flex',
-              justifyContent: 'center',
-            }}
+            <Box
+              sx={{
+                minWidth: 40,
+                color: '#444',
+                display: 'flex',
+                justifyContent: 'center',
+              }}
             >
               {item.icon}
             </Box>
@@ -84,7 +141,7 @@ export default function Sidebar() {
             )}
           </Box>
         </Link>
-      ))}
+      )))}
     </Box>
   );
 }

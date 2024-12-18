@@ -12,15 +12,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  const isAuthenticated = true; // Simulación de autenticación
-  const userRole = 1;
-
   return (
     <html lang='en'>
       <body>
         <AuthProvider>
           <CssBaseline />
-          <MainLay isAuthenticated={isAuthenticated} userRole={userRole}>
+          <MainLay>
             {children}
           </MainLay>
         </AuthProvider>

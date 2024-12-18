@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { Box } from '@mui/material';
 import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
@@ -8,11 +8,9 @@ import Navbar from './Navbar';
 
 interface MainLayoutProps {
   children: ReactNode;
-  isAuthenticated: boolean;
-  userRole: number;
 }
 
-export default function MainLay({ children, isAuthenticated, userRole }: MainLayoutProps) {
+export default function MainLay({ children }: MainLayoutProps) {
   const pathname = usePathname();
 
   const hideSidebar = pathname === '/';
@@ -21,7 +19,7 @@ export default function MainLay({ children, isAuthenticated, userRole }: MainLay
     <Box sx={{ display: 'flex', minHeight: '100vh', textTransform: 'none' }}>
       {!hideSidebar && <Sidebar />}
       <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Navbar isAuthenticated={isAuthenticated} rol={userRole} />
+        <Navbar />
         <Box
           component='main'
           sx={{
