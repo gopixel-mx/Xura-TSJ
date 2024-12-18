@@ -13,7 +13,7 @@ interface MainLayoutProps {
 export default function MainLay({ children }: MainLayoutProps) {
   const pathname = usePathname();
 
-  const hideSidebar = pathname === '/';
+  const hideSidebar = (pathname === '/' || pathname === '/panel');
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', textTransform: 'none' }}>

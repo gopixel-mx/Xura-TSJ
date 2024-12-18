@@ -124,7 +124,7 @@ export default function VerifyCode({
         const decodedToken = parseJwt(isValidData.token);
         const userDataWithToken = { ...decodedToken, token: isValidData.token };
         activateAuth(userDataWithToken);
-        router.push('/aplicaciones');
+        router.push('/panel');
       } else {
         setError(isValidData.message || 'Cuenta no está validada.');
       }
