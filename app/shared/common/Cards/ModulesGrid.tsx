@@ -17,7 +17,11 @@ import Link from 'next/link';
 const moduleCards = [
   { icon: <AppsOutlinedIcon fontSize='large' />, title: 'Aplicaciones', link: '/aplicaciones' },
   { icon: <WysiwygOutlinedIcon fontSize='large' />, title: 'Módulos', link: '/modulos' },
-  { icon: <ContactMailOutlinedIcon fontSize='large' />, title: 'Credenciales', link: '/credenciales' },
+  {
+    icon: <ContactMailOutlinedIcon fontSize='large' />,
+    title: 'Credenciales',
+    link: '/credenciales',
+  },
   { icon: <GroupsOutlinedIcon fontSize='large' />, title: 'Grupos', link: '/grupos' },
   { icon: <VpnKeyOutlinedIcon fontSize='large' />, title: 'Roles', link: '/roles' },
 ];
@@ -48,7 +52,7 @@ export default function ModulesGrid() {
             md={accessibleCards.length > 3 ? 4 : 6}
             key={module.title}
           >
-            <Link href={module.link} passHref>
+            <Link href={module.link} style={{ textDecoration: 'none' }}>
               <Card
                 elevation={3}
                 sx={{

@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { useAuthContext } from '@/app/context/AuthContext';
 
 const menuItems = [
-  { icon: <HomeIcon />, label: 'Inicio', link: '/inicio' },
+  { icon: <HomeIcon />, label: 'Panel', link: '/panel' },
   { icon: <AppsOutlinedIcon />, label: 'Aplicaciones', link: '/aplicaciones' },
   { icon: <WysiwygOutlinedIcon />, label: 'Módulos', link: '/modulos' },
   { icon: <ContactMailOutlinedIcon />, label: 'Credenciales', link: '/credenciales' },
@@ -103,7 +103,7 @@ export default function Sidebar() {
           )}
         </Box>
       ) : (
-        <Link href={item.link} key={item.label} passHref>
+        <Link href={item.link} key={item.label} style={{ textDecoration: 'none' }}>
           <Box
             sx={{
               display: 'flex',
