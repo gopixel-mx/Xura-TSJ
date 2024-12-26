@@ -10,9 +10,6 @@ export default function GruposPage() {
         component='h1'
         gutterBottom
         align='left'
-        sx={{
-          fontFamily: 'MadaniArabic-Regular',
-        }}
       >
         Grupos
       </Typography>

@@ -2,6 +2,7 @@
 
 import { Box, Button } from '@mui/material';
 import { FileUploadOutlined, FileDownloadOutlined } from '@mui/icons-material';
+import { madaniArabicRegular } from '@/public/assets/fonts';
 
 export default function BottomActionButtons() {
   const customButtonStyles = {
@@ -32,6 +33,7 @@ export default function BottomActionButtons() {
         variant='outlined'
         startIcon={<FileUploadOutlined />}
         sx={customButtonStyles}
+        className={madaniArabicRegular.className}
         onClick={() => handleAction('Subir')}
       >
         Subir
@@ -40,6 +42,7 @@ export default function BottomActionButtons() {
         variant='outlined'
         startIcon={<FileDownloadOutlined />}
         sx={customButtonStyles}
+        className={madaniArabicRegular.className}
         onClick={() => handleAction('Descargar')}
       >
         Descargar

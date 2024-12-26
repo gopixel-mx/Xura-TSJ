@@ -74,7 +74,6 @@ export default async function DashboardPage() {
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
             maxWidth: '60%',
-            fontFamily: 'MadaniArabic-Regular',
           }}
         >
           Matrícula Febrero 2024
