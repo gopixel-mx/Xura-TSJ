@@ -73,7 +73,6 @@ export default function PanelCard() {
                   variant='h6'
                   sx={{
                     fontWeight: '500',
-                    fontFamily: 'MadaniArabic-Regular',
                     color: 'text.primary',
                   }}
                 >

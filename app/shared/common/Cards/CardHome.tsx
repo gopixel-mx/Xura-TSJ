@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import { ReactNode } from 'react';
 import Image from 'next/image';
 import {
   Paper,
@@ -7,10 +7,11 @@ import {
   Typography,
   PaperProps,
 } from '@mui/material';
+import { madaniArabicBold } from '@/public/assets/fonts';
 
 interface CardHomeProps extends PaperProps {
   title?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function CardHome({ title = '', children, ...props }: CardHomeProps) {
@@ -51,11 +52,11 @@ export default function CardHome({ title = '', children, ...props }: CardHomePro
         <Typography
           sx={{
             color: '#32169b',
-            fontFamily: 'MadaniArabic-Bold',
             fontSize: '24px',
             marginBottom: '8px',
             textAlign: 'center',
           }}
+          className={madaniArabicBold.className}
         >
           {title}
         </Typography>

@@ -37,7 +37,6 @@ const buttonStyles = {
   py: 1,
   px: 3,
   borderRadius: '8px',
-  fontFamily: 'MadaniArabic-SemiBold',
   textTransform: 'capitalize',
   fontSize: '0.875rem',
 };
@@ -172,7 +171,6 @@ export default function ModalPermisos({
           <Typography
             variant='h6'
             sx={{
-              fontFamily: 'MadaniArabic-Regular',
               color: '#32169b',
             }}
           >

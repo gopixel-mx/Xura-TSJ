@@ -12,7 +12,7 @@ export default function Navbar() {
   return (
     <AppBar position='fixed' sx={{ backgroundColor, width: '100%' }}>
       <Toolbar sx={{ minHeight: 64 }}>
-        <Link href='/dashboard' passHref>
+        <Link href='/panel' passHref>
           <Box sx={{
             display: 'flex', alignItems: 'center', cursor: 'pointer',
           }}

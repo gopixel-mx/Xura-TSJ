@@ -1,6 +1,6 @@
 import { Paper, Typography } from '@mui/material';
 import { TableAplicaciones } from '@/app/components/aplicaciones';
-import BottomActionButtons from '@/app/shared/common/Buttons/BottomActionButtons';
+import { BottomActionButtons } from '@/app/shared/common';
 
 export default function AplicacionesPage() {
   return (
@@ -10,9 +10,6 @@ export default function AplicacionesPage() {
         component='h1'
         gutterBottom
         align='left'
-        sx={{
-          fontFamily: 'MadaniArabic-Regular',
-        }}
       >
         Aplicaciones
       </Typography>

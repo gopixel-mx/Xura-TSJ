@@ -482,7 +482,6 @@ export default function ModalAddCnl({
             sx={{
               py: 1,
               px: 3,
-              fontFamily: 'MadaniArabic-SemiBold',
               textTransform: 'capitalize',
               borderRadius: '8px',
               backgroundColor: 'rgb(255, 77, 99)',
@@ -500,7 +499,6 @@ export default function ModalAddCnl({
               sx={{
                 py: 1,
                 px: 3,
-                fontFamily: 'MadaniArabic-SemiBold',
                 textTransform: 'capitalize',
                 borderRadius: '8px',
                 backgroundColor: '#32169b',

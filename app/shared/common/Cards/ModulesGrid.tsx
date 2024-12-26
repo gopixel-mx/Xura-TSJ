@@ -74,7 +74,7 @@ export default function ModulesGrid() {
                   <Box sx={{ mb: 1 }}>{module.icon}</Box>
                   <Typography
                     variant='h6'
-                    sx={{ fontWeight: '500', fontFamily: 'MadaniArabic-Regular' }}
+                    sx={{ fontWeight: '500' }}
                   >
                     {module.title}
                   </Typography>

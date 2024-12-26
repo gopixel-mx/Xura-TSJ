@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { CardHome } from '@/app/shared/common';
+import { madaniArabicSemiBold } from '@/public/assets/fonts';
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 const domain = process.env.NEXT_PUBLIC_URL;
@@ -90,7 +91,6 @@ export default function CardSetPassw({
         sx={{
           color: '#6b6b6b',
           textAlign: 'center',
-          fontFamily: 'MadaniArabic-Regular',
           opacity: 0.7,
           marginBottom: '24px',
         }}
@@ -143,7 +143,6 @@ export default function CardSetPassw({
           sx={{
             color: 'green',
             textAlign: 'center',
-            fontFamily: 'MadaniArabic-Regular',
             marginBottom: '24px',
           }}
         >
@@ -156,10 +155,10 @@ export default function CardSetPassw({
         sx={{
           cursor: 'pointer',
           color: '#0066cc',
-          fontFamily: 'MadaniArabic-SemiBold',
           textDecoration: 'underline',
           marginBottom: '24px',
         }}
+        className={madaniArabicSemiBold.className}
       >
         <Link href='/' color='inherit' underline='hover'>
           Regresar al inicio
@@ -174,7 +173,6 @@ export default function CardSetPassw({
         disabled={!password || !confirmPassword || password !== confirmPassword}
         sx={{
           py: 2,
-          fontFamily: 'MadaniArabic-SemiBold',
           textTransform: 'capitalize',
           borderRadius: '10px',
           backgroundColor: '#32169b',

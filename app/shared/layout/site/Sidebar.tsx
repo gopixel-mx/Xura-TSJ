@@ -95,7 +95,6 @@ export default function Sidebar() {
                 fontWeight: '500',
                 color: '#444',
                 ml: 2,
-                fontFamily: 'MadaniArabic-Regular',
               }}
             >
               {item.label}
@@ -133,7 +132,6 @@ export default function Sidebar() {
                   fontWeight: '500',
                   color: '#444',
                   ml: 2,
-                  fontFamily: 'MadaniArabic-Regular',
                 }}
               >
                 {item.label}

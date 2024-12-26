@@ -38,7 +38,6 @@ export default function DefaultModal({
           variant='h4'
           component='h2'
           sx={{
-            fontFamily: 'MadaniArabic-Regular',
             color: '#32169b',
           }}
         >
