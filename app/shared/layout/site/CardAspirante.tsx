@@ -235,7 +235,6 @@ export default function CardAspirante({
           onClick={handleConfirm}
           sx={{
             py: 2,
-            fontFamily: 'MadaniArabic-SemiBold',
             textTransform: 'capitalize',
             borderRadius: '10px',
             backgroundColor: '#32169b',
@@ -250,7 +249,6 @@ export default function CardAspirante({
           onClick={handleCancel}
           sx={{
             py: 2,
-            fontFamily: 'MadaniArabic-SemiBold',
             textTransform: 'capitalize',
             borderRadius: '10px',
             backgroundColor: 'rgb(255, 77, 99)',

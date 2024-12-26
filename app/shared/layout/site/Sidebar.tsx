@@ -1,111 +1,145 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Box, ListItemText } from '@mui/material';
+import { useState } from 'react';
+import { Box, Typography } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from '@mui/icons-material/Settings';
+import AppsOutlinedIcon from '@mui/icons-material/AppsOutlined';
+import WysiwygOutlinedIcon from '@mui/icons-material/WysiwygOutlined';
+import ContactMailOutlinedIcon from '@mui/icons-material/ContactMailOutlined';
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
+import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useRouter } from 'next/navigation';
+import { deleteRecord } from '@/app/shared/utils/apiUtils';
 import Link from 'next/link';
+import { useAuthContext } from '@/app/context/AuthContext';
 
-function Sidebar() {
+const menuItems = [
+  { icon: <HomeIcon />, label: 'Panel', link: '/panel' },
+  { icon: <AppsOutlinedIcon />, label: 'Aplicaciones', link: '/aplicaciones' },
+  { icon: <WysiwygOutlinedIcon />, label: 'Módulos', link: '/modulos' },
+  { icon: <ContactMailOutlinedIcon />, label: 'Credenciales', link: '/credenciales' },
+  { icon: <GroupsOutlinedIcon />, label: 'Grupos', link: '/grupos' },
+  { icon: <VpnKeyOutlinedIcon />, label: 'Roles', link: '/roles' },
+  {
+    icon: <LogoutIcon />,
+    label: 'Salir',
+    action: 'logout',
+    link: '/',
+  },
+];
+
+export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, setUser } = useAuthContext();
+  const router = useRouter();
 
-  const handleMouseEnter = () => {
-    setIsOpen(true);
-  };
+  const handleMouseEnter = () => setIsOpen(true);
+  const handleMouseLeave = () => setIsOpen(false);
 
-  const handleMouseLeave = () => {
-    setIsOpen(false);
+  const handleLogout = async () => {
+    await deleteRecord({ endpoint: `/sesiones/${user?.id}` });
+    setUser(null);
+    localStorage.removeItem('authToken');
+    router.push('/');
   };
 
   return (
     <Box
       sx={{
-        width: isOpen ? 250 : 60, // Cambia el ancho según el estado isOpen
+        width: isOpen ? 200 : 70,
         height: '100vh',
         position: 'fixed',
         top: 0,
         left: 0,
-        bgcolor: 'grey.200',
-        zIndex: 1000,
+        bgcolor: '#f5f5f5',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: isOpen ? 'flex-start' : 'center', // Alineación de íconos
+        transition: 'width 0.3s ease',
+        borderRight: '1px solid #ddd',
+        zIndex: 1,
         paddingTop: 8,
-        transition: 'width 0.3s ease-in-out', // Corregido, transición suave
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Íconos */}
-      <Link href='/dashboard' passHref>
+      {menuItems.map((item) => (item.action === 'logout' ? (
         <Box
+          key={item.label}
+          onClick={handleLogout}
           sx={{
             display: 'flex',
             alignItems: 'center',
             width: '100%',
             px: 2,
-            mt: 2,
-            color: 'black',
+            py: 2,
+            cursor: 'pointer',
+            transition: 'background-color 0.3s ease',
+            '&:hover': { bgcolor: '#e0e0e0' },
           }}
         >
-          <HomeIcon sx={{ cursor: 'pointer', mr: isOpen ? 2 : 0 }} />
-          {isOpen && <ListItemText primary='Home' sx={{ textDecoration: 'none' }} />}
-        </Box>
-      </Link>
-
-      <Link href='/' passHref>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            px: 2,
-            mt: 2,
-            color: 'black',
-          }}
-        >
-          <PersonIcon sx={{ cursor: 'pointer', mr: isOpen ? 2 : 0 }} />
+          <Box
+            sx={{
+              minWidth: 40,
+              color: '#444',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            {item.icon}
+          </Box>
           {isOpen && (
-            <ListItemText primary='Profile' sx={{ textDecoration: 'none' }} />
+            <Typography
+              sx={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#444',
+                ml: 2,
+              }}
+            >
+              {item.label}
+            </Typography>
           )}
         </Box>
-      </Link>
-
-      <Link href='/' passHref>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            px: 2,
-            mt: 2,
-            color: 'black',
-          }}
-        >
-          <SettingsIcon sx={{ cursor: 'pointer', mr: isOpen ? 2 : 0 }} />
-          {isOpen && <ListItemText primary='Settings' sx={{ textDecoration: 'none' }} />}
-        </Box>
-      </Link>
-
-      <Link href='/' passHref>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            px: 2,
-            mt: 2,
-            color: 'black',
-          }}
-        >
-          <LogoutIcon sx={{ cursor: 'pointer', mr: isOpen ? 2 : 0 }} />
-          {isOpen && <ListItemText primary='Logout' sx={{ textDecoration: 'none' }} />}
-        </Box>
-      </Link>
+      ) : (
+        <Link href={item.link} key={item.label} style={{ textDecoration: 'none' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              width: '100%',
+              px: 2,
+              py: 2,
+              cursor: 'pointer',
+              transition: 'background-color 0.3s ease',
+              '&:hover': { bgcolor: '#e0e0e0' },
+            }}
+          >
+            <Box
+              sx={{
+                minWidth: 40,
+                color: '#444',
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              {item.icon}
+            </Box>
+            {isOpen && (
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#444',
+                  ml: 2,
+                }}
+              >
+                {item.label}
+              </Typography>
+            )}
+          </Box>
+        </Link>
+      )))}
     </Box>
   );
 }
-
-export default Sidebar;

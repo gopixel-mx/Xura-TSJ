@@ -4,70 +4,50 @@
 
 @font-face {
     font-family: 'MadaniArabic-Black';
-    src: url('/public/fonts/MadaniArabicBlack.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicBlack.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MadaniArabic-Bold';
-    src: url('/public/fonts/MadaniArabicBold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicBold.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MadaniArabic-ExtraBold';
-    src: url('/public/fonts/MadaniArabicExtraBold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicExtraBold.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MadaniArabic-ExtraLight';
-    src: url('/public/fonts/MadaniArabicExtraLight.ttf') format('truetype');
-    font-weight: 300;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicExtraLight.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MadaniArabic-Light';
-    src: url('/public/fonts/MadaniArabicLight.ttf') format('truetype');
-    font-weight: 300;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicLight.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MadaniArabic-Medium';
-    src: url('/public/fonts/MadaniArabicMedium.ttf') format('truetype');
-    font-weight: 300;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicMedium.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MadaniArabic-Regular';
-    src: url('/public/fonts/MadaniArabicRegular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicRegular.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MadaniArabic-SemiBold';
-    src: url('/public/fonts/MadaniArabicSemiBold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicSemiBold.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MadaniArabic-Thin';
-    src: url('/public/fonts/MadaniArabicThin.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicThin.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MadaniArabicVariable';
-    src: url('/public/fonts/MadaniArabicVariable.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
+    src: url('../public/assets/font/MadaniArabicVariable.ttf') format('truetype');
 }

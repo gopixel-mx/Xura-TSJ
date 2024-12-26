@@ -8,6 +8,7 @@ import { PersonOutline, VisibilityOffOutlined, VisibilityOutlined } from '@mui/i
 import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 import { useAuthContext } from '@/app/context/AuthContext';
+import { madaniArabicRegular } from '@/public/assets/fonts';
 import SubmitNewLogin from './SubmitNewLogin';
 
 interface LoginPayload {
@@ -160,7 +161,6 @@ export default function LoginForm({
         sx={{
           cursor: 'pointer',
           textDecoration: 'underline',
-          fontFamily: 'MadaniArabic-Regular',
         }}
         onClick={onForgotPassword}
       >
@@ -173,7 +173,6 @@ export default function LoginForm({
         onClick={handleSubmit}
         sx={{
           py: 2,
-          fontFamily: 'MadaniArabic-SemiBold',
           textTransform: 'capitalize',
           borderRadius: '10px',
           backgroundColor: '#32169b',
@@ -197,7 +196,6 @@ export default function LoginForm({
             mx: 2,
             opacity: 0.7,
             whiteSpace: 'nowrap',
-            fontFamily: 'MadaniArabic-Regular',
           }}
         >
           O Ingresa con
@@ -210,13 +208,13 @@ export default function LoginForm({
         sx={{
           bgcolor: '#ffffff',
           padding: 2,
-          fontFamily: 'MadaniArabic-Regular',
           color: 'black',
           textTransform: 'capitalize',
           '&:hover': {
             backgroundColor: '#e0e0e0',
           },
         }}
+        className={madaniArabicRegular.className}
         startIcon={(
           <Image
             src='/google-icon-logo.svg'
@@ -231,7 +229,7 @@ export default function LoginForm({
         Google
       </Button>
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Typography sx={{ fontFamily: 'MadaniArabic-Regular', opacity: '70%' }}>
+        <Typography sx={{ opacity: '70%' }}>
           ¿No tienes una cuenta?
           {' '}
           <Typography
@@ -239,7 +237,6 @@ export default function LoginForm({
             color='primary'
             sx={{
               cursor: 'pointer',
-              fontFamily: 'MadaniArabic-SemiBold',
               color: '#32169b',
             }}
             onClick={onSwitchToRegister}

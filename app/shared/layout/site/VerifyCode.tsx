@@ -9,6 +9,7 @@ import { CardHome } from '@/app/shared/common/Cards';
 import { useAuthContext } from '@/app/context/AuthContext';
 import { parseJwt } from '@/app/shared/utils/getToken';
 import CardSetPassw from './CardSetPassw';
+import {madaniArabicSemiBold} from "@/public/assets/fonts";
 
 interface VerifyCodeProps {
   type: 'Auth' | 'Register' | 'Forgot';
@@ -124,7 +125,7 @@ export default function VerifyCode({
         const decodedToken = parseJwt(isValidData.token);
         const userDataWithToken = { ...decodedToken, token: isValidData.token };
         activateAuth(userDataWithToken);
-        router.push('/aplicaciones');
+        router.push('/panel');
       } else {
         setError(isValidData.message || 'Cuenta no está validada.');
       }
@@ -251,7 +252,6 @@ export default function VerifyCode({
         sx={{
           color: '#6b6b6b',
           textAlign: 'center',
-          fontFamily: 'MadaniArabic-Regular',
           opacity: 0.7,
           marginBottom: '24px',
         }}
@@ -278,7 +278,8 @@ export default function VerifyCode({
             inputProps={{
               inputMode: 'numeric',
               maxLength: 1,
-              style: { textAlign: 'center', height: '72px', fontFamily: 'MadaniArabic-SemiBold' },
+              style: { textAlign: 'center', height: '72px' },
+              className: madaniArabicSemiBold.className,
             }}
             sx={{
               width: '64px',
@@ -303,7 +304,6 @@ export default function VerifyCode({
           sx={{
             color: 'red',
             textAlign: 'center',
-            fontFamily: 'MadaniArabic-Regular',
             marginBottom: '24px',
           }}
         >
@@ -319,18 +319,18 @@ export default function VerifyCode({
       >
         <Typography
           sx={{
-            fontFamily: 'MadaniArabic-SemiBold',
             cursor: resendDisabled ? 'default' : 'pointer',
             color: resendDisabled ? '#aaa' : '#000',
             textDecoration: resendDisabled ? 'none' : 'underline',
             pointerEvents: resendDisabled ? 'none' : 'auto',
           }}
+          className={madaniArabicSemiBold.className}
           onClick={handleResendCode}
         >
           Reenviar código
         </Typography>
         {counter > 0 && (
-          <Typography sx={{ fontFamily: 'MadaniArabic-Regular' }}>
+          <Typography>
             {`${counter}:00 seg.`}
           </Typography>
         )}
@@ -341,7 +341,6 @@ export default function VerifyCode({
           sx={{
             cursor: 'pointer',
             color: '#0066cc',
-            fontFamily: 'MadaniArabic-Regular',
             textDecoration: 'underline',
             marginBottom: '24px',
           }}
@@ -360,7 +359,6 @@ export default function VerifyCode({
         fullWidth
         sx={{
           py: 2,
-          fontFamily: 'MadaniArabic-SemiBold',
           textTransform: 'capitalize',
           borderRadius: '10px',
           backgroundColor: '#32169b',

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import { Sidebar } from '@/app/shared/layout';
+// import { Sidebar } from '@/app/shared/layout';
 
 export const metadata: Metadata = {
   title: 'Aplicaciones',
@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 export default function AplicacionesLayout({ children }: { children: ReactNode }) {
   return (
     <div>
-      <Sidebar />
       {children}
     </div>
   );

@@ -1,8 +1,10 @@
 import { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import { Navbar } from '@/app/shared/layout';
-import { CssBaseline, Toolbar } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 import AuthProvider from '@/app/context/AuthProvider';
+import { MainLay } from '@/app/shared/layout';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from '@/app/shared/themes/fontTheme';
 
 export const metadata: Metadata = {
   title: 'Xura',
@@ -10,22 +12,17 @@ export const metadata: Metadata = {
   keywords: ['login, tsj'],
 };
 
-export default function RootLayout({ children }: {
-  children: ReactNode
-}) {
-  const isAuthenticated = true;
-  const userRole = 1;
-
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang='en'>
       <body>
         <AuthProvider>
           <CssBaseline />
-          <Navbar isAuthenticated={isAuthenticated} rol={userRole} />
-          <Toolbar />
-          <div>
-            {children}
-          </div>
+          <ThemeProvider theme={theme}>
+            <MainLay>
+              {children}
+            </MainLay>
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

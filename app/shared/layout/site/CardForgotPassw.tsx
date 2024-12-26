@@ -90,7 +90,6 @@ export default function CardForgotPassw() {
         sx={{
           color: '#6b6b6b',
           textAlign: 'center',
-          fontFamily: 'MadaniArabic-Regular',
           opacity: 0.7,
           marginBottom: '24px',
         }}
@@ -119,7 +118,6 @@ export default function CardForgotPassw() {
         sx={{
           cursor: 'pointer',
           color: '#0066cc',
-          fontFamily: 'MadaniArabic-SemiBold',
           textDecoration: 'underline',
           marginBottom: '24px',
         }}
@@ -135,7 +133,6 @@ export default function CardForgotPassw() {
         onClick={handleSendCode}
         sx={{
           py: 2,
-          fontFamily: 'MadaniArabic-SemiBold',
           textTransform: 'capitalize',
           borderRadius: '10px',
           backgroundColor: '#32169b',

@@ -232,7 +232,7 @@ export default function RegisterForm({
           checked={termsAccepted}
           onChange={onCheckboxChange}
         />
-        <Typography sx={{ fontFamily: 'MadaniArabic-Regular' }}>
+        <Typography>
           Acepto los
           {' '}
           <Link
@@ -242,7 +242,6 @@ export default function RegisterForm({
             color='primary'
             sx={{
               textDecoration: 'underline',
-              fontFamily: 'MadaniArabic-Regular',
             }}
           >
             términos y condiciones de privacidad
@@ -257,7 +256,6 @@ export default function RegisterForm({
         disabled={!termsAccepted || loading}
         sx={{
           py: 2,
-          fontFamily: 'MadaniArabic-SemiBold',
           textTransform: 'capitalize',
           borderRadius: '10px',
           backgroundColor: '#32169b',
