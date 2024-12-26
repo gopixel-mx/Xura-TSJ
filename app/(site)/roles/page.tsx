@@ -10,9 +10,6 @@ export default function RolesPage() {
         component='h1'
         gutterBottom
         align='left'
-        sx={{
-          fontFamily: 'MadaniArabic-Regular',
-        }}
       >
         Roles
       </Typography>

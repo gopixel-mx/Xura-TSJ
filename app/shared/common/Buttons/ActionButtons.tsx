@@ -11,6 +11,7 @@ import {
   BookmarkBorder,
   SellOutlined,
 } from '@mui/icons-material';
+import { madaniArabicRegular } from '@/public/assets/fonts';
 
 interface ActionButtonsProps {
   tableType: 'aplicaciones' | 'credenciales' | 'grupos' | 'modulos' | 'roles';
@@ -110,6 +111,7 @@ export default function ActionButtons({
             variant='outlined'
             startIcon={button.icon}
             sx={customButtonStyles}
+            className={madaniArabicRegular.className}
             onClick={() => onButtonClick(button.label)}
             disabled={button.disabled}
           >

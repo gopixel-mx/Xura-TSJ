@@ -10,9 +10,6 @@ export default function CredencialesPage() {
         component='h1'
         gutterBottom
         align='left'
-        sx={{
-          fontFamily: 'MadaniArabic-Regular',
-        }}
       >
         Credenciales
       </Typography>
