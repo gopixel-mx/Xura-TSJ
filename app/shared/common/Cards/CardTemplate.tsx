@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Paper, Typography } from '@mui/material';
+import { madaniArabicBold } from '@/public/assets/fonts';
 
 interface CardProps {
   title: string;
@@ -20,6 +21,12 @@ export default function CardTemplate({
         sx={{
           padding: 3,
           height: '100%',
+          borderRadius: '16px',
+          transition: 'transform 0.3s, box-shadow 0.3s',
+          '&:hover': {
+            transform: 'scale(1.03)',
+            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+          },
         }}
       >
         {image && (
@@ -44,9 +51,9 @@ export default function CardTemplate({
           )}
           <Typography
             gutterBottom
-            variant='h4'
-            component='div'
-            sx={{ fontSize: '2rem' }}
+            variant='h5'
+            className={madaniArabicBold.className}
+            sx={{ color: '#32129a' }}
           >
             {title}
           </Typography>

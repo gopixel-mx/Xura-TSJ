@@ -1,66 +1,51 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ColDef } from 'ag-grid-community';
-import { getMatriculaTotalUnidades } from '@/app/services/handlers/getMatricula';
 import { TableTemplate } from '@/app/shared/common';
+import { Box, Paper } from '@mui/material';
 
-// Definir la interfaz para los datos de la tabla
-interface UnidadData {
-  nombre: string;
-  cantidad: number;
+interface TableUnidadesProps {
+  datos: any[];
 }
 
-export default function TableUnidades() {
-  // Estado para los datos de la tabla
-  const [rowData, setRowData] = useState<UnidadData[]>([]);
+export default function TableUnidades({ datos }: TableUnidadesProps) {
+  const [rowData, setRowData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Obtener datos del endpoint
+  const colDefs: ColDef[] = useMemo(() => {
+    if (datos && datos.length > 0) {
+      return Object.keys(datos[0]).map((key) => ({
+        headerName: key.charAt(0).toUpperCase() + key.slice(1),
+        field: key,
+        flex: 1, // This will evenly distribute width among columns
+      }));
+    }
+    return [];
+  }, [datos]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getMatriculaTotalUnidades();
-        setRowData(data);
+        setRowData(datos);
         setLoading(false);
       } catch (error) {
         setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [datos]);
 
-  // Definir las columnas para AG Grid
-  const colDefs: ColDef[] = [
-    {
-      headerName: '#',
-      valueGetter: 'node.rowIndex + 1', // Calcula el índice de la fila + 1
-      width: 70,
-      pinned: 'left', // Fija la columna a la izquierda
-    },
-    {
-      field: 'nombre',
-      headerName: 'Unidad Académica',
-      sortable: true,
-      filter: true,
-      flex: 1,
-    },
-    {
-      field: 'cantidad',
-      headerName: 'Cantidad',
-      sortable: true,
-      filter: true,
-      flex: 1,
-    },
-  ];
-
-  // Renderizar el componente TableTemplate
   return (
-    <TableTemplate
-      rowData={rowData} // Pasar los datos
-      colDefs={colDefs} // Pasar las definiciones de columnas
-      pageSize={20} // Número de filas por página
-      loading={loading} // Pasar el estado de carga
-    />
+    <Box sx={{ width: '100%', padding: 3 }}>
+      <Paper elevation={3} sx={{ padding: 2, height: '100%' }}>
+        {' '}
+        <TableTemplate
+          rowData={rowData}
+          colDefs={colDefs}
+          loading={loading}
+        />
+      </Paper>
+    </Box>
   );
 }

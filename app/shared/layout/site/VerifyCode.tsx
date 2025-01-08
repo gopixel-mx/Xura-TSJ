@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation';
 import { CardHome } from '@/app/shared/common/Cards';
 import { useAuthContext } from '@/app/context/AuthContext';
 import { parseJwt } from '@/app/shared/utils/getToken';
+import { madaniArabicSemiBold } from '@/public/assets/fonts';
 import CardSetPassw from './CardSetPassw';
-import {madaniArabicSemiBold} from "@/public/assets/fonts";
 
 interface VerifyCodeProps {
   type: 'Auth' | 'Register' | 'Forgot';
