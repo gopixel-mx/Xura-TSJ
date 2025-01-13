@@ -345,7 +345,6 @@ export default function TableCredenciales() {
         onSubmit={handleSaveCredencial}
         mode={modalMode}
         selectedData={selectedRowData}
-        onCurpVerified={(data) => console.log('Datos CURP verificados:', data)}
       />
       <ModalCancelar
         open={openCancelModal}

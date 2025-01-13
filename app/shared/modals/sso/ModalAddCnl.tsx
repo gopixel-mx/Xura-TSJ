@@ -79,8 +79,6 @@ interface ModalAddCnlProps {
   selectedData?: AplicacionData | CredencialData | null;
   // eslint-disable-next-line no-unused-vars
   onSubmit: (data: Record<string, string | string[]>) => Promise<void>;
-  // eslint-disable-next-line no-unused-vars
-  onCurpVerified?: (data: Record<string, string>) => void;
   type?: 'modulos' | 'aplicaciones' | 'credenciales';
 }
 
@@ -93,7 +91,6 @@ export default function ModalAddCnl({
   selectedData = null,
   onSubmit,
   type,
-  onCurpVerified,
 }: ModalAddCnlProps) {
   const [formValues, setFormValues] = useState<Record<string, string | string[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -214,15 +211,6 @@ export default function ModalAddCnl({
       }));
       setErrors((prev) => ({ ...prev, curp: '' }));
       setCurpVerified(true);
-
-      onCurpVerified?.({
-        curp,
-        nombre: Nombre,
-        primerApellido: ApellidoPaterno,
-        segundoApellido: ApellidoMaterno,
-        fechaNacimiento: FechaNacimiento,
-        numEntidadReg: NumEntidadReg,
-      });
     } catch {
       setErrors((prev) => ({ ...prev, curp: 'Error al verificar la CURP.' }));
     } finally {
