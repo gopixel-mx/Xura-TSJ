@@ -9,6 +9,7 @@ import { CardHome } from '@/app/shared/common/Cards';
 import { useAuthContext } from '@/app/context/AuthContext';
 import { parseJwt } from '@/app/shared/utils/getToken';
 import { madaniArabicSemiBold } from '@/public/assets/fonts';
+import { deleteRecord } from '@/app/shared/utils/apiUtils';
 import CardSetPassw from './CardSetPassw';
 
 interface VerifyCodeProps {
@@ -124,6 +125,7 @@ export default function VerifyCode({
       if (isValidData.token) {
         const decodedToken = parseJwt(isValidData.token);
         const userDataWithToken = { ...decodedToken, token: isValidData.token };
+        deleteRecord({ endpoint: `/${credencial}/codigos` });
         activateAuth(userDataWithToken);
         router.push('/panel');
       } else {

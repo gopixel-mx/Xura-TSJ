@@ -8,6 +8,8 @@ import {
   MenuItem,
   Select,
   Typography,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import { Close, Add } from '@mui/icons-material';
 import { getData, updateRecord } from '@/app/shared/utils/apiUtils';
@@ -39,6 +41,7 @@ const buttonStyles = {
   borderRadius: '8px',
   textTransform: 'capitalize',
   fontSize: '0.875rem',
+  margin: '0 5px',
 };
 
 export default function ModalPermisos({
@@ -55,6 +58,13 @@ export default function ModalPermisos({
   }>({});
   const [loading, setLoading] = useState<boolean>(false);
   const { setNoti } = useAuthContext();
+  const [columnChecks, setColumnChecks] = useState<{ [action: string]: boolean }>({
+    Crear: false,
+    Consultar: false,
+    Actualizar: false,
+    Eliminar: false,
+    Subir: false,
+  });
 
   useEffect(() => {
     const fetchPermisos = async () => {
@@ -86,8 +96,31 @@ export default function ModalPermisos({
     if (selectedApp !== null) {
       const modules = permisos.filter((permiso) => permiso.idAplicacion === selectedApp);
       setFilteredModules(modules);
+      setColumnChecks({
+        Crear: false,
+        Consultar: false,
+        Actualizar: false,
+        Eliminar: false,
+        Subir: false,
+      });
+      setUpdatedPermisos({});
     }
   }, [selectedApp, permisos]);
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedApp(null);
+      setFilteredModules([]);
+      setColumnChecks({
+        Crear: false,
+        Consultar: false,
+        Actualizar: false,
+        Eliminar: false,
+        Subir: false,
+      });
+      setUpdatedPermisos({});
+    }
+  }, [open]);
 
   const handleSave = async () => {
     try {
@@ -120,6 +153,26 @@ export default function ModalPermisos({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectAll = (action: string, checked: boolean) => {
+    const newValue = checked ? 1 : 0;
+    const updatedModules = filteredModules.map((module) => ({
+      ...module,
+      [action]: newValue,
+    }));
+    setFilteredModules(updatedModules);
+
+    const updatedPermisosMap = updatedModules.reduce((acc, module) => {
+      acc[module.idModulo] = {
+        ...(updatedPermisos[module.idModulo] || {}),
+        [action]: newValue,
+      };
+      return acc;
+    }, {} as { [key: number]: { [action: string]: number } });
+
+    setUpdatedPermisos(updatedPermisosMap);
+    setColumnChecks((prev) => ({ ...prev, [action]: checked }));
   };
 
   const colDefs = [
@@ -169,7 +222,6 @@ export default function ModalPermisos({
       ) : (
         <Box>
           <Typography
-            variant='h6'
             sx={{
               color: '#32169b',
             }}
@@ -190,15 +242,37 @@ export default function ModalPermisos({
             ))}
           </Select>
           {selectedApp !== null && (
-            <Box sx={{ width: '100%', overflowX: 'auto' }}>
-              <TableTemplate
-                rowData={filteredModules}
-                colDefs={colDefs}
-                pageSize={20}
-                loading={loading}
-                height={350}
-              />
-            </Box>
+            <>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: '15px',
+                }}
+              >
+                {['Crear', 'Consultar', 'Actualizar', 'Eliminar', 'Subir'].map((action) => (
+                  <FormControlLabel
+                    key={action}
+                    control={(
+                      <Checkbox
+                        checked={columnChecks[action] || false}
+                        onChange={(e) => handleSelectAll(action, e.target.checked)}
+                      />
+                    )}
+                    label={action}
+                  />
+                ))}
+              </Box>
+              <Box sx={{ width: '100%', overflowX: 'auto' }}>
+                <TableTemplate
+                  rowData={filteredModules}
+                  colDefs={colDefs}
+                  pageSize={20}
+                  loading={loading}
+                  height={350}
+                />
+              </Box>
+            </>
           )}
           <Box
             sx={{

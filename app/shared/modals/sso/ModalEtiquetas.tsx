@@ -1,29 +1,33 @@
-import { KeyboardEvent, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Button,
   Box,
-  TextField,
   Chip,
+  Autocomplete,
+  TextField,
   InputAdornment,
 } from '@mui/material';
-import {
-  Close, Add, BookmarkBorder,
-} from '@mui/icons-material';
+import { Close, Add, BookmarkBorder } from '@mui/icons-material';
 import { updateRecord, getData } from '@/app/shared/utils/apiUtils';
 import DefaultModal from '../DefaultModal';
 
 interface ModalEtiquetasProps {
   open: boolean;
   onClose: () => void;
-  selectedCredencial: { idCredencial: string; } | null;
+  selectedCredencial: { idCredencial: string } | null;
   onSave: () => void;
 }
 
 interface EtiquetaData {
-  idEtiqueta?: number;
-  idGrupo?: number;
+  idEtiqueta: number;
   nombre: string;
-  estado?: string;
+}
+
+interface AsociacionData {
+  idAsociacion: number;
+  idCredencial: string;
+  idEtiqueta: number;
+  nombre: string;
 }
 
 export default function ModalEtiquetas({
@@ -32,8 +36,10 @@ export default function ModalEtiquetas({
   selectedCredencial,
   onSave,
 }: ModalEtiquetasProps) {
-  const [etiqueta, setEtiqueta] = useState('');
   const [etiquetas, setEtiquetas] = useState<EtiquetaData[]>([]);
+  const [selectedEtiquetas, setSelectedEtiquetas] = useState<EtiquetaData[]>([]);
+  const [removedEtiquetas, setRemovedEtiquetas] = useState<EtiquetaData[]>([]);
+  const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -44,50 +50,78 @@ export default function ModalEtiquetas({
           const { data } = await getData({
             endpoint: `/credenciales/${selectedCredencial.idCredencial}/etiquetas`,
           });
-
-          if (data && Array.isArray(data)) {
-            const activeEtiquetas = data.filter((etq: EtiquetaData) => etq.estado === 'Activo');
-            setEtiquetas(activeEtiquetas);
-          } else {
-            setEtiquetas([]);
-          }
+          const etiquet = Array.isArray(data)
+            ? data.map((etq: AsociacionData) => ({
+              idEtiqueta: etq.idEtiqueta,
+              nombre: etq.nombre,
+            }))
+            : [];
+          setSelectedEtiquetas(etiquet);
         } catch (error) {
-          setEtiquetas([]);
+          setSelectedEtiquetas([]);
         } finally {
           setLoading(false);
         }
       }
     };
 
-    fetchEtiquetas();
+    const fetchCatalogoEtiquetas = async () => {
+      try {
+        const { data } = await getData({ endpoint: '/credenciales/etiquetas' });
+        setEtiquetas(Array.isArray(data) ? data : []);
+      } catch (error) {
+        setEtiquetas([]);
+      }
+    };
+
+    if (open) {
+      fetchEtiquetas();
+      fetchCatalogoEtiquetas();
+    }
   }, [open, selectedCredencial]);
 
-  const handleAddEtiqueta = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && etiqueta.trim()) {
-      e.preventDefault();
-      if (!etiquetas.some((etq) => etq.nombre === etiqueta.trim())) {
-        setEtiquetas([...etiquetas, { nombre: etiqueta.trim(), estado: 'Activo' }]);
-      }
-      setEtiqueta('');
+  const handleAddEtiqueta = (etiqueta: EtiquetaData) => {
+    if (!selectedEtiquetas.some((etq) => etq.idEtiqueta === etiqueta.idEtiqueta)) {
+      setSelectedEtiquetas([...selectedEtiquetas, etiqueta]);
     }
+    setInputValue('');
   };
 
-  const handleRemoveEtiqueta = (etiquetaToRemove: string) => {
-    setEtiquetas(etiquetas.filter((etq) => etq.nombre !== etiquetaToRemove));
+  const handleRemoveEtiqueta = (idEtiqueta: number) => {
+    const etiquetaToRemove = selectedEtiquetas.find(
+      (etq) => etq.idEtiqueta === idEtiqueta,
+    );
+    if (etiquetaToRemove) {
+      setRemovedEtiquetas([...removedEtiquetas, etiquetaToRemove]);
+      setSelectedEtiquetas(
+        selectedEtiquetas.filter((etq) => etq.idEtiqueta !== idEtiqueta),
+      );
+    }
   };
 
   const handleSave = async () => {
     if (selectedCredencial) {
-      const endpoint = `/credenciales/${selectedCredencial.idCredencial}/etiquetas`;
-      const etiquetasData = etiquetas.map((etq) => etq.nombre).join(',');
+      const addedPayload = selectedEtiquetas.map((etq) => ({
+        seleccionado: 1,
+        idEtiqueta: etq.idEtiqueta.toString(),
+      }));
+      const removedPayload = removedEtiquetas.map((etq) => ({
+        seleccionado: 0,
+        idEtiqueta: etq.idEtiqueta.toString(),
+      }));
+
+      const payload = [...addedPayload, ...removedPayload];
 
       try {
         setLoading(true);
-        await updateRecord({ endpoint, data: { etiquetas: etiquetasData } });
+        await updateRecord({
+          endpoint: `/credenciales/${selectedCredencial.idCredencial}/etiquetas`,
+          data: payload,
+        });
         onSave();
         onClose();
       } catch (error) {
-        console.error('Error saving etiquetas:', error);
+        setEtiquetas([]);
       } finally {
         setLoading(false);
       }
@@ -97,23 +131,31 @@ export default function ModalEtiquetas({
   return (
     <DefaultModal open={open} onClose={onClose} title='Administrar Etiquetas'>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <TextField
-            label='Etiqueta'
-            value={etiqueta}
-            onChange={(e) => setEtiqueta(e.target.value)}
-            onKeyDown={handleAddEtiqueta}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position='end'>
-                  <BookmarkBorder />
-                </InputAdornment>
-              ),
-            }}
-            fullWidth
-          />
-        </Box>
-
+        <Autocomplete
+          options={etiquetas}
+          getOptionLabel={(option) => option.nombre}
+          isOptionEqualToValue={(option, value) => option.idEtiqueta === value.idEtiqueta}
+          inputValue={inputValue}
+          onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+          onChange={(event, newValue) => {
+            if (newValue) handleAddEtiqueta(newValue);
+          }}
+          renderInput={(params) => (
+            <TextField
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...params}
+              label='Etiqueta'
+              inputProps={{
+                ...params.inputProps,
+                endAdornment: (
+                  <InputAdornment position='end'>
+                    <BookmarkBorder />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+        />
         <Box
           sx={{
             display: 'flex',
@@ -122,12 +164,12 @@ export default function ModalEtiquetas({
             mt: 2,
           }}
         >
-          {etiquetas.map((etq) => (
+          {selectedEtiquetas.map((etq) => (
             <Chip
-              key={etq.nombre}
+              key={etq.idEtiqueta}
               label={etq.nombre}
               variant='outlined'
-              onDelete={() => handleRemoveEtiqueta(etq.nombre)}
+              onDelete={() => handleRemoveEtiqueta(etq.idEtiqueta)}
               deleteIcon={(
                 <Close
                   sx={{
@@ -180,7 +222,7 @@ export default function ModalEtiquetas({
             color='primary'
             onClick={handleSave}
             startIcon={<Add />}
-            disabled={!etiquetas.length || loading}
+            disabled={loading}
             sx={{
               py: 1,
               px: 3,

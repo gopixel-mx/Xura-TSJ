@@ -10,7 +10,6 @@ import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useRouter } from 'next/navigation';
-import { deleteRecord } from '@/app/shared/utils/apiUtils';
 import Link from 'next/link';
 import { useAuthContext } from '@/app/context/AuthContext';
 
@@ -31,14 +30,13 @@ const menuItems = [
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, setUser } = useAuthContext();
+  const { setUser } = useAuthContext();
   const router = useRouter();
 
   const handleMouseEnter = () => setIsOpen(true);
   const handleMouseLeave = () => setIsOpen(false);
 
   const handleLogout = async () => {
-    await deleteRecord({ endpoint: `/sesiones/${user?.id}` });
     setUser(null);
     localStorage.removeItem('authToken');
     router.push('/');
